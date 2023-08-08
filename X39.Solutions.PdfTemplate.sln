@@ -1,0 +1,38 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "source", "source", "{E290E22A-D697-4B30-A067-AF972686C3B5}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "files", "files", "{A16F2F3F-BF45-4A18-8E4A-31B800226E47}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+		.gitignore = .gitignore
+		LICENSE = LICENSE
+		README.md = README.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{578183F3-B424-4D0B-9B6B-1F22FBDB80C8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "X39.Solutions.PdfTemplate", "source\X39.Solutions.PdfTemplate\X39.Solutions.PdfTemplate.csproj", "{C62AB41B-AC9D-4946-84D7-A22A63B28CF0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "X39.Solutions.PdfTemplate.Test", "test\X39.Solutions.PdfTemplate.Test\X39.Solutions.PdfTemplate.Test.csproj", "{54D29B97-100B-4494-BA96-DF9CBA107F8B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C62AB41B-AC9D-4946-84D7-A22A63B28CF0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C62AB41B-AC9D-4946-84D7-A22A63B28CF0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C62AB41B-AC9D-4946-84D7-A22A63B28CF0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C62AB41B-AC9D-4946-84D7-A22A63B28CF0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{54D29B97-100B-4494-BA96-DF9CBA107F8B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{54D29B97-100B-4494-BA96-DF9CBA107F8B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{54D29B97-100B-4494-BA96-DF9CBA107F8B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{54D29B97-100B-4494-BA96-DF9CBA107F8B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{C62AB41B-AC9D-4946-84D7-A22A63B28CF0} = {E290E22A-D697-4B30-A067-AF972686C3B5}
+		{54D29B97-100B-4494-BA96-DF9CBA107F8B} = {578183F3-B424-4D0B-9B6B-1F22FBDB80C8}
+	EndGlobalSection
+EndGlobal
