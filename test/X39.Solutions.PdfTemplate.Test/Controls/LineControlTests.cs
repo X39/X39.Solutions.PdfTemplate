@@ -24,7 +24,7 @@ public class LineControlTests
     [InlineData(EHorizontalAlignment.Right, EVerticalAlignment.Bottom, EOrientation.Vertical, 0.5F, ELengthMode.Percent, 0.1F, ELengthMode.Percent, new[] {10F, 100F}, new[] {1.0F, 50.0F}, new[] {1.0F, 50.0F}, new[] {9.5F, 50F, 9.5F, 100F})]
     [InlineData(EHorizontalAlignment.Right, EVerticalAlignment.Bottom, EOrientation.Vertical, 50.0F, ELengthMode.Pixel, 1.0F, ELengthMode.Pixel, new[] {10F, 100F}, new[] {1.0F, 50.0F}, new[] {1.0F, 50.0F}, new[] {9.5F, 50F, 9.5F, 100F})]
     // @formatter:max_line_length restore
-    public void DrawRendersAsExpected(
+    public void DrawLineTests(
         EHorizontalAlignment horizontalAlignment,
         EVerticalAlignment verticalAlignment,
         EOrientation orientation,
@@ -69,5 +69,116 @@ public class LineControlTests
             expectedStartY,
             expectedEndX,
             expectedEndY);
+    }
+
+    [Theory]
+    [InlineData(EOrientation.Horizontal)]
+    [InlineData(EOrientation.Vertical)]
+    public void PaddingIsApplied(EOrientation orientation)
+    {
+        var mock = new CanvasMock();
+        var lineControl = new LineControl
+        {
+            Color               = Colors.Green,
+            HorizontalAlignment = EHorizontalAlignment.Stretch,
+            VerticalAlignment   = EVerticalAlignment.Stretch,
+            Margin              = new Thickness(),
+            Padding             = new Thickness(new Length(10F, ELengthMode.Pixel)),
+            Orientation         = orientation,
+            Length              = new Length(1F, ELengthMode.Percent),
+            Clip                = false,
+            Thickness           = new Length(1, ELengthMode.Pixel),
+        };
+        var pageBounds = new Size(1000, 1000);
+        var measure = new Size(orientation == EOrientation.Horizontal ? 1000F : 21F, orientation == EOrientation.Horizontal ? 21F : 1000F);
+        var arrange = new Size(orientation == EOrientation.Horizontal ? 1000F : 21F, orientation == EOrientation.Horizontal ? 21F : 1000F);
+        Assert.Equal(measure, lineControl.Measure(pageBounds, CultureInfo.InvariantCulture));
+        Assert.Equal(arrange, lineControl.Arrange(pageBounds, CultureInfo.InvariantCulture));
+        lineControl.Render(mock, pageBounds, CultureInfo.InvariantCulture);
+        mock.AssertState();
+        mock.AssertDrawLine(
+            Colors.Green,
+            lineControl.Thickness.ToPixels(
+                orientation == EOrientation.Horizontal
+                    ? pageBounds.Height
+                    : pageBounds.Width),
+            orientation == EOrientation.Horizontal ? 10F : 10.5F,
+            orientation == EOrientation.Horizontal ? 10.5F : 10F,
+            orientation == EOrientation.Horizontal ? 990F : 10.5F,
+            orientation == EOrientation.Horizontal ? 10.5F : 990F);
+    }
+
+    [Theory]
+    [InlineData(EOrientation.Horizontal)]
+    [InlineData(EOrientation.Vertical)]
+    public void MarginIsApplied(EOrientation orientation)
+    {
+        var mock = new CanvasMock();
+        var lineControl = new LineControl
+        {
+            Color               = Colors.Green,
+            HorizontalAlignment = EHorizontalAlignment.Stretch,
+            VerticalAlignment   = EVerticalAlignment.Stretch,
+            Margin              = new Thickness(new Length(10F, ELengthMode.Pixel)),
+            Padding             = new Thickness(),
+            Orientation         = orientation,
+            Length              = new Length(1F, ELengthMode.Percent),
+            Clip                = false,
+            Thickness           = new Length(1, ELengthMode.Pixel),
+        };
+        var pageBounds = new Size(1000, 1000);
+        var measure = new Size(orientation == EOrientation.Horizontal ? 1000F : 21F, orientation == EOrientation.Horizontal ? 21F : 1000F);
+        var arrange = new Size(orientation == EOrientation.Horizontal ? 1000F : 21F, orientation == EOrientation.Horizontal ? 21F : 1000F);
+        Assert.Equal(measure, lineControl.Measure(pageBounds, CultureInfo.InvariantCulture));
+        Assert.Equal(arrange, lineControl.Arrange(pageBounds, CultureInfo.InvariantCulture));
+        lineControl.Render(mock, pageBounds, CultureInfo.InvariantCulture);
+        mock.AssertState();
+        mock.AssertDrawLine(
+            Colors.Green,
+            lineControl.Thickness.ToPixels(
+                orientation == EOrientation.Horizontal
+                    ? pageBounds.Height
+                    : pageBounds.Width),
+            orientation == EOrientation.Horizontal ? 10F : 10.5F,
+            orientation == EOrientation.Horizontal ? 10.5F : 10F,
+            orientation == EOrientation.Horizontal ? 990F : 10.5F,
+            orientation == EOrientation.Horizontal ? 10.5F : 990F);
+    }
+
+    [Theory]
+    [InlineData(EOrientation.Horizontal)]
+    [InlineData(EOrientation.Vertical)]
+    public void MarginAndPaddingBothAreApplied(EOrientation orientation)
+    {
+        var mock = new CanvasMock();
+        var lineControl = new LineControl
+        {
+            Color               = Colors.Green,
+            HorizontalAlignment = EHorizontalAlignment.Stretch,
+            VerticalAlignment   = EVerticalAlignment.Stretch,
+            Margin              = new Thickness(new Length(10F, ELengthMode.Pixel)),
+            Padding             = new Thickness(new Length(10F, ELengthMode.Pixel)),
+            Orientation         = orientation,
+            Length              = new Length(1F, ELengthMode.Percent),
+            Clip                = false,
+            Thickness           = new Length(1, ELengthMode.Pixel),
+        };
+        var pageBounds = new Size(1000, 1000);
+        var measure = new Size(orientation == EOrientation.Horizontal ? 1000F : 41F, orientation == EOrientation.Horizontal ? 41F : 1000F);
+        var arrange = new Size(orientation == EOrientation.Horizontal ? 1000F : 41F, orientation == EOrientation.Horizontal ? 41F : 1000F);
+        Assert.Equal(measure, lineControl.Measure(pageBounds, CultureInfo.InvariantCulture));
+        Assert.Equal(arrange, lineControl.Arrange(pageBounds, CultureInfo.InvariantCulture));
+        lineControl.Render(mock, pageBounds, CultureInfo.InvariantCulture);
+        mock.AssertState();
+        mock.AssertDrawLine(
+            Colors.Green,
+            lineControl.Thickness.ToPixels(
+                orientation == EOrientation.Horizontal
+                    ? pageBounds.Height
+                    : pageBounds.Width),
+            orientation == EOrientation.Horizontal ? 20F : 20.5F,
+            orientation == EOrientation.Horizontal ? 20.5F : 20F,
+            orientation == EOrientation.Horizontal ? 980F : 20.5F,
+            orientation == EOrientation.Horizontal ? 20.5F : 980F);
     }
 }

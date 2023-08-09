@@ -34,11 +34,10 @@ public class XmlStyleInformation
     /// <param name="controlNamespace">The namespace of the control.</param>
     /// <param name="attributes">The attributes of the control.</param>
     /// <exception cref="XmlException">Thrown when a style definition for the given control name and namespace already exists.</exception>
-    public void Add(IXmlLineInfo xmlLineInfo, string controlName, string controlNamespace, IReadOnlyDictionary<string,string> attributes)
+    public void Set(IXmlLineInfo xmlLineInfo, string controlName, string controlNamespace, IReadOnlyDictionary<string,string> attributes)
     {
-        if (_contents.ContainsKey((controlName, controlNamespace)))
-            throw new XmlException($"Duplicate style definition for {controlNamespace}:{controlName} at L{xmlLineInfo.LineNumber}:C{xmlLineInfo.LinePosition}.");
-        _contents.Add((controlName, controlNamespace), attributes);
+        var key = (controlName, controlNamespace);
+        _contents[key] = attributes;
     }
     
     /// <summary>

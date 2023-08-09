@@ -98,18 +98,23 @@ public sealed class Generator : IDisposable, IAsyncDisposable
         
         // ToDo: Implement page splitting
         var pageCount = (int) Math.Ceiling(desiredHeight / pageSize.Height);
+        var sizes = new List<Size>();
         foreach (var control in template.HeaderControls.Concat(template.BodyControls).Concat(template.FooterControls))
         {
             var size = control.Arrange(pageSize, cultureInfo);
+            sizes.Add(size);
         }
 
         // ToDo: Generate pages
         using var canvas = skDocument.BeginPage(pageSize.Width, pageSize.Height);
+        canvas.Save();
         var canvasAbstraction = new CanvasImpl(_skPaintCache, canvas);
-        foreach (var control in template.HeaderControls.Concat(template.BodyControls).Concat(template.FooterControls))
+        foreach (var (control, size) in template.HeaderControls.Concat(template.BodyControls).Concat(template.FooterControls).Zip(sizes))
         {
             control.Render(canvasAbstraction, pageSize, cultureInfo);
+            canvas.Translate(0F, size.Height);
         }
+        canvas.Restore();
         canvas.Flush();
         skDocument.EndPage();
         skDocument.Close();

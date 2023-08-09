@@ -148,23 +148,25 @@ public abstract class Control : IControl
         var padding = Padding.ToRectangle(availableSize);
         var margin = Margin.ToRectangle(availableSize);
         var measureResult = DoMeasure(
-            availableSize - padding - margin,
+            new Size(
+                availableSize.Width - padding.Width - padding.Width - margin.Width - margin.Width,
+                availableSize.Height - padding.Height - padding.Height - margin.Height - margin.Height),
             cultureInfo);
         MeasurementOuter = new Rectangle(
             0,
             0,
-            measureResult.Width + margin.Width,
-            measureResult.Height + margin.Height);
+            measureResult.Width + padding.Width + padding.Width + margin.Width + margin.Width,
+            measureResult.Height + padding.Height + padding.Height + margin.Height + margin.Height);
         Measurement = new Rectangle(
-            MeasurementOuter.Left + margin.Left,
-            MeasurementOuter.Top + margin.Top,
-            MeasurementOuter.Width - margin.Width,
-            MeasurementOuter.Height - margin.Height);
+            margin.Left,
+            margin.Top,
+            measureResult.Width + padding.Width + padding.Width,
+            measureResult.Height + padding.Height + padding.Height);
         MeasurementInner = new Rectangle(
-            Measurement.Left + padding.Left,
-            Measurement.Top + padding.Top,
-            Measurement.Width - padding.Width,
-            Measurement.Height - padding.Height);
+            margin.Left + padding.Left,
+            margin.Top + padding.Top,
+            measureResult.Width,
+            measureResult.Height);
         return MeasurementOuter;
     }
 
@@ -181,23 +183,25 @@ public abstract class Control : IControl
         var padding = Padding.ToRectangle(finalSize);
         var margin = Margin.ToRectangle(finalSize);
         var measureResult = DoArrange(
-            finalSize - padding - margin,
+            new Size(
+                finalSize.Width - padding.Width - padding.Width - margin.Width - margin.Width,
+                finalSize.Height - padding.Height - padding.Height - margin.Height - margin.Height),
             cultureInfo);
         ArrangementOuter = new Rectangle(
             0,
             0,
-            measureResult.Width + margin.Width,
-            measureResult.Height + margin.Height);
+            measureResult.Width + padding.Width + padding.Width + margin.Width + margin.Width,
+            measureResult.Height + padding.Height + padding.Height + margin.Height + margin.Height);
         Arrangement = new Rectangle(
-            ArrangementOuter.Left + margin.Left,
-            ArrangementOuter.Top + margin.Top,
-            ArrangementOuter.Width - margin.Width,
-            ArrangementOuter.Height - margin.Height);
+            margin.Left,
+            margin.Top,
+            measureResult.Width + padding.Width + padding.Width,
+            measureResult.Height + padding.Height + padding.Height);
         ArrangementInner = new Rectangle(
-            Arrangement.Left + padding.Left,
-            Arrangement.Top + padding.Top,
-            Arrangement.Width - padding.Width,
-            Arrangement.Height - padding.Height);
+            margin.Left + padding.Left,
+            margin.Top + padding.Top,
+            measureResult.Width,
+            measureResult.Height);
         return ArrangementOuter;
     }
 
@@ -212,14 +216,19 @@ public abstract class Control : IControl
         in Size parentSize,
         CultureInfo cultureInfo)
     {
+        var padding = Padding.ToRectangle(parentSize);
+        var margin = Margin.ToRectangle(parentSize);
         canvas.PushState();
         try
         {
             if (Clip)
                 canvas.ClipRect(Arrangement);
             canvas.Translate(ArrangementInner);
-            PreRender(canvas, parentSize, cultureInfo);
-            DoRender(canvas, parentSize, cultureInfo);
+            var arrangedSize = new Size(
+                parentSize.Width - padding.Width - padding.Width - margin.Width - margin.Width,
+                parentSize.Height - padding.Height - padding.Height - margin.Height - margin.Height);
+            PreRender(canvas, arrangedSize, cultureInfo);
+            DoRender(canvas, arrangedSize, cultureInfo);
         }
         finally
         {

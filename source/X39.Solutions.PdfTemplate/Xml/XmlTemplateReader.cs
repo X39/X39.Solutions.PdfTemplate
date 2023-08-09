@@ -110,7 +110,7 @@ public class XmlTemplateReader
 
             reader.ReadStartElement();
             reader.MoveToContent();
-            style.Add((IXmlLineInfo) reader, controlName, controlNamespace, attributes);
+            style.Set((IXmlLineInfo) reader, controlName, controlNamespace, attributes);
         }
 
         reader.ReadEndElement();

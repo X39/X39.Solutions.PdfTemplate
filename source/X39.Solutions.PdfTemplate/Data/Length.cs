@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 
 namespace X39.Solutions.PdfTemplate.Data;
@@ -6,11 +7,9 @@ namespace X39.Solutions.PdfTemplate.Data;
 /// <summary>
 /// Defines a size with a value and a <see cref="ELengthMode"/>
 /// </summary>
-/// <param name="Value">The value of the size</param>
-/// <param name="LengthMode">The size mode, indicating how the value should be interpreted</param>
 [TypeConverter(typeof(LengthConverter))]
 [PublicAPI]
-public readonly record struct Length(float Value, ELengthMode LengthMode) : ISpanParsable<Length>
+public readonly record struct Length : ISpanParsable<Length>
 {
     /// <summary>
     /// Creates a new <see cref="Length"/> which will fit the available space.
@@ -18,6 +17,23 @@ public readonly record struct Length(float Value, ELengthMode LengthMode) : ISpa
     public Length() : this(1.0F, ELengthMode.Percent)
     {
     }
+
+    /// <summary>
+    /// Defines a size with a value and a <see cref="ELengthMode"/>
+    /// </summary>
+    /// <param name="value">The value of the size</param>
+    /// <param name="lengthMode">The size mode, indicating how the value should be interpreted</param>
+    public Length(float value, ELengthMode lengthMode)
+    {
+        Value      = value;
+        LengthMode = lengthMode;
+    }
+
+    /// <summary>The value of the size</summary>
+    public float Value { get; init; }
+
+    /// <summary>The size mode, indicating how the value should be interpreted</summary>
+    public ELengthMode LengthMode { get; init; }
 
     /// <summary>
     /// Deconstructs the <see cref="Length"/> into a <see cref="float"/> and a <see cref="ELengthMode"/>

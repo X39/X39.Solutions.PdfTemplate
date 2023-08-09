@@ -83,7 +83,7 @@ public readonly record struct Rectangle(float Left, float Top, float Width, floa
     /// <param name="rectangle">The rectangle to convert</param>
     /// <returns>The converted rectangle</returns>
     public static implicit operator SKRect(Rectangle rectangle)
-        => new(rectangle.Left, rectangle.Top, rectangle.Width, rectangle.Height);
+        => new(rectangle.Left, rectangle.Top, rectangle.Right, rectangle.Bottom);
     
     /// <summary>
     /// Implicitly convert a <see cref="SKRect"/> to a <see cref="Rectangle"/>
