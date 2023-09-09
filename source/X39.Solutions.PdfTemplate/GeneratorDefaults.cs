@@ -14,6 +14,7 @@ public static class GeneratorDefaults
     public static Generator AddDefaultControls(this Generator generator)
     {
         generator.AddControl<Controls.LineControl>();
+        generator.AddControl<Controls.TextControl>();
         return generator;
     }
 }

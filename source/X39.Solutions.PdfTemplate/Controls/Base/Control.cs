@@ -222,7 +222,7 @@ public abstract class Control : IControl
         try
         {
             if (Clip)
-                canvas.ClipRect(Arrangement);
+                canvas.Clip(Arrangement);
             canvas.Translate(ArrangementInner);
             var arrangedSize = new Size(
                 parentSize.Width - padding.Width - padding.Width - margin.Width - margin.Width,

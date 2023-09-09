@@ -31,6 +31,7 @@ public class XmlTemplateReader
         var styleNodeName = $"{nodeName}.style";
         var isEmptyElement = reader.IsEmptyElement;
         var attributes = new Dictionary<string, string>();
+        var contentText = string.Empty;
         if (reader.HasAttributes)
         {
             for (var i = 0; i < reader.AttributeCount; i++)
@@ -51,6 +52,8 @@ public class XmlTemplateReader
             {
                 if (reader.Name.Equals(styleNodeName, StringComparison.OrdinalIgnoreCase))
                     ReadStyle(reader);
+                else if (reader.NodeType is XmlNodeType.Text)
+                    contentText = reader.ReadContentAsString();
                 else
                     children.Add(ReadNode(reader));
             }
@@ -66,6 +69,7 @@ public class XmlTemplateReader
             nodeLocation.column,
             nodeName,
             nodeNamespace,
+            contentText,
             effectiveStyle.Of(nodeName, nodeNamespace, attributes),
             children.AsReadOnly());
     }

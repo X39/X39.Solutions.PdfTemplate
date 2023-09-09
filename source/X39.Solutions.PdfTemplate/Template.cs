@@ -36,7 +36,7 @@ internal class Template
 
     private static IControl CreateControl(XmlNodeInformation node, ControlStorage storage, CultureInfo cultureInfo)
     {
-        var control = storage.Create(node.NodeNamespace, node.NodeName, node.Attributes, cultureInfo);
+        var control = storage.Create(node.NodeNamespace, node.NodeName, node.Attributes, node.TextContent, cultureInfo);
         if (control is not IContentControl contentControl)
         {
             if (node.Children.Any())

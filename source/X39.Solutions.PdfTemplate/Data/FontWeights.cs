@@ -3,8 +3,10 @@
 /// <summary>
 /// Common font weights.
 /// </summary>
+[PublicAPI]
 public static class FontWeights
 {
+    internal static readonly TypeExpressionMapCache<FontWeight> AccessCache = new(typeof(FontWeights));
     /// <summary>
     /// Font weight 100 with common weight name 'Thin (Hairline)'.
     /// </summary>

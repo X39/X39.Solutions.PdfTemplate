@@ -7,36 +7,57 @@ namespace X39.Solutions.PdfTemplate.Abstraction;
 internal sealed class CanvasImpl : ICanvas
 {
     private readonly SkPaintCache _paintCache;
-    private readonly SKCanvas     _canvas;
+    private readonly List<Action<SKCanvas>> _drawActions = new();
 
-    public CanvasImpl(SkPaintCache paintCache, SKCanvas canvas)
+    public CanvasImpl(SkPaintCache paintCache)
     {
         _paintCache = paintCache;
-        _canvas     = canvas;
     }
+    
+    internal void Render(SKCanvas canvas)
+    {
+        foreach (var action in _drawActions)
+        {
+            action(canvas);
+        }
+    }
+    
 
     public void PushState()
     {
-        _canvas.Save();
+        _drawActions.Add((canvas) => canvas.Save());
     }
 
-    public void ClipRect(Rectangle rectangle)
+    public void Clip(Rectangle rectangle)
     {
-        _canvas.ClipRect(rectangle);
+        _drawActions.Add((canvas) => canvas.ClipRect(rectangle));
     }
 
     public void Translate(Point point)
     {
-        _canvas.Translate(point);
+        _drawActions.Add((canvas) => canvas.Translate(point));
     }
 
     public void PopState()
     {
-        _canvas.Restore();
+        _drawActions.Add((canvas) => canvas.Restore());
     }
 
     public void DrawLine(Color color, float thickness, float startX, float startY, float endX, float endY)
     {
-        _canvas.DrawLine(startX, startY, endX, endY, _paintCache.GetStrokePaint(color, thickness));
+        _drawActions.Add((canvas) =>
+        {
+            var paint = _paintCache.Get(color, thickness);
+            canvas.DrawLine(startX, startY, endX, endY, paint);
+        });
+    }
+
+    public void DrawText(TextStyle textStyle, string text, float x, float y)
+    {
+        _drawActions.Add((canvas) =>
+        {
+            var paint = _paintCache.Get(textStyle);
+            canvas.DrawText(text, x, y, paint);
+        });
     }
 }

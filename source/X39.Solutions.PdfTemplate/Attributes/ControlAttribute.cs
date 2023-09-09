@@ -4,6 +4,7 @@ namespace X39.Solutions.PdfTemplate.Attributes;
 /// Describes a control.
 /// </summary>
 [AttributeUsage(AttributeTargets.Class)]
+[MeansImplicitUse(ImplicitUseKindFlags.InstantiatedNoFixedConstructorSignature)]
 public class ControlAttribute : Attribute
 {
     /// <summary>

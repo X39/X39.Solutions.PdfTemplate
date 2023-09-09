@@ -41,8 +41,7 @@ public class ParameterAttribute : Attribute
     /// If set to <c>true</c>, the parameter may be filled from the content in the template node.
     /// </summary>
     /// <remarks>
-    /// If a parameter is both, provided in the template node and as an attribute, a validation error will be raised
-    /// to a user, indicating that the parameter is ambiguous.
+    /// If a parameter is both, provided in the template node and as an attribute, the content will take precedence.
     /// </remarks>
     /// <example>
     /// <myControl>

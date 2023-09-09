@@ -24,8 +24,8 @@ public sealed class Generator : IDisposable, IAsyncDisposable
 
     public Generator(SkPaintCache skPaintCache, ControlExpressionCache controlExpressionCache)
     {
-        _skPaintCache = skPaintCache;
-        _controlStorage    = new(controlExpressionCache);
+        _skPaintCache   = skPaintCache;
+        _controlStorage = new(controlExpressionCache);
     }
 
     private readonly Dictionary<string, object> _data = new();
@@ -80,7 +80,7 @@ public sealed class Generator : IDisposable, IAsyncDisposable
         CultureInfo cultureInfo,
         DocumentOptions? documentOptions = default)
     {
-        var options = documentOptions?? DocumentOptions.Default;
+        var options = documentOptions ?? DocumentOptions.Default;
         var templateReader = new XmlTemplateReader();
         var rootNode = templateReader.Read(reader);
         var template = Template.Create(rootNode, _controlStorage, cultureInfo);
@@ -95,9 +95,8 @@ public sealed class Generator : IDisposable, IAsyncDisposable
             var size = control.Measure(pageSize, cultureInfo);
             desiredHeight += size.Height;
         }
-        
+
         // ToDo: Implement page splitting
-        var pageCount = (int) Math.Ceiling(desiredHeight / pageSize.Height);
         var sizes = new List<Size>();
         foreach (var control in template.HeaderControls.Concat(template.BodyControls).Concat(template.FooterControls))
         {
@@ -105,18 +104,28 @@ public sealed class Generator : IDisposable, IAsyncDisposable
             sizes.Add(size);
         }
 
-        // ToDo: Generate pages
-        using var canvas = skDocument.BeginPage(pageSize.Width, pageSize.Height);
-        canvas.Save();
-        var canvasAbstraction = new CanvasImpl(_skPaintCache, canvas);
-        foreach (var (control, size) in template.HeaderControls.Concat(template.BodyControls).Concat(template.FooterControls).Zip(sizes))
+        var canvasAbstraction = new CanvasImpl(_skPaintCache);
+        canvasAbstraction.PushState();
+        foreach (var (control, size) in template.HeaderControls.Concat(template.BodyControls)
+                     .Concat(template.FooterControls)
+                     .Zip(sizes))
         {
             control.Render(canvasAbstraction, pageSize, cultureInfo);
-            canvas.Translate(0F, size.Height);
+            canvasAbstraction.Translate(0F, size.Height);
         }
-        canvas.Restore();
-        canvas.Flush();
-        skDocument.EndPage();
+
+        canvasAbstraction.PopState();
+        var pageCount = (int) Math.Ceiling(desiredHeight / pageSize.Height);
+        var currentHeight = 0F;
+        foreach (var pageNo in Enumerable.Range(0, pageCount))
+        {
+            using var canvas = skDocument.BeginPage(pageSize.Width, pageSize.Height);
+            canvas.Translate(0, -currentHeight);
+            canvasAbstraction.Render(canvas);
+            skDocument.EndPage();
+            currentHeight += pageSize.Height;
+        }
+
         skDocument.Close();
     }
 

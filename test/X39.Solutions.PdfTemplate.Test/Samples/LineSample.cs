@@ -9,63 +9,13 @@ using X39.Util;
 namespace X39.Solutions.PdfTemplate.Test.Samples;
 
 [Collection("Samples")]
-public class LineSample : IAsyncDisposable
+public class LineSample : SampleBase
 {
-    private readonly ServiceProvider _serviceProvider;
-
-    public LineSample()
-    {
-        var serviceCollection = new ServiceCollection();
-        serviceCollection.AddSingleton<ControlExpressionCache>();
-        serviceCollection.AddSingleton<SkPaintCache>();
-        _serviceProvider = serviceCollection.BuildServiceProvider();
-    }
-
-    public async ValueTask DisposeAsync()
-    {
-        await _serviceProvider.DisposeAsync();
-    }
-
-    private static IDisposable CreateStream(out Stream stream)
-    {
-        if (!Debugger.IsAttached)
-            return stream = new VoidStream();
-        var tmpPath = Path.GetTempPath();
-        while (true)
-        {
-            try
-            {
-                var tmpFile = Path.Combine(tmpPath, Path.GetRandomFileName() + ".pdf");
-                var tmp = stream = new FileStream(tmpFile, FileMode.Create, FileAccess.Write, FileShare.Read);
-                return new Disposable(
-                    () =>
-                    {
-                        tmp.Dispose();
-                        var process = Process.Start(
-                            new ProcessStartInfo
-                            {
-                                FileName        = tmpFile,
-                                UseShellExecute = true,
-                            });
-                        if (process is null)
-                            throw new InvalidOperationException("Could not start process.");
-                        process.WaitForExit();
-                        File.Delete(tmpFile);
-                    });
-            }
-            catch (IOException)
-            {
-                /* empty */
-            }
-        }
-    }
 
     [Fact, Conditional("DEBUG")]
     public void SimpleLineSample()
     {
-        using var generator = new Generator(
-            _serviceProvider.GetRequiredService<SkPaintCache>(),
-            _serviceProvider.GetRequiredService<ControlExpressionCache>());
+        using var generator = CreateGenerator();
         generator.AddDefaultControls();
         using var xmlStream = new MemoryStream(
             Encoding.UTF8.GetBytes(
@@ -152,6 +102,30 @@ public class LineSample : IAsyncDisposable
                          <line thickness="1px" length="67px" color="purple" padding="0" margin="1px"/>
                          <line thickness="1px" length="68px" color="purple" padding="0" margin="1px"/>
                          <line thickness="1px" length="69px" color="purple" padding="0" margin="1px"/>
+                     </body>
+                 </template>
+                 """));
+        using var disposable = CreateStream(out var pdfStream);
+        using var xmlReader = XmlReader.Create(xmlStream);
+        generator.Generate(
+            pdfStream,
+            xmlReader,
+            CultureInfo.InvariantCulture);
+    }
+
+    [Fact, Conditional("DEBUG")]
+    public void PageBreak()
+    {
+        using var generator = CreateGenerator();
+        generator.AddDefaultControls();
+        using var xmlStream = new MemoryStream(
+            Encoding.UTF8.GetBytes(
+                $"""
+                 <?xml version="1.0" encoding="utf-8"?>
+                 <template xmlns="{Constants.ControlsNamespace}">
+                     <body>
+                         <!-- Will create 2 pages with a vertical line on each page -->
+                         <line orientation="vertical" thickness="10%" length="200%" color="red" padding="0"/>
                      </body>
                  </template>
                  """));

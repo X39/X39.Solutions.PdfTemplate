@@ -17,7 +17,7 @@ public interface ICanvas
     /// Modify the current clip with the specified <see cref="Rectangle"/>.
     /// </summary>
     /// <param name="rectangle">The <see cref="Rectangle"/> to combine with the current clip.</param>
-    void ClipRect(Rectangle rectangle);
+    void Clip(Rectangle rectangle);
     /// <summary>
     /// This call balances a previous call to <see cref="PushState"/>,
     /// and is used to remove all modifications to the matrix,
@@ -41,4 +41,6 @@ public interface ICanvas
     /// </summary>
     /// <param name="point">The distance to translate.</param>
     void Translate(Point point);
+
+    void DrawText(TextStyle textStyle, string text, float x, float y);
 }

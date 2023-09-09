@@ -3,7 +3,6 @@ using System.Globalization;
 using System.Linq.Expressions;
 using System.Reflection;
 using X39.Solutions.PdfTemplate.Attributes;
-using X39.Solutions.PdfTemplate.Data;
 using X39.Util.Threading;
 
 namespace X39.Solutions.PdfTemplate;
@@ -18,7 +17,8 @@ public sealed class ControlExpressionCache : IDisposable
     private readonly ReaderWriterLockSlim _createDelegatesLock       = new();
 
     private readonly
-        Dictionary<Type, (string parameter, Action<IControl, string, CultureInfo> setter)[]>
+        Dictionary<Type, (ParameterAttribute attribute, string parameterName, Action<IControl, string, CultureInfo>
+            setter)[]>
         _setParameterDelegates = new();
 
     private readonly Dictionary<Type, Func<IServiceProvider, IControl>> _createDelegates = new();
@@ -37,15 +37,17 @@ public sealed class ControlExpressionCache : IDisposable
     /// </summary>
     /// <param name="type">The type of the control to create.</param>
     /// <param name="parameterDictionary">The attributes to set on the control.</param>
+    /// <param name="content">The content to set on the control or <see langword="null"/> if no content is provided.</param>
     /// <param name="cultureInfo">The culture to use for parameter conversion.</param>
     /// <returns>The created control.</returns>
     public IControl CreateControl(
         Type type,
         IReadOnlyDictionary<string, string> parameterDictionary,
+        string? content,
         CultureInfo cultureInfo)
     {
         var control = CreateControlInstance(type);
-        SetParametersOfControl(type, control, parameterDictionary, cultureInfo);
+        SetParametersOfControl(type, control, parameterDictionary, content, cultureInfo);
         return control;
     }
 
@@ -73,11 +75,13 @@ public sealed class ControlExpressionCache : IDisposable
                                 constructor,
                                 constructor.GetParameters()
                                     .Select(
-                                        (q) => Expression.Call(
-                                            serviceProviderParameter,
-                                            typeof(IServiceProvider).GetMethod(
-                                                nameof(IServiceProvider.GetService))!,
-                                            Expression.Constant(q.ParameterType)))
+                                        (q) => Expression.Convert(
+                                            Expression.Call(
+                                                serviceProviderParameter,
+                                                typeof(IServiceProvider).GetMethod(
+                                                    nameof(IServiceProvider.GetService))!,
+                                                Expression.Constant(q.ParameterType)),
+                                            q.ParameterType))
                                     .Cast<Expression>()
                                     .ToArray());
                         var expression = Expression.Lambda<Func<IServiceProvider, IControl>>(
@@ -94,6 +98,7 @@ public sealed class ControlExpressionCache : IDisposable
         Type controlType,
         IControl control,
         IReadOnlyDictionary<string, string> parameterDictionary,
+        string? content,
         CultureInfo cultureInfo)
     {
         var array = _setParameterDelegatesLock.UpgradeableReadLocked(
@@ -106,8 +111,6 @@ public sealed class ControlExpressionCache : IDisposable
                     {
                         if (_setParameterDelegates.TryGetValue(controlType, out var setterTupleArray2))
                             return setterTupleArray2;
-
-
                         var controlParameter = Expression.Parameter(typeof(IControl));
                         var valueParameter = Expression.Parameter(typeof(string));
                         var cultureInfoParameter = Expression.Parameter(typeof(CultureInfo));
@@ -119,7 +122,9 @@ public sealed class ControlExpressionCache : IDisposable
                             .Where((q) => q.Item2 is not null)
                             .Select((q) => (q.propertyInfo, q.attribute!));
 
-                        var setterTuples = new List<(string parameter, Action<IControl, string, CultureInfo> setter)>();
+                        var setterTuples =
+                            new List<(ParameterAttribute attribute, string parameterName,
+                                Action<IControl, string, CultureInfo> setter)>();
                         foreach (var (propertyInfo, parameterAttribute) in tuples)
                         {
                             var propertySetter = propertyInfo.GetSetMethod(true)
@@ -182,7 +187,10 @@ public sealed class ControlExpressionCache : IDisposable
                                     valueParameter,
                                     cultureInfoParameter);
 
-                                setterTuples.Add((Validators.ParameterName.GetName(parameterAttribute, propertyInfo), expression.Compile()));
+                                setterTuples.Add(
+                                    (parameterAttribute,
+                                        Validators.ParameterName.GetName(parameterAttribute, propertyInfo),
+                                        expression.Compile()));
                             }
                             else if (propertyInfo.PropertyType.IsEquivalentTo(typeof(string)))
                             {
@@ -199,7 +207,10 @@ public sealed class ControlExpressionCache : IDisposable
                                     valueParameter,
                                     cultureInfoParameter);
 
-                                setterTuples.Add((Validators.ParameterName.GetName(parameterAttribute, propertyInfo), expression.Compile()));
+                                setterTuples.Add(
+                                    (parameterAttribute,
+                                        Validators.ParameterName.GetName(parameterAttribute, propertyInfo),
+                                        expression.Compile()));
                             }
                             else
                             {
@@ -228,7 +239,9 @@ public sealed class ControlExpressionCache : IDisposable
                                         valueParameter,
                                         cultureInfoParameter);
                                     setterTuples.Add(
-                                        (Validators.ParameterName.GetName(parameterAttribute, propertyInfo), expression.Compile()));
+                                        (parameterAttribute,
+                                            Validators.ParameterName.GetName(parameterAttribute, propertyInfo),
+                                            expression.Compile()));
                                 }
                                 else if (TypeDescriptor.GetConverter(propertyInfo.PropertyType) is { } typeConverter &&
                                          typeConverter.CanConvertFrom(typeof(string)))
@@ -260,7 +273,9 @@ public sealed class ControlExpressionCache : IDisposable
                                         cultureInfoParameter);
 
                                     setterTuples.Add(
-                                        (Validators.ParameterName.GetName(parameterAttribute, propertyInfo), expression.Compile()));
+                                        (parameterAttribute,
+                                            Validators.ParameterName.GetName(parameterAttribute, propertyInfo),
+                                            expression.Compile()));
                                 }
                                 else
                                 {
@@ -273,13 +288,26 @@ public sealed class ControlExpressionCache : IDisposable
                         return _setParameterDelegates[controlType] = setterTuples.ToArray();
                     });
             });
-        foreach (var (parameter, setter) in array)
+
+        foreach (var (_, parameter, setter) in array)
         {
             if (parameterDictionary.TryGetValue(parameter, out var value))
                 setter(control, value, cultureInfo);
         }
+
+        if (!content.IsNotNullOrEmpty())
+            return;
+        {
+            var (_, parameterName, setter) = array.FirstOrDefault(q => q.attribute.IsContent);
+            if (parameterName is not null)
+                setter(control, content, cultureInfo);
+            else
+                throw new InvalidOperationException(
+                    $"The control {controlType.FullName()} does not support content.");
+        }
     }
 
+    /// <inheritdoc />
     public void Dispose()
     {
         _setParameterDelegatesLock.Dispose();

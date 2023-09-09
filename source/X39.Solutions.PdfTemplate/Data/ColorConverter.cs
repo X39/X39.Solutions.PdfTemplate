@@ -19,7 +19,13 @@ public sealed class ColorConverter : TypeConverter
     {
         if (value is not string source)
             return base.ConvertFrom(context, culture, value);
-        return Color.Parse(source, culture);
+        if (Color.TryParse(source, culture, out var color))
+            return color;
+        if (culture is null
+                ? Colors.AccessCache.TryGet(source, out color)
+                : Colors.AccessCache.TryGet(source, culture, out color))
+            return color;
+        return null;
     }
 
     /// <inheritdoc />

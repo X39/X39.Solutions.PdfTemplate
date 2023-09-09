@@ -41,7 +41,7 @@ public partial class CanvasMock : ICanvas
             });
     }
 
-    public void ClipRect(Rectangle rectangle)
+    public void Clip(Rectangle rectangle)
     {
         _stateStack.Peek().Clip = rectangle;
     }
@@ -67,6 +67,11 @@ public partial class CanvasMock : ICanvas
     public void Translate(Point point)
     {
         _stateStack.Peek().Translation += point;
+    }
+
+    public void DrawText(TextStyle textStyle, string text, float x, float y)
+    {
+        throw new NotImplementedException();
     }
 }
 

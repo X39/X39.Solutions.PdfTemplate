@@ -33,6 +33,7 @@ internal class ControlStorage
         string @namespace,
         string name,
         IReadOnlyDictionary<string, string> parameterDictionary,
+        string? content,
         CultureInfo cultureInfo)
     {
         var upperCasedNamespace = @namespace.ToUpper(CultureInfo.InvariantCulture);
@@ -40,7 +41,7 @@ internal class ControlStorage
         var key = (upperCasedNamespace, upperCasedName);
         if (!_controls.TryGetValue(key, out var type))
             throw new InvalidOperationException($"The control {@namespace}:{name} does not exist.");
-        var control = _controlExpressionCache.CreateControl(type, parameterDictionary, cultureInfo);
+        var control = _controlExpressionCache.CreateControl(type, parameterDictionary, content, cultureInfo);
         return control;
     }
 }

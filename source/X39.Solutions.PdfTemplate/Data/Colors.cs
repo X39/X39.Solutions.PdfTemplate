@@ -3,8 +3,12 @@
 /// <summary>
 /// Contains the default colors.
 /// </summary>
+[PublicAPI]
 public static class Colors
 {
+    internal static readonly TypeExpressionMapCache<Color> AccessCache = new(typeof(Colors));
+    
+    
     /// <summary>The color black with the RGBA value of (0, 0, 0, 255).</summary>
     public static Color Black { get; } = new(0, 0, 0);
     
