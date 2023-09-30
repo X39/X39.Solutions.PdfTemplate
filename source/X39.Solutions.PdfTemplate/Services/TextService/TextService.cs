@@ -7,125 +7,103 @@ namespace X39.Solutions.PdfTemplate.Services.TextService;
 internal class TextService : ITextService
 {
     private readonly SkPaintCache _paintCache;
-
     public TextService(SkPaintCache paintCache)
     {
         _paintCache = paintCache;
     }
+    private ref struct ReadOnlySpanPair<T>
+    {
+        public ReadOnlySpan<T> Left;
+        public ReadOnlySpan<T> Right;
+
+        public ReadOnlySpanPair(ReadOnlySpan<T> left, ReadOnlySpan<T> right)
+        {
+            Left  = left;
+            Right = right;
+        }
+
+        public void Deconstruct(out ReadOnlySpan<T> left, out ReadOnlySpan<T> right)
+        {
+            left  = Left;
+            right = Right;
+        }
+    }
 
     public Size Measure(TextStyle textStyle, ReadOnlySpan<char> text, float maxWidth)
     {
-        var paint = _paintCache.Get(textStyle);
-        return maxWidth < paint.FontMetrics.MaxCharacterWidth
-            ? new Size(float.NaN, float.NaN)
-            : SplatterAndMeasureLines(textStyle, paint, text, maxWidth);
-    }
-
-    private static Size SplatterAndMeasureLines(
-        TextStyle textStyle,
-        SKPaint skPaint,
-        ReadOnlySpan<char> text,
-        float maxWidth)
-    {
-        Size size;
-        var start = 0;
-        var rOffset = 0;
-        var maxLineLength = 0F;
-        var lines = 1;
-        for (var i = 0; i < text.Length; i++)
+        var skPaint = _paintCache.Get(textStyle);
+        var lines = 0;
+        var resultWidth = 0F;
+        var right = text;
+        var left = text;
+        while (!right.IsEmpty && !left.IsEmpty)
         {
-            var c = text[i];
-            switch (c)
-            {
-                case '\r':
-                    rOffset = -1;
-                    break;
-                case '\n':
-                    var end = i + rOffset;
-                    size = Measure(skPaint, text[start..end]);
-                    // Backtrack if the line is too long
-                    while (size.Width > maxWidth)
-                    {
-                        for (i--; i > start; i--)
-                        {
-                            if (!text[i].IsWhiteSpace())
-                                continue;
-                            end = i;
-                            break;
-                        }
-
-                        size = Measure(skPaint, text[start..end]);
-                    }
-
-                    rOffset       = 0;
-                    maxLineLength = Math.Max(maxLineLength, size.Width);
-                    start         = i + 1;
-                    lines++;
-                    break;
+            var (fullLine, remainder) = NextLine(right);
+            var trimmedFullLine                  = fullLine.TrimStart();
+            if (fullLine.IsEmpty && !remainder.IsEmpty)
+            { // new line character
+                right = remainder;
+                continue;
             }
+            var (divided, _) = DivideAndConquer(trimmedFullLine, skPaint, maxWidth, out var width);
+            left             = divided;
+            right            = right[(left.Length + fullLine.Length - trimmedFullLine.Length)..];
+            lines++;
+            resultWidth = Math.Max(resultWidth, width);
         }
-
-        size          = Measure(skPaint, text[start..]);
-        maxLineLength = Math.Max(maxLineLength, size.Width);
-        return new Size(maxLineLength, size.Height + (lines - 1) * (size.Height * textStyle.LineHeight));
+        var height = skPaint.FontMetrics.Bottom + -skPaint.FontMetrics.Top;
+        return new Size(resultWidth, height + (lines - 1) * (height * textStyle.LineHeight));
     }
-
-    private static Size Measure(SKPaint skPaint, ReadOnlySpan<char> readOnlySpan)
+    private ReadOnlySpanPair<char> NextLine(ReadOnlySpan<char> text)
     {
-        var width = skPaint.MeasureText(readOnlySpan);
-        return new Size(width, skPaint.FontMetrics.Bottom + -skPaint.FontMetrics.Top);
+        var index = text.IndexOf('\n');
+        return index == -1
+            ? new ReadOnlySpanPair<char>(text, ReadOnlySpan<char>.Empty)
+            : new ReadOnlySpanPair<char>(text[..index], text[(index + 1)..]);
     }
 
+    private ReadOnlySpanPair<char> DivideAndConquer(ReadOnlySpan<char> text, SKPaint skPaint, float maxWidth, out float leftWidth)
+    {
+        const int start = 0;
+        var end = text.Length;
+        leftWidth = skPaint.MeasureText(text);
+        while (leftWidth > maxWidth)
+        {
+            for (end--; end > start; end--)
+            {
+                if (!text[end].IsWhiteSpace())
+                    continue;
+                break;
+            }
+
+            leftWidth = skPaint.MeasureText(text[..end]);
+        }
+        return new ReadOnlySpanPair<char>(text[..end], text[end..]);
+    }
 
     public void Draw(ICanvas canvas, TextStyle textStyle, ReadOnlySpan<char> text, float maxWidth)
     {
-        var paint = _paintCache.Get(textStyle);
-        if (maxWidth < paint.FontMetrics.MaxCharacterWidth)
+        var skPaint = _paintCache.Get(textStyle);
+        if (maxWidth < skPaint.FontMetrics.MaxCharacterWidth)
             return;
-        RenderLines(canvas, textStyle, paint, text, maxWidth);
-    }
-    
-    private static void RenderLines(
-        ICanvas canvas,
-        TextStyle textStyle,
-        SKPaint skPaint,
-        ReadOnlySpan<char> text,
-        float maxWidth)
-    {
-        var start = 0;
-        var rOffset = 0;
+        var height = skPaint.FontMetrics.Bottom + -skPaint.FontMetrics.Top;
+        var right = text;
+        var left = text;
         var y = 0F;
-        for (var i = 0; i < text.Length; i++)
+        while (!right.IsEmpty && !left.IsEmpty)
         {
-            var c = text[i];
-            switch (c)
-            {
-                case '\r':
-                    rOffset = -1;
-                    break;
-                case '\n':
-                    var end = i + rOffset;
-                    var size = Measure(skPaint, text[start..end]);
-                    // Backtrack if the line is too long
-                    while (size.Width > maxWidth)
-                    {
-                        for (i--; i > start; i--)
-                        {
-                            if (!text[i].IsWhiteSpace())
-                                continue;
-                            end = i;
-                            break;
-                        }
-
-                        size = Measure(skPaint, text[start..end]);
-                    }
-                    canvas.DrawText(textStyle, text[start..end].ToString(), 0, y);
-                    
-                    rOffset = 0;
-                    start   = i + 1;
-                    y += size.Height * textStyle.LineHeight;
-                    break;
+            var (fullLine, remainder) = NextLine(right);
+            var trimmedFullLine                  = fullLine.TrimStart();
+            if (fullLine.IsEmpty && !remainder.IsEmpty)
+            { // new line character
+                right = remainder;
+                continue;
             }
+            var (divided, _) = DivideAndConquer(trimmedFullLine, skPaint, maxWidth, out var width);
+            left             = divided;
+            right            = right[(left.Length + fullLine.Length - trimmedFullLine.Length)..];
+            canvas.DrawText(textStyle, left.ToString(), 0, y - skPaint.FontMetrics.Ascent);
+            y += height * textStyle.LineHeight;
         }
     }
 }

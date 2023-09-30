@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using X39.Solutions.PdfTemplate.Services;
+using X39.Solutions.PdfTemplate.Services.PropertyAccessCache;
 using X39.Solutions.PdfTemplate.Services.TextService;
 
 namespace X39.Solutions.PdfTemplate;
@@ -19,5 +20,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<SkPaintCache>();
         services.AddSingleton<ControlExpressionCache>();
         services.AddSingleton<ITextService, TextService>();
+        services.AddSingleton<IPropertyAccessCache, PropertyAccessCache>();
+        services.AddScoped<ITemplateData, TemplateData>();
     }
 }

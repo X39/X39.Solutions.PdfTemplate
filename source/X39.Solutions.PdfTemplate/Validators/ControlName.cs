@@ -22,7 +22,7 @@ public static class ControlName
     /// <param name="type"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    public static string GetName(Type type)
+    public static string Get(Type type)
     {
         if (type.IsGenericType)
             throw new InvalidOperationException(

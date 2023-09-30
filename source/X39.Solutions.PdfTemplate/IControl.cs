@@ -16,23 +16,44 @@ public interface IControl
     /// <remarks>
     /// Desired size may overflow the bounds.
     /// </remarks>
-    /// <param name="availableSize">Available size that parent can give to the child. May be infinity (when parent wants to
-    /// measure to content). This is soft constraint. Child can return bigger size to indicate that it wants bigger space and hope
-    /// that parent can throw in pagination...</param>
+    /// <param name="fullPageSize">
+    ///     The full size of a single page, not including header and footer (in short: the printable area).
+    /// </param>
+    /// <param name="framedPageSize">
+    ///     The full size of a single page framed to the controls perspective.
+    ///     A parent control may limit the size of this value to the size of the page it is on.
+    /// </param>
+    /// <param name="remainingSize">
+    ///     Size on the current page, left for the control to use.
+    /// </param>
     /// <param name="cultureInfo">The culture info to use for the measurement.</param>
     /// <returns>The desired size of the control.</returns>
     Size Measure(
-        in Size availableSize,
+        in Size fullPageSize,
+        in Size framedPageSize,
+        in Size remainingSize,
         CultureInfo cultureInfo);
 
     /// <summary>
     /// Arrange the control within the given bounds.
     /// </summary>
-    /// <param name="finalSize">The final size that element should use to arrange itself and its children.</param>
+    /// <param name="fullPageSize">
+    ///     The full size of a single page, not including header and footer (in short: the printable area).
+    /// </param>
+    /// <param name="framedPageSize">
+    ///     The full size of a single page framed to the controls perspective.
+    ///     A parent control may limit the size of this value to the size of the page it is on.
+    /// </param>
+    /// <param name="remainingSize">
+    ///     Size on the current page, left for the control to use.
+    ///     A control may not use more space than this value.
+    /// </param>
     /// <param name="cultureInfo">The culture info to use for the arrangement.</param>
     /// <returns>The actual size of the control.</returns>
     Size Arrange(
-        in Size finalSize,
+        in Size fullPageSize,
+        in Size framedPageSize,
+        in Size remainingSize,
         CultureInfo cultureInfo);
 
     /// <summary>

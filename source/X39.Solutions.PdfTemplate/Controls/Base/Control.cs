@@ -142,15 +142,17 @@ public abstract class Control : IControl
 
     /// <inheritdoc />
     public virtual Size Measure(
-        in Size availableSize,
+        in Size fullPageSize,
+        in Size framedPageSize,
+        in Size remainingSize,
         CultureInfo cultureInfo)
     {
-        var padding = Padding.ToRectangle(availableSize);
-        var margin = Margin.ToRectangle(availableSize);
+        var padding = Padding.ToRectangle(fullPageSize);
+        var margin = Margin.ToRectangle(fullPageSize);
         var measureResult = DoMeasure(
-            new Size(
-                availableSize.Width - padding.Width - padding.Width - margin.Width - margin.Width,
-                availableSize.Height - padding.Height - padding.Height - margin.Height - margin.Height),
+            ToSize(fullPageSize, margin),
+            ToSize(framedPageSize, margin),
+            ToSize(remainingSize, margin, padding),
             cultureInfo);
         MeasurementOuter = new Rectangle(
             0,
@@ -170,22 +172,33 @@ public abstract class Control : IControl
         return MeasurementOuter;
     }
 
+    private static Size ToSize(Size fullPageSize, Rectangle margin, Rectangle padding = default)
+    {
+        return new Size(
+            fullPageSize.Width - padding.Width - padding.Width - margin.Width - margin.Width,
+            fullPageSize.Height - padding.Height - padding.Height - margin.Height - margin.Height);
+    }
+
     /// <inheritdoc cref="Measure"/>
     protected abstract Size DoMeasure(
-        in Size availableSize,
+        in Size fullPageSize,
+        in Size framedPageSize,
+        in Size remainingSize,
         CultureInfo cultureInfo);
 
     /// <inheritdoc />
     public virtual Size Arrange(
-        in Size finalSize,
+        in Size fullPageSize,
+        in Size framedPageSize,
+        in Size remainingSize,
         CultureInfo cultureInfo)
     {
-        var padding = Padding.ToRectangle(finalSize);
-        var margin = Margin.ToRectangle(finalSize);
+        var padding = Padding.ToRectangle(remainingSize);
+        var margin = Margin.ToRectangle(remainingSize);
         var measureResult = DoArrange(
-            new Size(
-                finalSize.Width - padding.Width - padding.Width - margin.Width - margin.Width,
-                finalSize.Height - padding.Height - padding.Height - margin.Height - margin.Height),
+            ToSize(fullPageSize, margin),
+            ToSize(framedPageSize, margin),
+            ToSize(remainingSize, margin, padding),
             cultureInfo);
         ArrangementOuter = new Rectangle(
             0,
@@ -207,7 +220,9 @@ public abstract class Control : IControl
 
     /// <inheritdoc cref="Arrange"/>
     protected abstract Size DoArrange(
-        in Size finalSize,
+        in Size fullPageSize,
+        in Size framedPageSize,
+        in Size remainingSize,
         CultureInfo cultureInfo);
 
     /// <inheritdoc />

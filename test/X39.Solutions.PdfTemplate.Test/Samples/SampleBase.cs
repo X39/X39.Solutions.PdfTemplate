@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using X39.Solutions.PdfTemplate.Services;
+using X39.Solutions.PdfTemplate.Transformers;
 using X39.Util;
 
 namespace X39.Solutions.PdfTemplate.Test.Samples;
@@ -20,7 +21,8 @@ public abstract class SampleBase : IAsyncDisposable
     {
         var generator = new Generator(
             _serviceProvider.GetRequiredService<SkPaintCache>(),
-            _serviceProvider.GetRequiredService<ControlExpressionCache>());
+            _serviceProvider.GetRequiredService<ControlExpressionCache>(),
+            Enumerable.Empty<IFunction>());
         generator.AddDefaultControls();
         return generator;
     }

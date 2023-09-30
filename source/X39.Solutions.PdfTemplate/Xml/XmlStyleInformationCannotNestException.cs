@@ -7,7 +7,19 @@ namespace X39.Solutions.PdfTemplate.Xml;
 /// </summary>
 public class XmlStyleInformationCannotNestException : XmlException
 {
-    internal XmlStyleInformationCannotNestException(string message) : base(message)
+    /// <summary>
+    /// The line where the error occured.
+    /// </summary>
+    public int Line { get; }
+    
+    /// <summary>
+    /// The column where the error occured.
+    /// </summary>
+    public int Column { get; }
+
+    internal XmlStyleInformationCannotNestException(int line, int column, string message) : base(message)
     {
+        Line        = line;
+        Column = column;
     }
 }

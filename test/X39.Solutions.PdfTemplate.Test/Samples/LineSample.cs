@@ -16,7 +16,6 @@ public class LineSample : SampleBase
     public void SimpleLineSample()
     {
         using var generator = CreateGenerator();
-        generator.AddDefaultControls();
         using var xmlStream = new MemoryStream(
             Encoding.UTF8.GetBytes(
                 $"""
@@ -38,7 +37,6 @@ public class LineSample : SampleBase
                          <line thickness="8px" length="80%" color="green" margin="0" padding="0"/>
                          <line thickness="9px" length="90%" color="blue" margin="0"/>
                          <line thickness="10px" length="100%" color="black" margin="0"/>
-                         
                          
                          <line thickness="1px" length="50px" color="purple" padding="0" margin="0"/>
                          <line thickness="1px" length="51px" color="purple" padding="0" margin="0"/>
@@ -117,7 +115,6 @@ public class LineSample : SampleBase
     public void PageBreak()
     {
         using var generator = CreateGenerator();
-        generator.AddDefaultControls();
         using var xmlStream = new MemoryStream(
             Encoding.UTF8.GetBytes(
                 $"""

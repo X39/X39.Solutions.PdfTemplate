@@ -1,3 +1,5 @@
+using X39.Solutions.PdfTemplate.Transformers;
+
 namespace X39.Solutions.PdfTemplate;
 
 /// <summary>
@@ -15,6 +17,12 @@ public static class GeneratorDefaults
     {
         generator.AddControl<Controls.LineControl>();
         generator.AddControl<Controls.TextControl>();
+        generator.AddControl<Controls.TableControl>();
+        generator.AddControl<Controls.TableCellControl>();
+        generator.AddControl<Controls.TableHeaderControl>();
+        generator.AddControl<Controls.TableRowControl>();
+        
+        generator.AddTransfromer(new ForTransformer());
         return generator;
     }
 }

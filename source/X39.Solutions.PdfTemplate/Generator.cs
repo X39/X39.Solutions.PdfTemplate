@@ -5,7 +5,9 @@ using Microsoft.Extensions.DependencyInjection;
 using X39.Solutions.PdfTemplate.Abstraction;
 using X39.Solutions.PdfTemplate.Attributes;
 using X39.Solutions.PdfTemplate.Data;
+using X39.Solutions.PdfTemplate.Functions;
 using X39.Solutions.PdfTemplate.Services;
+using X39.Solutions.PdfTemplate.Transformers;
 using X39.Solutions.PdfTemplate.Xml;
 using X39.Util.Collections;
 
@@ -17,18 +19,35 @@ namespace X39.Solutions.PdfTemplate;
 /// <remarks>
 /// This class is not thread safe. Make sure to implement locking if you want to use it in a multi-threaded environment.
 /// </remarks>
+[PublicAPI]
 public sealed class Generator : IDisposable, IAsyncDisposable
 {
-    private readonly SkPaintCache   _skPaintCache;
-    private readonly ControlStorage _controlStorage;
+    /// <summary>
+    /// The data available to the templates processed by this generator.
+    /// </summary>
+    public ITemplateData TemplateData { get; }
 
-    public Generator(SkPaintCache skPaintCache, ControlExpressionCache controlExpressionCache)
+    private readonly SkPaintCache               _skPaintCache;
+    private readonly ControlStorage             _controlStorage;
+    private readonly Dictionary<string, object> _data         = new();
+    private readonly List<ITransformer>         _transformers = new();
+
+    public Generator(
+        SkPaintCache skPaintCache,
+        ControlExpressionCache controlExpressionCache,
+        IEnumerable<IFunction> functions)
     {
+        TemplateData = new TemplateData();
+        TemplateData.RegisterFunction(new AllTemplateDataFunctions(TemplateData));
+        TemplateData.RegisterFunction(new AllTemplateDataVariables(TemplateData));
+        foreach (var function in functions)
+        {
+            TemplateData.RegisterFunction(function);
+        }
+
         _skPaintCache   = skPaintCache;
         _controlStorage = new(controlExpressionCache);
     }
-
-    private readonly Dictionary<string, object> _data = new();
 
 
     /// <summary>
@@ -67,6 +86,11 @@ public sealed class Generator : IDisposable, IAsyncDisposable
             typeof(TControl));
     }
 
+    public void AddTransfromer(ITransformer transformer)
+    {
+        _transformers.Add(transformer);
+    }
+
     public void AddData(string key, object data)
     {
         if (data is null)
@@ -80,11 +104,22 @@ public sealed class Generator : IDisposable, IAsyncDisposable
         CultureInfo cultureInfo,
         DocumentOptions? documentOptions = default)
     {
+        using var templateDataScope = TemplateData.Scope("Document");
         var options = documentOptions ?? DocumentOptions.Default;
-        var templateReader = new XmlTemplateReader();
-        var rootNode = templateReader.Read(reader);
+        XmlNodeInformation rootNode;
+        using (var templateReader = new XmlTemplateReader(TemplateData, _transformers))
+            rootNode = templateReader.Read(reader);
+
         var template = Template.Create(rootNode, _controlStorage, cultureInfo);
-        using var skDocument = SkiaSharp.SKDocument.CreatePdf(outputStream, options.DotsPerInch);
+        using var skDocument = SkiaSharp.SKDocument.CreatePdf(
+            outputStream,
+            new SkiaSharp.SKDocumentPdfMetadata
+            {
+                RasterDpi = options.DotsPerInch,
+                Producer  = options.Producer,
+                Modified  = options.Modified,
+                PdfA      = true,
+            });
         // ToDo: Measure elements to estimate the number of pages
         var pageSize = new Size(
             options.DotsPerMillimeter * options.PageWidthInMillimeters,
@@ -92,7 +127,7 @@ public sealed class Generator : IDisposable, IAsyncDisposable
         var desiredHeight = 0F;
         foreach (var control in template.HeaderControls.Concat(template.BodyControls).Concat(template.FooterControls))
         {
-            var size = control.Measure(pageSize, cultureInfo);
+            var size = control.Measure(pageSize, pageSize, pageSize, cultureInfo);
             desiredHeight += size.Height;
         }
 
@@ -100,7 +135,7 @@ public sealed class Generator : IDisposable, IAsyncDisposable
         var sizes = new List<Size>();
         foreach (var control in template.HeaderControls.Concat(template.BodyControls).Concat(template.FooterControls))
         {
-            var size = control.Arrange(pageSize, cultureInfo);
+            var size = control.Arrange(pageSize, pageSize, pageSize, cultureInfo);
             sizes.Add(size);
         }
 

@@ -39,34 +39,38 @@ public sealed class LineControl : AlignableControl
 
     /// <inheritdoc />
     protected override Size DoMeasure(
-        in Size availableSize,
+        in Size fullPageSize,
+        in Size framedPageSize,
+        in Size remainingSize,
         CultureInfo cultureInfo)
     {
         return Orientation switch
         {
             EOrientation.Horizontal => new Size(
-                Length.ToPixels(availableSize.Width),
-                Thickness.ToPixels(availableSize.Height)),
+                Length.ToPixels(remainingSize.Width),
+                Thickness.ToPixels(remainingSize.Height)),
             EOrientation.Vertical => new Size(
-                Thickness.ToPixels(availableSize.Width),
-                Length.ToPixels(availableSize.Height)),
+                Thickness.ToPixels(remainingSize.Width),
+                Length.ToPixels(remainingSize.Height)),
             _ => throw new InvalidEnumArgumentException(nameof(Orientation), (int) Orientation, typeof(EOrientation)),
         };
     }
 
     /// <inheritdoc />
     protected override Size DoArrange(
-        in Size finalSize,
+        in Size fullPageSize,
+        in Size framedPageSize,
+        in Size remainingSize,
         CultureInfo cultureInfo)
     {
         return Orientation switch
         {
             EOrientation.Horizontal => new Size(
-                Length.ToPixels(finalSize.Width),
-                Thickness.ToPixels(finalSize.Height)),
+                Length.ToPixels(remainingSize.Width),
+                Thickness.ToPixels(remainingSize.Height)),
             EOrientation.Vertical => new Size(
-                Thickness.ToPixels(finalSize.Width),
-                Length.ToPixels(finalSize.Height)),
+                Thickness.ToPixels(remainingSize.Width),
+                Length.ToPixels(remainingSize.Height)),
             _ => throw new InvalidEnumArgumentException(nameof(Orientation), (int) Orientation, typeof(EOrientation)),
         };
     }

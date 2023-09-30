@@ -1,5 +1,4 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
     <PropertyGroup>
         <TargetFramework>net7.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
@@ -23,23 +22,14 @@
         <DefaultLanguage>en-US</DefaultLanguage>
         <PackageTags>utility;common</PackageTags>
         <AnalysisLevel>latest-recommended</AnalysisLevel>
-        <PackageReadmeFile>README.md</PackageReadmeFile>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
-
     <ItemGroup>
-      <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="7.0.0" />
-      <PackageReference Include="SkiaSharp" Version="2.88.3" />
-      <PackageReference Include="X39.Util" Version="1.0.0.38" />
-
-
-
-
-
+        <InternalsVisibleTo Include="X39.Solutions.PdfTemplate.Test"/>
     </ItemGroup>
-
-
-
-
-
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="7.0.0"/>
+        <PackageReference Include="SkiaSharp" Version="2.88.5"/>
+        <PackageReference Include="X39.Util" Version="1.0.0.38"/>
+    </ItemGroup>
 </Project>

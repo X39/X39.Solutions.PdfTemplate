@@ -13,6 +13,78 @@ public class TextSample : SampleBase
 {
 
     [Fact, Conditional("DEBUG")]
+    public void SingleLineOfText()
+    {
+        // ToDo: Add specific test cases to cover singe, multi and excessive lines of text (there is a bug which causes the last line to potentially be cut off in a multi line text setup)
+        using var generator = CreateGenerator();
+        using var xmlStream = new MemoryStream(
+            Encoding.UTF8.GetBytes(
+                $$"""
+                  <?xml version="1.0" encoding="utf-8"?>
+                  <template xmlns="{{Constants.ControlsNamespace}}">
+                      <body>
+                         <text>Single line of text</text>
+                      </body>
+                  </template>
+                  """));
+        using var disposable = CreateStream(out var pdfStream);
+        using var xmlReader = XmlReader.Create(xmlStream);
+        generator.Generate(
+            pdfStream,
+            xmlReader,
+            CultureInfo.InvariantCulture);
+    }
+
+    [Fact, Conditional("DEBUG")]
+    public void ForLoop100LinesA()
+    {
+        using var generator = CreateGenerator();
+        using var xmlStream = new MemoryStream(
+            Encoding.UTF8.GetBytes(
+                $$"""
+                 <?xml version="1.0" encoding="utf-8"?>
+                 <template xmlns="{{Constants.ControlsNamespace}}">
+                     <body>
+                        @for i from 0 to 100 {
+                            <text>Line @i</text>
+                        }
+                     </body>
+                 </template>
+                 """));
+        using var disposable = CreateStream(out var pdfStream);
+        using var xmlReader = XmlReader.Create(xmlStream);
+        generator.Generate(
+            pdfStream,
+            xmlReader,
+            CultureInfo.InvariantCulture);
+    }
+    [Fact, Conditional("DEBUG")]
+    public void ForLoop100LinesB()
+    {
+        using var generator = CreateGenerator();
+        using var xmlStream = new MemoryStream(
+            Encoding.UTF8.GetBytes(
+                $$"""
+                  <?xml version="1.0" encoding="utf-8"?>
+                  <template xmlns="{{Constants.ControlsNamespace}}">
+                      <body>
+                         @for i from 0 to 100 {
+                             <text>
+                                Line @i
+                             </text>
+                         }
+                      </body>
+                  </template>
+                  """));
+        using var disposable = CreateStream(out var pdfStream);
+        using var xmlReader = XmlReader.Create(xmlStream);
+        generator.Generate(
+            pdfStream,
+            xmlReader,
+            CultureInfo.InvariantCulture);
+    }
+
+    [Fact, Conditional("DEBUG")]
     public void LoremIpsum100Paragraphs()
     {
         using var generator = CreateGenerator();

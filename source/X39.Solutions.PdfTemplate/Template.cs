@@ -46,7 +46,24 @@ internal class Template
         else
         {
             foreach (var child in node.Children)
-                contentControl.Add(CreateControl(child, storage, cultureInfo));
+            {
+                IControl? childControl = null;
+                try
+                {
+                    childControl = CreateControl(child, storage, cultureInfo);
+                    var childType = childControl.GetType();
+                    if (!contentControl.CanAdd(childType))
+                        throw new ContentControlDoesNotSupportChild(child.Line, child.Column, childType, $"The parent control does not support the child control at L{child.Line}:C{child.Column}.");
+                    contentControl.Add(childControl);
+                }
+                catch when (childControl is not null)
+                {
+                    // ReSharper disable once SuspiciousTypeConversion.Global
+                    if (childControl is IDisposable disposable)
+                        disposable.Dispose();
+                    throw;
+                }
+            }
         }
 
         return control;

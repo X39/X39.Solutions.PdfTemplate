@@ -29,12 +29,13 @@ public class XmlStyleInformation
     /// <summary>
     /// Adds a style definition to this instance.
     /// </summary>
-    /// <param name="xmlLineInfo">The line information of the style definition.</param>
+    /// <param name="line">The line of the control.</param>
+    /// <param name="column">The column of the control.</param>
     /// <param name="controlName">The name of the control.</param>
     /// <param name="controlNamespace">The namespace of the control.</param>
     /// <param name="attributes">The attributes of the control.</param>
     /// <exception cref="XmlException">Thrown when a style definition for the given control name and namespace already exists.</exception>
-    public void Set(IXmlLineInfo xmlLineInfo, string controlName, string controlNamespace, IReadOnlyDictionary<string,string> attributes)
+    public void Set(int line, int column, string controlName, string controlNamespace, IReadOnlyDictionary<string,string> attributes)
     {
         var key = (controlName, controlNamespace);
         _contents[key] = attributes;
@@ -53,7 +54,7 @@ public class XmlStyleInformation
     /// <param name="nodeNamespace">The namespace of the control.</param>
     /// <param name="attributes">Optional attributes to override the style information.</param>
     /// <returns>A dictionary containing the style information.</returns>
-    public Dictionary<string, string> Of(string nodeName, string nodeNamespace, Dictionary<string,string>? attributes = null)
+    public Dictionary<string, string> Of(string nodeName, string nodeNamespace, IReadOnlyDictionary<string,string>? attributes = null)
     {
         var result = new Dictionary<string, string>();
         if (_contents.TryGetValue((nodeName, nodeNamespace), out var attributeDictionary))

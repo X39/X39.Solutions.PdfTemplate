@@ -64,4 +64,9 @@ public readonly record struct Size(float Width, float Height)
     public static Size MaxValue => new(float.MaxValue, float.MaxValue);
     /// <inheritdoc />
     public static Size MinValue => new(float.MinValue, float.MinValue);
+
+    /// <summary>
+    /// A size that has a width and height of 0.
+    /// </summary>
+    public static Size Zero => new(0, 0);
 }

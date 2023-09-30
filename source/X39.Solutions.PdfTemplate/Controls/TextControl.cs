@@ -18,7 +18,8 @@ public class TextControl : AlignableControl
     /// <summary>
     /// Creates a new instance of <see cref="TextControl"/>
     /// </summary>
-    /// <param name="textService">The text service to use.</param>
+    /// <param name="textService">The text service to use.</param>#
+    [ControlConstructor]
     public TextControl(ITextService textService)
     {
         _textService = textService;
@@ -161,20 +162,28 @@ public class TextControl : AlignableControl
     }
 
     /// <inheritdoc />
-    protected override Size DoMeasure(in Size availableSize, CultureInfo cultureInfo)
+    protected override Size DoMeasure(
+        in Size fullPageSize,
+        in Size framedPageSize,
+        in Size remainingSize,
+        CultureInfo cultureInfo)
     {
-        return _textService.Measure(_textStyle, Text.AsSpan(), availableSize.Width);
+        return _textService.Measure(_textStyle, Text.AsSpan(), remainingSize.Width);
     }
 
     /// <inheritdoc />
-    protected override Size DoArrange(in Size finalSize, CultureInfo cultureInfo)
+    protected override Size DoArrange(
+        in Size fullPageSize,
+        in Size framedPageSize,
+        in Size remainingSize,
+        CultureInfo cultureInfo)
     {
-        return _textService.Measure(_textStyle, Text.AsSpan(), finalSize.Width);
+        return _textService.Measure(_textStyle, Text.AsSpan(), remainingSize.Width);
     }
 
     /// <inheritdoc />
     protected override void DoRender(ICanvas canvas, in Size parentSize, CultureInfo cultureInfo)
     {
-        _textService.Draw(canvas, _textStyle, Text.AsSpan(), parentSize.Width);
+        _textService.Draw(canvas, _textStyle, Text.AsSpan(), ArrangementInner.Width);
     }
 }

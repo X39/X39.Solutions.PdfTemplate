@@ -57,8 +57,8 @@ public class LineControlTests
             Clip                = false,
             Thickness           = new Length(thicknessValue, thicknessMode),
         };
-        Assert.Equal(measure, lineControl.Measure(pageBounds, CultureInfo.InvariantCulture));
-        Assert.Equal(arrange, lineControl.Arrange(pageBounds, CultureInfo.InvariantCulture));
+        Assert.Equal(measure, lineControl.Measure(pageBounds, pageBounds, pageBounds, CultureInfo.InvariantCulture));
+        Assert.Equal(arrange, lineControl.Arrange(pageBounds, pageBounds, pageBounds, CultureInfo.InvariantCulture));
         lineControl.Render(mock, pageBounds, CultureInfo.InvariantCulture);
         mock.AssertState();
         mock.AssertDrawLine(
@@ -90,10 +90,14 @@ public class LineControlTests
             Thickness           = new Length(1, ELengthMode.Pixel),
         };
         var pageBounds = new Size(1000, 1000);
-        var measure = new Size(orientation == EOrientation.Horizontal ? 1000F : 21F, orientation == EOrientation.Horizontal ? 21F : 1000F);
-        var arrange = new Size(orientation == EOrientation.Horizontal ? 1000F : 21F, orientation == EOrientation.Horizontal ? 21F : 1000F);
-        Assert.Equal(measure, lineControl.Measure(pageBounds, CultureInfo.InvariantCulture));
-        Assert.Equal(arrange, lineControl.Arrange(pageBounds, CultureInfo.InvariantCulture));
+        var measure = new Size(
+            orientation == EOrientation.Horizontal ? 1000F : 21F,
+            orientation == EOrientation.Horizontal ? 21F : 1000F);
+        var arrange = new Size(
+            orientation == EOrientation.Horizontal ? 1000F : 21F,
+            orientation == EOrientation.Horizontal ? 21F : 1000F);
+        Assert.Equal(measure, lineControl.Measure(pageBounds, pageBounds, pageBounds, CultureInfo.InvariantCulture));
+        Assert.Equal(arrange, lineControl.Arrange(pageBounds, pageBounds, pageBounds, CultureInfo.InvariantCulture));
         lineControl.Render(mock, pageBounds, CultureInfo.InvariantCulture);
         mock.AssertState();
         mock.AssertDrawLine(
@@ -127,10 +131,14 @@ public class LineControlTests
             Thickness           = new Length(1, ELengthMode.Pixel),
         };
         var pageBounds = new Size(1000, 1000);
-        var measure = new Size(orientation == EOrientation.Horizontal ? 1000F : 21F, orientation == EOrientation.Horizontal ? 21F : 1000F);
-        var arrange = new Size(orientation == EOrientation.Horizontal ? 1000F : 21F, orientation == EOrientation.Horizontal ? 21F : 1000F);
-        Assert.Equal(measure, lineControl.Measure(pageBounds, CultureInfo.InvariantCulture));
-        Assert.Equal(arrange, lineControl.Arrange(pageBounds, CultureInfo.InvariantCulture));
+        var measure = new Size(
+            orientation == EOrientation.Horizontal ? 1000F : 21F,
+            orientation == EOrientation.Horizontal ? 21F : 1000F);
+        var arrange = new Size(
+            orientation == EOrientation.Horizontal ? 1000F : 21F,
+            orientation == EOrientation.Horizontal ? 21F : 1000F);
+        Assert.Equal(measure, lineControl.Measure(pageBounds, pageBounds, pageBounds, CultureInfo.InvariantCulture));
+        Assert.Equal(arrange, lineControl.Arrange(pageBounds, pageBounds, pageBounds, CultureInfo.InvariantCulture));
         lineControl.Render(mock, pageBounds, CultureInfo.InvariantCulture);
         mock.AssertState();
         mock.AssertDrawLine(
@@ -164,10 +172,14 @@ public class LineControlTests
             Thickness           = new Length(1, ELengthMode.Pixel),
         };
         var pageBounds = new Size(1000, 1000);
-        var measure = new Size(orientation == EOrientation.Horizontal ? 1000F : 41F, orientation == EOrientation.Horizontal ? 41F : 1000F);
-        var arrange = new Size(orientation == EOrientation.Horizontal ? 1000F : 41F, orientation == EOrientation.Horizontal ? 41F : 1000F);
-        Assert.Equal(measure, lineControl.Measure(pageBounds, CultureInfo.InvariantCulture));
-        Assert.Equal(arrange, lineControl.Arrange(pageBounds, CultureInfo.InvariantCulture));
+        var measure = new Size(
+            orientation == EOrientation.Horizontal ? 1000F : 41F,
+            orientation == EOrientation.Horizontal ? 41F : 1000F);
+        var arrange = new Size(
+            orientation == EOrientation.Horizontal ? 1000F : 41F,
+            orientation == EOrientation.Horizontal ? 41F : 1000F);
+        Assert.Equal(measure, lineControl.Measure(pageBounds, pageBounds, pageBounds, CultureInfo.InvariantCulture));
+        Assert.Equal(arrange, lineControl.Arrange(pageBounds, pageBounds, pageBounds, CultureInfo.InvariantCulture));
         lineControl.Render(mock, pageBounds, CultureInfo.InvariantCulture);
         mock.AssertState();
         mock.AssertDrawLine(

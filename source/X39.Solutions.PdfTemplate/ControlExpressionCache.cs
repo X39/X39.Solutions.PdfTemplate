@@ -189,7 +189,7 @@ public sealed class ControlExpressionCache : IDisposable
 
                                 setterTuples.Add(
                                     (parameterAttribute,
-                                        Validators.ParameterName.GetName(parameterAttribute, propertyInfo),
+                                        Validators.ParameterName.Get(parameterAttribute, propertyInfo),
                                         expression.Compile()));
                             }
                             else if (propertyInfo.PropertyType.IsEquivalentTo(typeof(string)))
@@ -209,7 +209,7 @@ public sealed class ControlExpressionCache : IDisposable
 
                                 setterTuples.Add(
                                     (parameterAttribute,
-                                        Validators.ParameterName.GetName(parameterAttribute, propertyInfo),
+                                        Validators.ParameterName.Get(parameterAttribute, propertyInfo),
                                         expression.Compile()));
                             }
                             else
@@ -240,7 +240,7 @@ public sealed class ControlExpressionCache : IDisposable
                                         cultureInfoParameter);
                                     setterTuples.Add(
                                         (parameterAttribute,
-                                            Validators.ParameterName.GetName(parameterAttribute, propertyInfo),
+                                            Validators.ParameterName.Get(parameterAttribute, propertyInfo),
                                             expression.Compile()));
                                 }
                                 else if (TypeDescriptor.GetConverter(propertyInfo.PropertyType) is { } typeConverter &&
@@ -274,7 +274,7 @@ public sealed class ControlExpressionCache : IDisposable
 
                                     setterTuples.Add(
                                         (parameterAttribute,
-                                            Validators.ParameterName.GetName(parameterAttribute, propertyInfo),
+                                            Validators.ParameterName.Get(parameterAttribute, propertyInfo),
                                             expression.Compile()));
                                 }
                                 else

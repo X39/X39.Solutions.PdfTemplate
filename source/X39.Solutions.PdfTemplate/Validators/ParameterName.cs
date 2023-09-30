@@ -23,7 +23,7 @@ public static class ParameterName
     /// <param name="propertyInfo"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    public static string GetName(ParameterAttribute parameterAttribute, PropertyInfo propertyInfo)
+    public static string Get(ParameterAttribute parameterAttribute, PropertyInfo propertyInfo)
     {
         var name = parameterAttribute.Name;
         if (name is null)

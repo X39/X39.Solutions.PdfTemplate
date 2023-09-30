@@ -16,6 +16,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "X39.Solutions.PdfTemplate",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "X39.Solutions.PdfTemplate.Test", "test\X39.Solutions.PdfTemplate.Test\X39.Solutions.PdfTemplate.Test.csproj", "{54D29B97-100B-4494-BA96-DF9CBA107F8B}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{B7C9C376-E1AA-46D0-90C6-D6BEAEB658EC}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\main.yml = .github\workflows\main.yml
+		.github\workflows\run-dotnet-tests.yml = .github\workflows\run-dotnet-tests.yml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -34,5 +40,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{C62AB41B-AC9D-4946-84D7-A22A63B28CF0} = {E290E22A-D697-4B30-A067-AF972686C3B5}
 		{54D29B97-100B-4494-BA96-DF9CBA107F8B} = {578183F3-B424-4D0B-9B6B-1F22FBDB80C8}
+		{B7C9C376-E1AA-46D0-90C6-D6BEAEB658EC} = {A16F2F3F-BF45-4A18-8E4A-31B800226E47}
 	EndGlobalSection
 EndGlobal

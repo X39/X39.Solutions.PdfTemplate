@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using System.Xml;
+using X39.Solutions.PdfTemplate.Transformers;
 using X39.Solutions.PdfTemplate.Xml;
 
 namespace X39.Solutions.PdfTemplate.Test.Xml;
@@ -25,7 +26,7 @@ public class XmlTemplateReaderTests
                                      <line margin="4px"/>
                                  </effectiveStyleTest>
                                  """;
-        var templateReader = new XmlTemplateReader();
+        var templateReader = new XmlTemplateReader(new TemplateData(), ArraySegment<ITransformer>.Empty);
         using var xmlStream = new MemoryStream(Encoding.UTF8.GetBytes(template));
         using var xmlReader = XmlReader.Create(xmlStream);
         var node = templateReader.Read(xmlReader);
@@ -59,7 +60,7 @@ public class XmlTemplateReaderTests
                                      <invalid.element margin="4px"/>
                                  </noDotInNameTest>
                                  """;
-        var templateReader = new XmlTemplateReader();
+        var templateReader = new XmlTemplateReader(new TemplateData(), ArraySegment<ITransformer>.Empty);
         using var xmlStream = new MemoryStream(Encoding.UTF8.GetBytes(template));
         using var xmlReader = XmlReader.Create(xmlStream);
         Assert.Throws<XmlNodeNameException>(() => templateReader.Read(xmlReader));
@@ -79,9 +80,28 @@ public class XmlTemplateReaderTests
                                     </styleMustBeEmptyTagTest.style>
                                  </styleMustBeEmptyTagTest>
                                  """;
-        var templateReader = new XmlTemplateReader();
+        var templateReader = new XmlTemplateReader(new TemplateData(), ArraySegment<ITransformer>.Empty);
         using var xmlStream = new MemoryStream(Encoding.UTF8.GetBytes(template));
         using var xmlReader = XmlReader.Create(xmlStream);
         Assert.Throws<XmlStyleInformationCannotNestException>(() => templateReader.Read(xmlReader));
+    }
+
+    [Fact]
+    public void ForLoop()
+    {
+        const string ns = Constants.ControlsNamespace;
+        const string template = $$"""
+                                 <?xml version="1.0" encoding="utf-8"?>
+                                 <styleMustBeEmptyTagTest xmlns="{{ns}}" someAttribute="asd">
+                                    @for i from 0 to 10 {
+                                        <text>@i</text>
+                                    }
+                                 </styleMustBeEmptyTagTest>
+                                 """;
+        var templateReader = new XmlTemplateReader(new TemplateData(), new []{new ForTransformer()});
+        using var xmlStream = new MemoryStream(Encoding.UTF8.GetBytes(template));
+        using var xmlReader = XmlReader.Create(xmlStream);
+        var nodeInformation = templateReader.Read(xmlReader);
+        Assert.Equal(10, nodeInformation.Children.Count);
     }
 }

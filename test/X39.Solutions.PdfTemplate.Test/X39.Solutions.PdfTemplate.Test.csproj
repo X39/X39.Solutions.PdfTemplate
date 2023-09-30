@@ -29,10 +29,4 @@
       <ProjectReference Include="..\..\source\X39.Solutions.PdfTemplate\X39.Solutions.PdfTemplate.csproj" />
     </ItemGroup>
 
-
-
-
-
-
-
 </Project>

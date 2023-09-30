@@ -6,7 +6,7 @@ namespace X39.Solutions.PdfTemplate.Abstraction;
 
 internal sealed class CanvasImpl : ICanvas
 {
-    private readonly SkPaintCache _paintCache;
+    private readonly SkPaintCache           _paintCache;
     private readonly List<Action<SKCanvas>> _drawActions = new();
 
     public CanvasImpl(SkPaintCache paintCache)
@@ -21,7 +21,6 @@ internal sealed class CanvasImpl : ICanvas
             action(canvas);
         }
     }
-    
 
     public void PushState()
     {
