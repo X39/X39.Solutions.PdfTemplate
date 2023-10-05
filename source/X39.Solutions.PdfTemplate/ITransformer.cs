@@ -1,6 +1,4 @@
-﻿using System.Xml;
-using X39.Solutions.PdfTemplate.Xml;
-using XmlNode = X39.Solutions.PdfTemplate.Xml.XmlNode;
+﻿using XmlNode = X39.Solutions.PdfTemplate.Xml.XmlNode;
 
 namespace X39.Solutions.PdfTemplate;
 

@@ -23,6 +23,10 @@
         <PackageTags>utility;common</PackageTags>
         <AnalysisLevel>latest-recommended</AnalysisLevel>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        
+        <NoWarn>CA1716</NoWarn>
+        <NoWarn>CA1710</NoWarn>
+        <NoWarn>CA1716</NoWarn>
     </PropertyGroup>
     <ItemGroup>
         <InternalsVisibleTo Include="X39.Solutions.PdfTemplate.Test"/>

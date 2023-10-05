@@ -22,7 +22,7 @@ public static class GeneratorDefaults
         generator.AddControl<Controls.TableHeaderControl>();
         generator.AddControl<Controls.TableRowControl>();
         
-        generator.AddTransfromer(new ForTransformer());
+        generator.AddTransformer(new ForTransformer());
         return generator;
     }
 }

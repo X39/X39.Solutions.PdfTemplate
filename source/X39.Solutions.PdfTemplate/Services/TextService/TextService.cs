@@ -54,7 +54,7 @@ internal class TextService : ITextService
         var height = skPaint.FontMetrics.Bottom + -skPaint.FontMetrics.Top;
         return new Size(resultWidth, height + (lines - 1) * (height * textStyle.LineHeight));
     }
-    private ReadOnlySpanPair<char> NextLine(ReadOnlySpan<char> text)
+    private static ReadOnlySpanPair<char> NextLine(ReadOnlySpan<char> text)
     {
         var index = text.IndexOf('\n');
         return index == -1
@@ -62,7 +62,7 @@ internal class TextService : ITextService
             : new ReadOnlySpanPair<char>(text[..index], text[(index + 1)..]);
     }
 
-    private ReadOnlySpanPair<char> DivideAndConquer(ReadOnlySpan<char> text, SKPaint skPaint, float maxWidth, out float leftWidth)
+    private static ReadOnlySpanPair<char> DivideAndConquer(ReadOnlySpan<char> text, SKPaint skPaint, float maxWidth, out float leftWidth)
     {
         const int start = 0;
         var end = text.Length;
@@ -99,7 +99,7 @@ internal class TextService : ITextService
                 right = remainder;
                 continue;
             }
-            var (divided, _) = DivideAndConquer(trimmedFullLine, skPaint, maxWidth, out var width);
+            var (divided, _) = DivideAndConquer(trimmedFullLine, skPaint, maxWidth, out _);
             left             = divided;
             right            = right[(left.Length + fullLine.Length - trimmedFullLine.Length)..];
             canvas.DrawText(textStyle, left.ToString(), 0, y - skPaint.FontMetrics.Ascent);

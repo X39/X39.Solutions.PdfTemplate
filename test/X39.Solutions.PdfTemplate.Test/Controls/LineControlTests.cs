@@ -1,6 +1,4 @@
 ﻿using System.Globalization;
-using Moq;
-using X39.Solutions.PdfTemplate.Abstraction;
 using X39.Solutions.PdfTemplate.Controls;
 using X39.Solutions.PdfTemplate.Data;
 using X39.Solutions.PdfTemplate.Test.Mock;

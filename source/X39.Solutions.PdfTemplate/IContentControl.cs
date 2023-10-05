@@ -1,4 +1,5 @@
-﻿namespace X39.Solutions.PdfTemplate;
+﻿#pragma warning disable CA1710
+namespace X39.Solutions.PdfTemplate;
 
 /// <summary>
 /// A control that can contain other controls.

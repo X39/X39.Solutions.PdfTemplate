@@ -4,10 +4,16 @@ using XmlNode = X39.Solutions.PdfTemplate.Xml.XmlNode;
 
 namespace X39.Solutions.PdfTemplate.Transformers;
 
+/// <summary>
+/// A transformer that repeats the given nodes for a given range.
+/// </summary>
 public partial class ForTransformer : ITransformer
 {
-    [GeneratedRegex(@"\A\s*(?<variable>[a-zA-Z][a-zA-Z0-9_]*)\s+from\s+(?<from>.+?)\s+to\s+(?<to>.+?)(\s+step\s+(?<step>.+?))?\s*\z")]
+    [GeneratedRegex(
+        @"\A\s*(?<variable>[a-zA-Z][a-zA-Z0-9_]*)\s+from\s+(?<from>.+?)\s+to\s+(?<to>.+?)(\s+step\s+(?<step>.+?))?\s*\z")]
     private static partial Regex ParseArguments();
+
+    /// <inheritdoc />
     public string Name => "for";
 
     /// <inheritdoc />

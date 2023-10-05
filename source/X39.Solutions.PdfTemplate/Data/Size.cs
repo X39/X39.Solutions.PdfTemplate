@@ -1,5 +1,4 @@
 using System.Numerics;
-using SkiaSharp;
 
 namespace X39.Solutions.PdfTemplate.Data;
 

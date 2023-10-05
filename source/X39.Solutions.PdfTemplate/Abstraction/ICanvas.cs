@@ -2,6 +2,9 @@
 
 namespace X39.Solutions.PdfTemplate.Abstraction;
 
+/// <summary>
+/// A canvas for drawing on.
+/// </summary>
 public interface ICanvas
 {
     /// <summary>
@@ -42,5 +45,12 @@ public interface ICanvas
     /// <param name="point">The distance to translate.</param>
     void Translate(Point point);
 
+    /// <summary>
+    ///     Draws text on the canvas at the specified coordinates.
+    /// </summary>
+    /// <param name="text">The text to draw.</param>
+    /// <param name="x">The x-coordinate of the origin of the text being drawn.</param>
+    /// <param name="y">The y-coordinate of the origin of the text being drawn.</param>
+    /// <param name="textStyle">The <see cref="TextStyle"/> to use when drawing the text.</param>
     void DrawText(TextStyle textStyle, string text, float x, float y);
 }

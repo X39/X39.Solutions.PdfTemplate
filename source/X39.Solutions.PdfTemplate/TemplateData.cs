@@ -48,7 +48,7 @@ internal sealed class TemplateData : ITemplateData
         _functions.Add(function.Name, function);
     }
 
-    public IFunction? GetFunction(string name)
+    private IFunction GetFunction(string name)
     {
         return _functions.GetValueOrDefault(name) ?? new EmptyFunction();
     }
@@ -124,7 +124,7 @@ internal sealed class TemplateData : ITemplateData
             .ToArray();
         if (function is null)
             throw new InvalidOperationException($"Function '{functionName}' not found.");
-        return function?.Execute(arguments);
+        return function.Execute(arguments);
     }
 
     private static string HandleStringExpression(string expression)
@@ -187,8 +187,8 @@ internal sealed class TemplateData : ITemplateData
 
 internal class EmptyFunction : IFunction
 {
-    public string Name { get; } = string.Empty;
-    public int Arguments { get; }
+    public string Name => string.Empty;
+    public int Arguments => 0;
 
     public object? Execute(object?[] arguments)
     {

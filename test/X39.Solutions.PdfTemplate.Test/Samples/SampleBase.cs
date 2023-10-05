@@ -1,7 +1,6 @@
 ﻿using System.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using X39.Solutions.PdfTemplate.Services;
-using X39.Solutions.PdfTemplate.Transformers;
 using X39.Util;
 
 namespace X39.Solutions.PdfTemplate.Test.Samples;

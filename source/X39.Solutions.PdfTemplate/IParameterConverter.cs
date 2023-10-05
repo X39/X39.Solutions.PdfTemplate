@@ -11,8 +11,7 @@ namespace X39.Solutions.PdfTemplate;
 /// This interface is used by the <see cref="Generator"/> to convert
 /// parameters from the template to the type of the property of the
 /// <see cref="IControl"/>. To make a parameter converter available to the
-/// <see cref="Generator"/>, set the type of the <see cref="ParameterAttribute.Converter"/>
-/// or add it to the <see cref="GeneratorCache"/>.
+/// <see cref="Generator"/>, set the type of the <see cref="ParameterAttribute.Converter"/>.
 /// </remarks>
 /// <typeparam name="T">The type to convert.</typeparam>
 public interface IParameterConverter<T>

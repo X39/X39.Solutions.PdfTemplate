@@ -24,6 +24,7 @@ public partial class CanvasMock : ICanvas
     private class State
     {
         public Point Translation { get; set; }
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public Rectangle Clip { get; set; }
     }
 

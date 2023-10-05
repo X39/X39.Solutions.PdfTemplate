@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Numerics;
 
 namespace X39.Solutions.PdfTemplate.Data;
@@ -49,7 +50,7 @@ public readonly record struct FontWeight(ushort Value) : INumber<FontWeight>
     public int CompareTo(FontWeight other) => Value.CompareTo(other.Value);
 
     /// <inheritdoc />
-    public static FontWeight Parse(string s, IFormatProvider? provider) => new FontWeight(ushort.Parse(s, provider));
+    public static FontWeight Parse(string s, IFormatProvider? provider) => new(ushort.Parse(s, provider));
 
     /// <inheritdoc />
     public static bool TryParse(string? s, IFormatProvider? provider, out FontWeight result)
@@ -66,7 +67,7 @@ public readonly record struct FontWeight(ushort Value) : INumber<FontWeight>
 
     /// <inheritdoc />
     public static FontWeight Parse(ReadOnlySpan<char> s, IFormatProvider? provider) =>
-        new FontWeight(ushort.Parse(s, provider));
+        new(ushort.Parse(s, provider));
 
     /// <inheritdoc />
     public static bool TryParse(ReadOnlySpan<char> s, IFormatProvider? provider, out FontWeight result)
@@ -83,10 +84,10 @@ public readonly record struct FontWeight(ushort Value) : INumber<FontWeight>
 
     /// <inheritdoc />
     public static FontWeight operator +(FontWeight left, FontWeight right) =>
-        new FontWeight((ushort) (left.Value + right.Value));
+        new((ushort) (left.Value + right.Value));
 
     /// <inheritdoc />
-    public static FontWeight AdditiveIdentity => new FontWeight(0);
+    public static FontWeight AdditiveIdentity => new(0);
 
     /// <inheritdoc />
     public static bool operator >(FontWeight left, FontWeight right) => left.Value > right.Value;
@@ -101,38 +102,38 @@ public readonly record struct FontWeight(ushort Value) : INumber<FontWeight>
     public static bool operator <=(FontWeight left, FontWeight right) => left.Value <= right.Value;
 
     /// <inheritdoc />
-    public static FontWeight operator --(FontWeight value) => new FontWeight((ushort) (value.Value - 1));
+    public static FontWeight operator --(FontWeight value) => new((ushort) (value.Value - 1));
 
     /// <inheritdoc />
     public static FontWeight operator /(FontWeight left, FontWeight right) =>
-        new FontWeight((ushort) (left.Value / right.Value));
+        new((ushort) (left.Value / right.Value));
 
     /// <inheritdoc />
-    public static FontWeight operator ++(FontWeight value) => new FontWeight((ushort) (value.Value + 1));
+    public static FontWeight operator ++(FontWeight value) => new((ushort) (value.Value + 1));
 
     /// <inheritdoc />
     public static FontWeight operator %(FontWeight left, FontWeight right) =>
-        new FontWeight((ushort) (left.Value % right.Value));
+        new((ushort) (left.Value % right.Value));
 
     /// <inheritdoc />
-    public static FontWeight MultiplicativeIdentity => new FontWeight(1);
+    public static FontWeight MultiplicativeIdentity => new(1);
 
     /// <inheritdoc />
     public static FontWeight operator *(FontWeight left, FontWeight right) =>
-        new FontWeight((ushort) (left.Value * right.Value));
+        new((ushort) (left.Value * right.Value));
 
     /// <inheritdoc />
     public static FontWeight operator -(FontWeight left, FontWeight right) =>
-        new FontWeight((ushort) (left.Value - right.Value));
+        new((ushort) (left.Value - right.Value));
 
     /// <inheritdoc />
-    public static FontWeight operator -(FontWeight value) => new FontWeight((ushort) (-value.Value));
+    public static FontWeight operator -(FontWeight value) => new((ushort) (-value.Value));
 
     /// <inheritdoc />
-    public static FontWeight operator +(FontWeight value) => new FontWeight((ushort) (+value.Value));
+    public static FontWeight operator +(FontWeight value) => new((ushort) (+value.Value));
 
     /// <inheritdoc />
-    public static FontWeight Abs(FontWeight value) => new FontWeight((ushort) Math.Abs(value.Value));
+    public static FontWeight Abs(FontWeight value) => new(value.Value);
 
     /// <inheritdoc />
     public static bool IsCanonical(FontWeight value) => true;
@@ -199,11 +200,11 @@ public readonly record struct FontWeight(ushort Value) : INumber<FontWeight>
 
     /// <inheritdoc />
     public static FontWeight Parse(ReadOnlySpan<char> s, NumberStyles style, IFormatProvider? provider) =>
-        new FontWeight(ushort.Parse(s, style, provider));
+        new(ushort.Parse(s, style, provider));
 
     /// <inheritdoc />
     public static FontWeight Parse(string s, NumberStyles style, IFormatProvider? provider) =>
-        new FontWeight(ushort.Parse(s, style, provider));
+        new(ushort.Parse(s, style, provider));
 
     /// <inheritdoc />
     public static bool TryConvertFromChecked<TOther>(TOther value, out FontWeight result)
@@ -262,7 +263,7 @@ public readonly record struct FontWeight(ushort Value) : INumber<FontWeight>
     }
 
     /// <inheritdoc />
-    public static bool TryConvertToSaturating<TOther>(FontWeight value, out TOther result)
+    public static bool TryConvertToSaturating<TOther>(FontWeight value, [NotNullWhen(true)] out TOther result)
         where TOther : INumberBase<TOther>
     {
         if (TOther.TryConvertFromSaturating(value.Value, out var converted))
@@ -271,7 +272,7 @@ public readonly record struct FontWeight(ushort Value) : INumber<FontWeight>
             return true;
         }
 
-        result = default;
+        result = default!;
         return false;
     }
 

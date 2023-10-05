@@ -2,9 +2,6 @@
 using System.Globalization;
 using System.Text;
 using System.Xml;
-using Microsoft.Extensions.DependencyInjection;
-using X39.Solutions.PdfTemplate.Services;
-using X39.Util;
 
 namespace X39.Solutions.PdfTemplate.Test.Samples;
 
@@ -105,7 +102,7 @@ public class LineSample : SampleBase
                  """));
         using var disposable = CreateStream(out var pdfStream);
         using var xmlReader = XmlReader.Create(xmlStream);
-        generator.Generate(
+        generator.GeneratePdf(
             pdfStream,
             xmlReader,
             CultureInfo.InvariantCulture);
@@ -128,7 +125,7 @@ public class LineSample : SampleBase
                  """));
         using var disposable = CreateStream(out var pdfStream);
         using var xmlReader = XmlReader.Create(xmlStream);
-        generator.Generate(
+        generator.GeneratePdf(
             pdfStream,
             xmlReader,
             CultureInfo.InvariantCulture);

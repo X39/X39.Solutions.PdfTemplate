@@ -1,5 +1,3 @@
-using System.ComponentModel;
-
 namespace X39.Solutions.PdfTemplate.Attributes;
 
 /// <summary>

@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Numerics;
 
 namespace X39.Solutions.PdfTemplate.Data;
@@ -49,7 +50,7 @@ public readonly record struct FontWidth(ushort Value) : INumber<FontWidth>
     public int CompareTo(FontWidth other) => Value.CompareTo(other.Value);
 
     /// <inheritdoc />
-    public static FontWidth Parse(string s, IFormatProvider? provider) => new FontWidth(ushort.Parse(s, provider));
+    public static FontWidth Parse(string s, IFormatProvider? provider) => new(ushort.Parse(s, provider));
 
     /// <inheritdoc />
     public static bool TryParse(string? s, IFormatProvider? provider, out FontWidth result)
@@ -66,7 +67,7 @@ public readonly record struct FontWidth(ushort Value) : INumber<FontWidth>
 
     /// <inheritdoc />
     public static FontWidth Parse(ReadOnlySpan<char> s, IFormatProvider? provider) =>
-        new FontWidth(ushort.Parse(s, provider));
+        new(ushort.Parse(s, provider));
 
     /// <inheritdoc />
     public static bool TryParse(ReadOnlySpan<char> s, IFormatProvider? provider, out FontWidth result)
@@ -83,10 +84,10 @@ public readonly record struct FontWidth(ushort Value) : INumber<FontWidth>
 
     /// <inheritdoc />
     public static FontWidth operator +(FontWidth left, FontWidth right) =>
-        new FontWidth((ushort) (left.Value + right.Value));
+        new((ushort) (left.Value + right.Value));
 
     /// <inheritdoc />
-    public static FontWidth AdditiveIdentity => new FontWidth(0);
+    public static FontWidth AdditiveIdentity => new(0);
 
     /// <inheritdoc />
     public static bool operator >(FontWidth left, FontWidth right) => left.Value > right.Value;
@@ -101,38 +102,38 @@ public readonly record struct FontWidth(ushort Value) : INumber<FontWidth>
     public static bool operator <=(FontWidth left, FontWidth right) => left.Value <= right.Value;
 
     /// <inheritdoc />
-    public static FontWidth operator --(FontWidth value) => new FontWidth((ushort) (value.Value - 1));
+    public static FontWidth operator --(FontWidth value) => new((ushort) (value.Value - 1));
 
     /// <inheritdoc />
     public static FontWidth operator /(FontWidth left, FontWidth right) =>
-        new FontWidth((ushort) (left.Value / right.Value));
+        new((ushort) (left.Value / right.Value));
 
     /// <inheritdoc />
-    public static FontWidth operator ++(FontWidth value) => new FontWidth((ushort) (value.Value + 1));
+    public static FontWidth operator ++(FontWidth value) => new((ushort) (value.Value + 1));
 
     /// <inheritdoc />
     public static FontWidth operator %(FontWidth left, FontWidth right) =>
-        new FontWidth((ushort) (left.Value % right.Value));
+        new((ushort) (left.Value % right.Value));
 
     /// <inheritdoc />
-    public static FontWidth MultiplicativeIdentity => new FontWidth(1);
+    public static FontWidth MultiplicativeIdentity => new(1);
 
     /// <inheritdoc />
     public static FontWidth operator *(FontWidth left, FontWidth right) =>
-        new FontWidth((ushort) (left.Value * right.Value));
+        new((ushort) (left.Value * right.Value));
 
     /// <inheritdoc />
     public static FontWidth operator -(FontWidth left, FontWidth right) =>
-        new FontWidth((ushort) (left.Value - right.Value));
+        new((ushort) (left.Value - right.Value));
 
     /// <inheritdoc />
-    public static FontWidth operator -(FontWidth value) => new FontWidth((ushort) (-value.Value));
+    public static FontWidth operator -(FontWidth value) => new((ushort) (-value.Value));
 
     /// <inheritdoc />
-    public static FontWidth operator +(FontWidth value) => new FontWidth((ushort) (+value.Value));
+    public static FontWidth operator +(FontWidth value) => new((ushort) (+value.Value));
 
     /// <inheritdoc />
-    public static FontWidth Abs(FontWidth value) => new FontWidth((ushort) Math.Abs(value.Value));
+    public static FontWidth Abs(FontWidth value) => new(value.Value);
 
     /// <inheritdoc />
     public static bool IsCanonical(FontWidth value) => true;
@@ -199,11 +200,11 @@ public readonly record struct FontWidth(ushort Value) : INumber<FontWidth>
 
     /// <inheritdoc />
     public static FontWidth Parse(ReadOnlySpan<char> s, NumberStyles style, IFormatProvider? provider) =>
-        new FontWidth(ushort.Parse(s, style, provider));
+        new(ushort.Parse(s, style, provider));
 
     /// <inheritdoc />
     public static FontWidth Parse(string s, NumberStyles style, IFormatProvider? provider) =>
-        new FontWidth(ushort.Parse(s, style, provider));
+        new(ushort.Parse(s, style, provider));
 
     /// <inheritdoc />
     public static bool TryConvertFromChecked<TOther>(TOther value, out FontWidth result)
@@ -262,7 +263,7 @@ public readonly record struct FontWidth(ushort Value) : INumber<FontWidth>
     }
 
     /// <inheritdoc />
-    public static bool TryConvertToSaturating<TOther>(FontWidth value, out TOther result)
+    public static bool TryConvertToSaturating<TOther>(FontWidth value, [NotNullWhen(true)] out TOther result)
         where TOther : INumberBase<TOther>
     {
         if (TOther.TryConvertFromSaturating(value.Value, out var converted))
@@ -271,7 +272,7 @@ public readonly record struct FontWidth(ushort Value) : INumber<FontWidth>
             return true;
         }
 
-        result = default;
+        result = default!;
         return false;
     }
 

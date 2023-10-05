@@ -67,7 +67,6 @@ public sealed class XmlNode
     /// <param name="column">The column of this node.</param>
     /// <param name="ns">The namespace of this node.</param>
     /// <param name="name">The name of this node.</param>
-    /// <param name="text">The text of this node or <see langword="null"/> if this node does not have any text.</param>
     public XmlNode(int line, int column, string ns, string name)
     {
         Name       = name;
@@ -207,6 +206,10 @@ public sealed class XmlNode
         Text = text;
     }
 
+    /// <summary>
+    /// Creates a deep copy of this node.
+    /// </summary>
+    /// <returns>A deep copy of this node.</returns>
     public XmlNode DeepCopy()
     {
         if (IsTextNode)
@@ -225,6 +228,12 @@ public sealed class XmlNode
         return node;
     }
 
+    /// <summary>
+    /// Inserts a child at the given index.
+    /// </summary>
+    /// <param name="nodeIndex">The index to insert the child at.</param>
+    /// <param name="xmlNode">The child to insert.</param>
+    /// <exception cref="InvalidOperationException">Thrown when the child is already attached to a parent.</exception>
     public void InsertChild(int nodeIndex, XmlNode xmlNode)
     {
         if (xmlNode._parent is not null)

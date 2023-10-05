@@ -2,6 +2,16 @@ using System.Collections;
 
 namespace X39.Solutions.PdfTemplate.Xml;
 
+/// <summary>
+/// Contains the necessary information to create a <see cref="IControl"/>
+/// </summary>
+/// <param name="Line">The line the node is on.</param>
+/// <param name="Column">The column the node is on.</param>
+/// <param name="NodeName">The name of the control to create.</param>
+/// <param name="NodeNamespace">The namespace the control is in.</param>
+/// <param name="TextContent">The text content of the node.</param>
+/// <param name="Attributes">The attributes of the node.</param>
+/// <param name="Children">The children of the node.</param>
 public record XmlNodeInformation(
         int Line,
         int Column,

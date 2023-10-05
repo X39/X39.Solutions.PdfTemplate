@@ -18,8 +18,13 @@ public sealed class XmlTemplateReader : IDisposable
 
     private readonly TemplateData                      _templateData;
     private readonly IReadOnlyCollection<ITransformer> _transformers;
-    private readonly IDisposable                       _disposable;
+    private readonly IDisposable?                      _disposable;
 
+    /// <summary>
+    /// Creates a new <see cref="XmlTemplateReader"/> with the given <paramref name="templateData"/> and <paramref name="transformers"/>.
+    /// </summary>
+    /// <param name="templateData">The template data to use.</param>
+    /// <param name="transformers">The transformers to use.</param>
     public XmlTemplateReader(ITemplateData templateData, IReadOnlyCollection<ITransformer> transformers)
     {
         if (templateData is not TemplateData data)
@@ -124,7 +129,7 @@ public sealed class XmlTemplateReader : IDisposable
                 AppendValueToStringBuilder(functionResult, builder);
             }
             else if (_transformers.FirstOrDefault(
-                         (transformer) => transformer.Name.Equals(name, StringComparison.OrdinalIgnoreCase)) is
+                         (t) => t.Name.Equals(name, StringComparison.OrdinalIgnoreCase)) is
                      { } transformer)
             {
                 // A transformer name was matched
@@ -175,7 +180,6 @@ public sealed class XmlTemplateReader : IDisposable
                         if (curlyBracketCount is 0)
                         {
                             var leadingText = childText[..i];
-                            var trailingText = childText[(i + 1)..];
 
                             if (leadingText.IsNotNullOrWhiteSpace())
                             {

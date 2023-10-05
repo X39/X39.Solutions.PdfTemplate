@@ -2,6 +2,9 @@
 
 namespace X39.Solutions.PdfTemplate.Controls.Base;
 
+/// <summary>
+/// Base class for alignable controls that can contain other controls.
+/// </summary>
 public abstract class AlignableContentControl : AlignableControl, IContentControl
 {
     private readonly List<IControl> _children = new();

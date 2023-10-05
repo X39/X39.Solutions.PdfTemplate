@@ -37,7 +37,7 @@ public class TableSample: SampleBase
                  """));
         using var disposable = CreateStream(out var pdfStream);
         using var xmlReader = XmlReader.Create(xmlStream);
-        generator.Generate(
+        generator.GeneratePdf(
             pdfStream,
             xmlReader,
             CultureInfo.InvariantCulture);
@@ -79,7 +79,7 @@ public class TableSample: SampleBase
                   """));
         using var disposable = CreateStream(out var pdfStream);
         using var xmlReader = XmlReader.Create(xmlStream);
-        generator.Generate(
+        generator.GeneratePdf(
             pdfStream,
             xmlReader,
             CultureInfo.InvariantCulture);

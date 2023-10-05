@@ -10,7 +10,9 @@ namespace X39.Solutions.PdfTemplate.Services;
 /// </summary>
 public sealed class SkPaintCache : IDisposable
 {
+    // ReSharper disable NotAccessedPositionalProperty.Local -- Disabled as this is a key-only record
     private readonly record struct ColorPaintKey(Color Color, float Thickness);
+    // ReSharper restore NotAccessedPositionalProperty.Local
 
     private readonly Dictionary<ColorPaintKey, SKPaint> _colorPaints     = new();
     private readonly Dictionary<TextStyle, SKPaint>     _textPaints      = new();

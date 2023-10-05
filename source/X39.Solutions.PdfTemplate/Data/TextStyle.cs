@@ -1,5 +1,3 @@
-using System.Security.Cryptography.X509Certificates;
-
 namespace X39.Solutions.PdfTemplate.Data;
 
 /// <summary>

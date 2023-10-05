@@ -15,6 +15,8 @@ internal class AllTemplateDataFunctions : IFunction
     public object Execute(object?[] arguments)
     {
         return _templateData.Functions
-            .Select((q) => $"{q.Name}({string.Join(", ", Enumerable.Range(0, q.Arguments).Select((q) => $"arg{q}"))}");
+            .Select(
+                (function) =>
+                    $"{function.Name}({string.Join(", ", Enumerable.Range(0, function.Arguments).Select((argNo) => $"arg{argNo}"))}");
     }
 }
