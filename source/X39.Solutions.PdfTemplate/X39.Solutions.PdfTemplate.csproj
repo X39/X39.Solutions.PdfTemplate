@@ -29,7 +29,7 @@
     </ItemGroup>
     <ItemGroup>
         <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="7.0.0"/>
-        <PackageReference Include="SkiaSharp" Version="2.88.5"/>
+        <PackageReference Include="SkiaSharp" Version="2.88.6"/>
         <PackageReference Include="X39.Util" Version="1.0.0.38"/>
     </ItemGroup>
 </Project>
