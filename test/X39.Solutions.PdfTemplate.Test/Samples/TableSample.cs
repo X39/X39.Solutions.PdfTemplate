@@ -51,6 +51,10 @@ public class TableSample: SampleBase
                 $$"""
                   <?xml version="1.0" encoding="utf-8"?>
                   <template xmlns="{{Constants.ControlsNamespace}}">
+                      <header>
+                          <text margin="0 0 0 5%">Text present in header</text>
+                          <line thickness="1px" length="100%"/>
+                      </header>
                       <body>
                          <table>
                              <th>
@@ -67,6 +71,10 @@ public class TableSample: SampleBase
                              }
                          </table>
                       </body>
+                      <footer>
+                          <line thickness="1px" length="100%"/>
+                          <text margin="0 5% 0 0">More text in the footer</text>
+                      </footer>
                   </template>
                   """));
         using var disposable = CreateStream(out var pdfStream);

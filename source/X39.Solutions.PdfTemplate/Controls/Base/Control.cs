@@ -157,13 +157,13 @@ public abstract class Control : IControl
         MeasurementOuter = new Rectangle(
             0,
             0,
-            measureResult.Width + padding.Width + padding.Width + margin.Width + margin.Width,
-            measureResult.Height + padding.Height + padding.Height + margin.Height + margin.Height);
+            measureResult.Width + padding.Right + margin.Right,
+            measureResult.Height + padding.Bottom + margin.Bottom);
         Measurement = new Rectangle(
             margin.Left,
             margin.Top,
-            measureResult.Width + padding.Width + padding.Width,
-            measureResult.Height + padding.Height + padding.Height);
+            measureResult.Width + padding.Right,
+            measureResult.Height + padding.Bottom);
         MeasurementInner = new Rectangle(
             margin.Left + padding.Left,
             margin.Top + padding.Top,
@@ -203,13 +203,13 @@ public abstract class Control : IControl
         ArrangementOuter = new Rectangle(
             0,
             0,
-            measureResult.Width + padding.Width + padding.Width + margin.Width + margin.Width,
-            measureResult.Height + padding.Height + padding.Height + margin.Height + margin.Height);
+            measureResult.Width + padding.Right + margin.Right,
+            measureResult.Height + padding.Bottom + margin.Bottom);
         Arrangement = new Rectangle(
             margin.Left,
             margin.Top,
-            measureResult.Width + padding.Width + padding.Width,
-            measureResult.Height + padding.Height + padding.Height);
+            measureResult.Width + padding.Right,
+            measureResult.Height + padding.Bottom);
         ArrangementInner = new Rectangle(
             margin.Left + padding.Left,
             margin.Top + padding.Top,

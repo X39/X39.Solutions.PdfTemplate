@@ -2,6 +2,7 @@
 using System.Reflection;
 using System.Xml;
 using Microsoft.Extensions.DependencyInjection;
+using SkiaSharp;
 using X39.Solutions.PdfTemplate.Abstraction;
 using X39.Solutions.PdfTemplate.Attributes;
 using X39.Solutions.PdfTemplate.Data;
@@ -124,44 +125,116 @@ public sealed class Generator : IDisposable, IAsyncDisposable
         var pageSize = new Size(
             options.DotsPerMillimeter * options.PageWidthInMillimeters,
             options.DotsPerMillimeter * options.PageHeightInMillimeters);
-        var desiredHeight = 0F;
+
+        #region Measure
+
+
         foreach (var control in template.HeaderControls.Concat(template.BodyControls).Concat(template.FooterControls))
         {
             var size = control.Measure(pageSize, pageSize, pageSize, cultureInfo);
-            desiredHeight += size.Height;
         }
 
-        // ToDo: Implement page splitting
-        var sizes = new List<Size>();
-        foreach (var control in template.HeaderControls.Concat(template.BodyControls).Concat(template.FooterControls))
+        #endregion
+
+        #region Arrange
+
+        var headerSizes = new List<Size>();
+        var headerPageSize = pageSize with { Height = pageSize.Height * 0.25F };
+        foreach (var control in template.HeaderControls)
         {
-            var size = control.Arrange(pageSize, pageSize, pageSize, cultureInfo);
-            sizes.Add(size);
+            var size = control.Arrange(pageSize, headerPageSize, headerPageSize, cultureInfo);
+            headerSizes.Add(size);
         }
+        headerPageSize = headerPageSize with { Height = headerSizes.Sum((q)=>q.Height) };
+        if (headerPageSize.Height > pageSize.Height * 0.25F)
+            headerPageSize = headerPageSize with { Height = pageSize.Height * 0.25F };
 
-        var canvasAbstraction = new CanvasImpl(_skPaintCache);
-        canvasAbstraction.PushState();
-        foreach (var (control, size) in template.HeaderControls.Concat(template.BodyControls)
-                     .Concat(template.FooterControls)
-                     .Zip(sizes))
+        var footerSizes = new List<Size>();
+        var footerPageSize = pageSize with { Height = pageSize.Height * 0.25F };
+        foreach (var control in template.FooterControls)
         {
-            control.Render(canvasAbstraction, pageSize, cultureInfo);
-            canvasAbstraction.Translate(0F, size.Height);
+            var size = control.Arrange(pageSize, footerPageSize, footerPageSize, cultureInfo);
+            footerSizes.Add(size);
+        }
+        footerPageSize = footerPageSize with { Height = footerSizes.Sum((q)=>q.Height) };
+        if (footerPageSize.Height > pageSize.Height * 0.25F)
+            footerPageSize = footerPageSize with { Height = pageSize.Height * 0.25F };
+        
+
+        var bodySizes = new List<Size>();
+        var bodyPageSize = pageSize with { Height = pageSize.Height - headerPageSize.Height - footerPageSize.Height };
+        foreach (var control in template.BodyControls)
+        {
+            var size = control.Arrange(pageSize, bodyPageSize, bodyPageSize, cultureInfo);
+            bodySizes.Add(size);
         }
 
-        canvasAbstraction.PopState();
+        #endregion
+
+        #region Render
+
+        var headerCanvasAbstraction = new CanvasImpl(_skPaintCache);
+        headerCanvasAbstraction.PushState();
+        foreach (var (control, size) in template.HeaderControls.Zip(headerSizes))
+        {
+            control.Render(headerCanvasAbstraction, headerPageSize, cultureInfo);
+            headerCanvasAbstraction.Translate(0F, size.Height);
+        }
+        headerCanvasAbstraction.PopState();
+
+        var bodyCanvasAbstraction = new CanvasImpl(_skPaintCache);
+        bodyCanvasAbstraction.PushState();
+        foreach (var (control, size) in template.BodyControls.Zip(bodySizes))
+        {
+            control.Render(bodyCanvasAbstraction, bodyPageSize, cultureInfo);
+            bodyCanvasAbstraction.Translate(0F, size.Height);
+        }
+        bodyCanvasAbstraction.PopState();
+
+        var footerCanvasAbstraction = new CanvasImpl(_skPaintCache);
+        footerCanvasAbstraction.PushState();
+        foreach (var (control, size) in template.FooterControls.Zip(footerSizes))
+        {
+            control.Render(footerCanvasAbstraction, footerPageSize, cultureInfo);
+            footerCanvasAbstraction.Translate(0F, size.Height);
+        }
+        footerCanvasAbstraction.PopState();
+
+        var desiredHeight = headerSizes.Sum((q)=>q.Height) + bodySizes.Sum((q)=>q.Height) + footerSizes.Sum((q)=>q.Height);
         var pageCount = (int) Math.Ceiling(desiredHeight / pageSize.Height);
+
         var currentHeight = 0F;
-        foreach (var pageNo in Enumerable.Range(0, pageCount))
+
+        for (var i = 0; i < pageCount; i++)
         {
             using var canvas = skDocument.BeginPage(pageSize.Width, pageSize.Height);
+            
+            canvas.Save();
+            canvas.ClipRect(new SKRect{ Left = 0, Right = headerPageSize.Width, Top = 0, Bottom = headerPageSize.Height });
+            headerCanvasAbstraction.Render(canvas);
+            canvas.Restore();
+            
+            canvas.Save();
+            canvas.Translate(0, headerPageSize.Height);
+            canvas.ClipRect(new SKRect{ Left = 0, Right = bodyPageSize.Width, Top = 0, Bottom = bodyPageSize.Height });
             canvas.Translate(0, -currentHeight);
-            canvasAbstraction.Render(canvas);
+            bodyCanvasAbstraction.Render(canvas);
+            canvas.Restore();
+            
+            canvas.Save();
+            canvas.Translate(0, headerPageSize.Height);
+            canvas.Translate(0, bodyPageSize.Height);
+            canvas.ClipRect(new SKRect{ Left = 0, Right = footerPageSize.Width, Top = 0, Bottom = footerPageSize.Height });
+            footerCanvasAbstraction.Render(canvas);
+            canvas.Restore();
+            
             skDocument.EndPage();
-            currentHeight += pageSize.Height;
+            currentHeight += bodyPageSize.Height;
         }
 
         skDocument.Close();
+
+        #endregion
     }
 
     /// <inheritdoc />

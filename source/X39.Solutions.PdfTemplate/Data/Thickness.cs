@@ -95,34 +95,35 @@ public readonly record struct Thickness(Length Left, Length Top, Length Right, L
         if (partCount is not 1 and not 2 and not 4)
             throw new FormatException($"The thickness '{s}' is not in the correct format.");
 
-        var left = partCount switch
+        Length left;
+        Length top;
+        Length right;
+        Length bottom;
+        switch (partCount)
         {
-            1 => Length.Parse(s, provider),
-            2 => Length.Parse(s[..s.IndexOf(' ')], provider),
-            4 => Length.Parse(s[..s.IndexOf(' ')], provider),
-            _ => throw new FormatException($"The thickness '{s}' is not in the correct format."),
-        };
-        var top = partCount switch
-        {
-            1 => left,
-            2 => Length.Parse(s[(s.IndexOf(' ') + 1)..], provider),
-            4 => Length.Parse(s[(s.IndexOf(' ') + 1)..], provider),
-            _ => throw new FormatException($"The thickness '{s}' is not in the correct format."),
-        };
-        var right = partCount switch
-        {
-            1 => left,
-            2 => left,
-            4 => Length.Parse(s[(s.LastIndexOf(' ') + 1)..], provider),
-            _ => throw new FormatException($"The thickness '{s}' is not in the correct format."),
-        };
-        var bottom = partCount switch
-        {
-            1 => left,
-            2 => top,
-            4 => Length.Parse(s[(s.LastIndexOf(' ') + 1)..], provider),
-            _ => throw new FormatException($"The thickness '{s}' is not in the correct format."),
-        };
+            case 1:
+                left   = Length.Parse(s, provider);
+                top    = left;
+                right  = left;
+                bottom = left;
+                break;
+            case 2:
+                left   = Length.Parse(s[..s.IndexOf(' ')], provider);
+                top    = Length.Parse(s[(s.LastIndexOf(' ') + 1)..], provider);
+                right  = left;
+                bottom = top;
+                break;
+            case 4:
+                left   = Length.Parse(s[..s.IndexOf(' ')], provider);
+                s = s[(s.IndexOf(' ') + 1)..];
+                top    = Length.Parse(s[..s.IndexOf(' ')], provider);
+                s = s[(s.IndexOf(' ') + 1)..];
+                right  = Length.Parse(s[..s.IndexOf(' ')], provider);
+                bottom = Length.Parse(s[(s.IndexOf(' ') + 1)..], provider);
+                break;
+            default:
+                throw new FormatException($"The thickness '{s}' is not in the correct format.");
+        }
         return new Thickness(left, top, right, bottom);
     }
 
