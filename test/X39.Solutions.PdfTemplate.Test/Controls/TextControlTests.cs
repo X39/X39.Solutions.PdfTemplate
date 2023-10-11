@@ -1,0 +1,39 @@
+﻿using System.Globalization;
+using X39.Solutions.PdfTemplate.Controls;
+using X39.Solutions.PdfTemplate.Data;
+using X39.Solutions.PdfTemplate.Services;
+using X39.Solutions.PdfTemplate.Services.TextService;
+using X39.Solutions.PdfTemplate.Test.Mock;
+
+namespace X39.Solutions.PdfTemplate.Test.Controls;
+
+public class TextControlTests : IDisposable
+{
+    private readonly SkPaintCache _paintCache = new();
+
+    public void Dispose()
+    {
+        _paintCache.Dispose();
+    }
+
+    [Fact]
+    public void LeftAlignedText()
+    {
+        const string text = "The quick brown fox jumps over the lazy dog";
+        var pageBounds = new Size( 595, 842);
+        var mock = new CanvasMock();
+        var control = new TextControl(new TextService(_paintCache))
+        {
+            Text     = text,
+            FontSize = 12,
+            Style    = EFontStyle.Italic,
+            FontFamily = "C:\\dev\\X39\\X39.Solutions.PdfTemplate\\test\\fonts\\Nunito_Sans\\NunitoSans-Italic-VariableFont_YTLC,opsz,wdth,wght.ttf",
+        };
+        var textStyle = control.GetTextStyle();
+        control.Measure(pageBounds, pageBounds, pageBounds, CultureInfo.InvariantCulture);
+        control.Arrange(pageBounds, pageBounds, pageBounds, CultureInfo.InvariantCulture);
+        control.Render(mock, pageBounds, CultureInfo.InvariantCulture);
+        mock.AssertState();
+        mock.AssertDrawText(textStyle, text, 0, 12.9492188F);
+    }
+}

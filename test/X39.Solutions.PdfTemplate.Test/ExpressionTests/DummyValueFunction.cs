@@ -1,11 +1,11 @@
 ﻿namespace X39.Solutions.PdfTemplate.Test.ExpressionTests;
 
-public class DummyNumberFunction : IFunction
+public class DummyValueFunction : IFunction
 {
-    private readonly Type[] _inputTypes;
-    private readonly int    _returnValue;
+    private readonly Type[]  _inputTypes;
+    private readonly object? _returnValue;
 
-    public DummyNumberFunction(string name, int returnValue, Type[] inputTypes)
+    public DummyValueFunction(string name, object? returnValue, Type[] inputTypes)
     {
         Name         = name;
         Arguments    = inputTypes.Length;
@@ -15,9 +15,10 @@ public class DummyNumberFunction : IFunction
 
     public string Name { get; }
     public int Arguments { get; }
-    public object Execute(object?[] arguments)
+
+    public object? Execute(object?[] arguments)
     {
-        if (!arguments.Select((q)=>q?.GetType()).SequenceEqual(_inputTypes))
+        if (!arguments.Select((q) => q?.GetType()).SequenceEqual(_inputTypes))
             throw new ArgumentException("Invalid arguments.", nameof(arguments));
         return _returnValue;
     }

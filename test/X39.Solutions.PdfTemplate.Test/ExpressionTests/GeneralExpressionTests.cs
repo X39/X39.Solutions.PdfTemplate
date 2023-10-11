@@ -30,4 +30,27 @@ public class GeneralExpressionTests
         Assert.Equal(1, nodeInformation.Children.Count);
         Assert.Equal(textExpected, nodeInformation.Children.ElementAt(0).TextContent);
     }
+    [Fact]
+    public void VariableNotCutOff()
+    {
+        const string ns = Constants.ControlsNamespace;
+        const string template = $"""
+                                  <?xml version="1.0" encoding="utf-8"?>
+                                  <styleMustBeEmptyTagTest xmlns="{ns}" someAttribute="asd">
+                                     <text>@i: @j @k! @nono- @yes-yes</text>
+                                  </styleMustBeEmptyTagTest>
+                                  """;
+        var data = new TemplateData();
+        data.SetVariable("i", "foo");
+        data.SetVariable("j", "bar");
+        data.SetVariable("k", "baz");
+        data.SetVariable("nono", "error");
+        data.SetVariable("yes-yes", "no-error");
+        var templateReader = new XmlTemplateReader(data, Array.Empty<ITransformer>());
+        using var xmlStream = new MemoryStream(Encoding.UTF8.GetBytes(template));
+        using var xmlReader = XmlReader.Create(xmlStream);
+        var nodeInformation = templateReader.Read(xmlReader);
+        Assert.Equal(1, nodeInformation.Children.Count);
+        Assert.Equal("foo: bar baz! @nono- no-error", nodeInformation.Children.ElementAt(0).TextContent);
+    }
 }

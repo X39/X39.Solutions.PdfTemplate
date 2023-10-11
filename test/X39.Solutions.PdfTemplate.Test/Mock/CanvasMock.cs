@@ -6,6 +6,12 @@ namespace X39.Solutions.PdfTemplate.Test.Mock;
 
 public partial class CanvasMock : ICanvas
 {
+    private record struct DrawTextCall(
+        TextStyle TextStyle,
+        string Text,
+        float X,
+        float Y);
+
     private record struct DrawLineCall(
         Color Color,
         float Thickness,
@@ -24,12 +30,14 @@ public partial class CanvasMock : ICanvas
     private class State
     {
         public Point Translation { get; set; }
+
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public Rectangle Clip { get; set; }
     }
 
     private readonly Stack<State>       _stateStack    = new(new State().MakeEnumerable());
     private readonly List<DrawLineCall> _drawLineCalls = new();
+    private readonly List<DrawTextCall> _drawTextCalls = new();
 
     public void PushState()
     {
@@ -72,7 +80,12 @@ public partial class CanvasMock : ICanvas
 
     public void DrawText(TextStyle textStyle, string text, float x, float y)
     {
-        throw new NotImplementedException();
+        _drawTextCalls.Add(
+            new DrawTextCall(
+                textStyle,
+                text,
+                x,
+                y));
     }
 }
 
@@ -104,6 +117,24 @@ public partial class CanvasMock
                 callExpected.startY,
                 callExpected.endX,
                 callExpected.endY);
+            Assert.Equal(expected, actual);
+        }
+    }
+    
+    public void AssertDrawText(TextStyle textStyle, string text, float x, float y)
+    {
+        var actual = _drawTextCalls.FirstOrDefault();
+        var expected = new DrawTextCall(textStyle, text, x, y);
+        Assert.Equal(expected, actual);
+    }
+    
+    public void AssertDrawText(params (TextStyle textStyle, string text, float x, float y)[] drawTextCalls)
+    {
+        Assert.Equal(drawTextCalls.Length, _drawTextCalls.Count);
+        var zipped = _drawTextCalls.Zip(drawTextCalls);
+        foreach (var (actual, callExpected) in zipped)
+        {
+            var expected = new DrawTextCall(callExpected.textStyle, callExpected.text, callExpected.x, callExpected.y);
             Assert.Equal(expected, actual);
         }
     }

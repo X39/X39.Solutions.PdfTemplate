@@ -91,7 +91,7 @@ public sealed class XmlTemplateReader : IDisposable
             var indexOfExpressionStart = text.IndexOf('@', previousIndex + 1);
             if (indexOfExpressionStart == -1)
                 break;
-            var previousText = text[(previousIndex + 1)..indexOfExpressionStart];
+            var previousText = text[(previousIndex is -1 ? 0 : previousIndex)..indexOfExpressionStart];
             previousIndex = indexOfExpressionStart;
             builder.Append(previousText);
             if (!previousText.LastOrDefault().IsWhiteSpace() && indexOfExpressionStart is not 0)
@@ -99,7 +99,7 @@ public sealed class XmlTemplateReader : IDisposable
             var endOfName = indexOfExpressionStart + 1;
 
             // Scan for the end of the name.
-            while (text.Length > endOfName && text[endOfName].IsLetterOrDigit())
+            while (text.Length > endOfName && (text[endOfName].IsLetterOrDigit() || text[endOfName] == '-' || text[endOfName] == '_'))
                 endOfName++;
 
             var name = text[(indexOfExpressionStart + 1)..endOfName];
@@ -142,7 +142,7 @@ public sealed class XmlTemplateReader : IDisposable
 
                 var transformerBody = text[(endOfName + 1)..bracketIndex];
                 var remainingText = text[(bracketIndex + 1)..];
-                if (builder.Length > 0)
+                if (builder.Length > 0 && builder.ToString().All(char.IsWhiteSpace))
                     node.SetText(builder.ToString());
                 else
                     nodeTree.RemoveChild(node);
@@ -173,24 +173,29 @@ public sealed class XmlTemplateReader : IDisposable
                     for (var i = 0; i < childText.Length; i++)
                     {
                         var c = childText[i];
-                        if (c == '{')
-                            curlyBracketCount++;
-                        else if (c == '}')
-                            curlyBracketCount--;
-                        if (curlyBracketCount is 0)
+                        switch (c)
                         {
-                            var leadingText = childText[..i];
-
-                            if (leadingText.IsNotNullOrWhiteSpace())
-                            {
-                                var tmpNode = new XmlNode(childNode.Line, childNode.Column, leadingText.TrimEnd());
-                                nodeTree.InsertChild(currentNodeIndex, tmpNode);
-                                nodesOfTransformer.Add(tmpNode);
-                                currentNodeIndex++;
-                            }
-
-                            break;
+                            case '{':
+                                curlyBracketCount++;
+                                break;
+                            case '}':
+                                curlyBracketCount--;
+                                break;
                         }
+
+                        if (curlyBracketCount is not 0)
+                            continue;
+                        var leadingText = childText[..i];
+
+                        if (leadingText.IsNotNullOrWhiteSpace())
+                        {
+                            var tmpNode = new XmlNode(childNode.Line, childNode.Column, leadingText.TrimEnd());
+                            nodeTree.InsertChild(currentNodeIndex, tmpNode);
+                            nodesOfTransformer.Add(tmpNode);
+                            currentNodeIndex++;
+                        }
+
+                        break;
                     }
 
                     if (curlyBracketCount > 0)

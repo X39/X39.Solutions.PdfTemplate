@@ -161,6 +161,25 @@ public class TextControl : AlignableControl
         };
     }
 
+    /// <summary>
+    /// The font family.
+    /// </summary>
+    [Parameter]
+    public string FontFamily
+    {
+        get => _textStyle.FontFamily.Family;
+        set => _textStyle = _textStyle with
+        {
+            FontFamily = _textStyle.FontFamily with
+            {
+                Family = value,
+            },
+        };
+    }
+    
+    
+    internal TextStyle GetTextStyle() => _textStyle;
+
     /// <inheritdoc />
     protected override Size DoMeasure(
         in Size fullPageSize,

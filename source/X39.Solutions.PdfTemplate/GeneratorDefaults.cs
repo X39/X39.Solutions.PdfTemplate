@@ -23,6 +23,8 @@ public static class GeneratorDefaults
         generator.AddControl<Controls.TableRowControl>();
         
         generator.AddTransformer(new ForTransformer());
+        generator.AddTransformer(new IfTransformer());
+        generator.AddTransformer(new ForEachTransformer());
         return generator;
     }
 }

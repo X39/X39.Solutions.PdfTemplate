@@ -10,7 +10,6 @@ public class ForTransformerTests
     [Fact]
     public void NestedImmediately()
     {
-        // ToDo: Fix this test
         const string ns = Constants.ControlsNamespace;
         var template = $$"""
                          <?xml version="1.0" encoding="utf-8"?>
@@ -113,9 +112,9 @@ public class ForTransformerTests
                          </styleMustBeEmptyTagTest>
                          """;
         var data = new TemplateData();
-        data.RegisterFunction(new DummyNumberFunction("start", start, new[] {typeof(int), typeof(string)}));
-        data.RegisterFunction(new DummyNumberFunction("end", end, new[] {typeof(int), typeof(string)}));
-        data.RegisterFunction(new DummyNumberFunction("step", step ?? 1, new[] {typeof(int), typeof(string)}));
+        data.RegisterFunction(new DummyValueFunction("start", start, new[] {typeof(int), typeof(string)}));
+        data.RegisterFunction(new DummyValueFunction("end", end, new[] {typeof(int), typeof(string)}));
+        data.RegisterFunction(new DummyValueFunction("step", step ?? 1, new[] {typeof(int), typeof(string)}));
         var templateReader = new XmlTemplateReader(data, new[] {new ForTransformer()});
         using var xmlStream = new MemoryStream(Encoding.UTF8.GetBytes(template));
         using var xmlReader = XmlReader.Create(xmlStream);

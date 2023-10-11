@@ -87,10 +87,24 @@ internal sealed class TemplateData : ITemplateData
 
         if (IsFunctionExpression(expression))
             return HandleFunctionExpression(expression);
+        if (IsTrue(expression))
+            return true;
+        if (IsFalse(expression))
+            return false;
         if (IsNumericExpression(firstChar))
             return HandleNumericExpression(expression);
 
         return GetVariable(expression);
+    }
+
+    private bool IsTrue(string expression)
+    {
+        return expression == "true";
+    }
+
+    private bool IsFalse(string expression)
+    {
+        return expression == "false";
     }
 
     private static bool IsFunctionExpression(string expression)
