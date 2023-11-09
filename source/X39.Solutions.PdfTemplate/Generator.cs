@@ -157,6 +157,9 @@ public sealed class Generator : IDisposable, IAsyncDisposable
     /// <summary>
     /// Generates <see cref="SKBitmap"/>'s from the given <paramref name="reader"/>.
     /// </summary>
+    /// <remarks>
+    /// The caller is responsible for disposing the returned <see cref="SKBitmap"/>'s.
+    /// </remarks>
     /// <param name="reader">The reader to read the template from.</param>
     /// <param name="cultureInfo">The culture to use for the generation.</param>
     /// <param name="documentOptions">The options for the document.</param>
