@@ -74,7 +74,14 @@ public sealed class XmlTemplateReader : IDisposable
     {
         if (node is {IsTextNode: true, Text: { } text} && (text.Contains('@') || text.Contains('{')))
         {
-            TransformNodeTreeExpressionCandidate(ref nodeIndex, nodeTree, node, text);
+            try
+            {
+                TransformNodeTreeExpressionCandidate(ref nodeIndex, nodeTree, node, text);
+            }
+            catch (Exception ex)
+            {
+                throw new UnhandledXmlTemplateTransformationException(ex, node);
+            }
         }
         else
         {
@@ -99,7 +106,8 @@ public sealed class XmlTemplateReader : IDisposable
             var endOfName = indexOfExpressionStart + 1;
 
             // Scan for the end of the name.
-            while (text.Length > endOfName && (text[endOfName].IsLetterOrDigit() || text[endOfName] == '-' || text[endOfName] == '_'))
+            while (text.Length > endOfName &&
+                   (text[endOfName].IsLetterOrDigit() || text[endOfName] == '-' || text[endOfName] == '_'))
                 endOfName++;
 
             var name = text[(indexOfExpressionStart + 1)..endOfName];
@@ -119,10 +127,10 @@ public sealed class XmlTemplateReader : IDisposable
                 }
 
                 if (bracketCount > 0)
-                    throw new XmlTemplateExpressionException(
-                        node.Line,
-                        node.Column,
-                        $"Failed to parse function expression '{text}' at L{node.Line}:C{node.Column}, missing closing bracket (bracket count: {bracketCount}).");
+                    throw new TransformationFunctionMissingClosingBracketException(
+                        text,
+                        node,
+                        bracketCount);
                 var functionResult = _templateData.Evaluate(text[lookAhead..endOfFunction]);
                 previousIndex = endOfFunction;
                 builder.Append(previousText);
@@ -135,10 +143,7 @@ public sealed class XmlTemplateReader : IDisposable
                 // A transformer name was matched
                 var bracketIndex = text.IndexOf('{', endOfName);
                 if (bracketIndex == -1)
-                    throw new XmlTemplateExpressionException(
-                        node.Line,
-                        node.Column,
-                        $"Failed to parse transformer expression '{text}' at L{node.Line}:C{node.Column}, missing opening bracket ('{{').");
+                    throw new TransformationMissingOpeningBracketException(text, node);
 
                 var transformerBody = text[(endOfName + 1)..bracketIndex];
                 var remainingText = text[(bracketIndex + 1)..];
@@ -165,10 +170,10 @@ public sealed class XmlTemplateReader : IDisposable
                     }
 
                     var childText = childNode.Text
-                                    ?? throw new XmlTemplateExpressionException(
-                                        childNode.Line,
-                                        childNode.Column,
-                                        $"Failed to parse transformer expression '{text}' at L{childNode.Line}:C{childNode.Column}, text node is null.");
+#pragma warning disable CA2201
+                                    ?? throw new NullReferenceException(
+                                        $"Failed to parse transformer expression '{text}' at L{childNode.Line}:C{childNode.Column}, text node text is null.");
+#pragma warning restore CA2201
 
                     for (var i = 0; i < childText.Length; i++)
                     {
@@ -208,16 +213,10 @@ public sealed class XmlTemplateReader : IDisposable
                 }
 
                 if (curlyBracketCount > 0)
-                    throw new XmlTemplateExpressionException(
-                        node.Line,
-                        node.Column,
-                        $"Failed to parse transformer expression '{text}' at L{node.Line}:C{node.Column}, missing closing bracket ('}}').");
+                    throw new TransformationMissingClosingBracketException(text, node);
 
                 if (endNode is null)
-                    throw new XmlTemplateExpressionException(
-                        node.Line,
-                        node.Column,
-                        $"Failed to parse transformer expression '{text}' at L{node.Line}:C{node.Column}, end node is null.");
+                    throw new TransformationMissingEndNodeBracketException(text, node);
 
 
                 nodeTree.RemoveChild(endNode);
@@ -249,7 +248,6 @@ public sealed class XmlTemplateReader : IDisposable
                 }
 
                 nodeIndex--;
-
 
 
                 break;
@@ -357,8 +355,7 @@ public sealed class XmlTemplateReader : IDisposable
     private XmlNodeInformation HandleNode(XmlNode xmlNode)
     {
         if (!Validators.ControlName.IsValid(xmlNode.Name))
-            throw new XmlNodeNameException(
-                $"Invalid node name {xmlNode.Name} at L{xmlNode.Line}:C{xmlNode.Column}.");
+            throw new XmlNodeNameException(xmlNode);
         PushStyle();
         var children = new List<XmlNodeInformation>();
         var styleName = $"{xmlNode.Name.ToLower(CultureInfo.InvariantCulture)}.style";

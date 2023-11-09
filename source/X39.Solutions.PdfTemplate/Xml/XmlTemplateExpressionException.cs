@@ -1,13 +1,54 @@
-﻿namespace X39.Solutions.PdfTemplate.Xml;
+﻿using System.Runtime.Serialization;
 
-internal class XmlTemplateExpressionException : Exception
+namespace X39.Solutions.PdfTemplate.Xml;
+
+/// <summary>
+/// Base class for exceptions thrown transforming an XML document.
+/// </summary>
+public abstract class XmlTemplateTransformationException : XmlTemplateReaderException
 {
-    public int Line { get; }
-    public int Column { get; }
-
-    public XmlTemplateExpressionException(int line, int column, string message) : base(message)
+    /// <inheritdoc />
+    protected XmlTemplateTransformationException(int lineNumber, int linePosition) : base(lineNumber, linePosition)
     {
-        Line   = line;
-        Column = column;
+    }
+
+    /// <inheritdoc />
+    protected XmlTemplateTransformationException(XmlNode xmlNode) : base(xmlNode)
+    {
+    }
+
+    /// <inheritdoc />
+    protected XmlTemplateTransformationException(SerializationInfo info, StreamingContext context) : base(info, context)
+    {
+    }
+
+    /// <inheritdoc />
+    protected XmlTemplateTransformationException(string? message, XmlNode xmlNode) : base(message, xmlNode)
+    {
+    }
+
+    /// <inheritdoc />
+    protected XmlTemplateTransformationException(string? message, int lineNumber, int linePosition) : base(
+        message,
+        lineNumber,
+        linePosition)
+    {
+    }
+
+    /// <inheritdoc />
+    protected XmlTemplateTransformationException(string? message, Exception? innerException, XmlNode xmlNode) : base(
+        message,
+        innerException,
+        xmlNode)
+    {
+    }
+
+    /// <inheritdoc />
+    protected XmlTemplateTransformationException(
+        string? message,
+        Exception? innerException,
+        int lineNumber,
+        int linePosition) : base(message, innerException, lineNumber, linePosition)
+    {
     }
 }
