@@ -189,7 +189,7 @@ public sealed class Generator : IDisposable, IAsyncDisposable
                 cultureInfo,
                 options);
             canvas?.Dispose();
-            return bitmaps;
+            return bitmaps.AsReadOnly();
         }
         catch
         {
