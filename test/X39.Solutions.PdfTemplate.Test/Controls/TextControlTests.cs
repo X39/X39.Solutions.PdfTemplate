@@ -20,14 +20,14 @@ public class TextControlTests : IDisposable
     public void LeftAlignedText()
     {
         const string text = "The quick brown fox jumps over the lazy dog";
-        var pageBounds = new Size( 595, 842);
+        var pageBounds = new Size(595, 842);
         var mock = new CanvasMock();
         var fontPath = GetTestFont();
         var control = new TextControl(new TextService(_paintCache))
         {
-            Text     = text,
-            FontSize = 12,
-            Style    = EFontStyle.Italic,
+            Text       = text,
+            FontSize   = 12,
+            Style      = EFontStyle.Italic,
             FontFamily = fontPath,
         };
         var textStyle = control.GetTextStyle();
@@ -41,7 +41,15 @@ public class TextControlTests : IDisposable
     private static string GetTestFont()
     {
         var fontPath = Path.GetFullPath(
-            @"..\..\..\..\fonts\Nunito_Sans\NunitoSans-Italic-VariableFont_YTLC,opsz,wdth,wght.ttf");
+            string.Join(
+                Path.PathSeparator,
+                "..",
+                "..",
+                "..",
+                "..",
+                "fonts",
+                "Nunito_Sans",
+                "NunitoSans-Italic-VariableFont_YTLC,opsz,wdth,wght.ttf"));
         Assert.True(File.Exists(fontPath), $"Font file not found: {fontPath}");
         return fontPath;
     }
