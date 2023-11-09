@@ -22,12 +22,13 @@ public class TextControlTests : IDisposable
         const string text = "The quick brown fox jumps over the lazy dog";
         var pageBounds = new Size( 595, 842);
         var mock = new CanvasMock();
+        var fontPath = GetTestFont();
         var control = new TextControl(new TextService(_paintCache))
         {
             Text     = text,
             FontSize = 12,
             Style    = EFontStyle.Italic,
-            FontFamily = "C:\\dev\\X39\\X39.Solutions.PdfTemplate\\test\\fonts\\Nunito_Sans\\NunitoSans-Italic-VariableFont_YTLC,opsz,wdth,wght.ttf",
+            FontFamily = fontPath,
         };
         var textStyle = control.GetTextStyle();
         control.Measure(pageBounds, pageBounds, pageBounds, CultureInfo.InvariantCulture);
@@ -35,5 +36,13 @@ public class TextControlTests : IDisposable
         control.Render(mock, pageBounds, CultureInfo.InvariantCulture);
         mock.AssertState();
         mock.AssertDrawText(textStyle, text, 0, 12.9492188F);
+    }
+
+    private static string GetTestFont()
+    {
+        var fontPath = Path.GetFullPath(
+            @"..\..\..\..\fonts\Nunito_Sans\NunitoSans-Italic-VariableFont_YTLC,opsz,wdth,wght.ttf");
+        Assert.True(File.Exists(fontPath), $"Font file not found: {fontPath}");
+        return fontPath;
     }
 }
