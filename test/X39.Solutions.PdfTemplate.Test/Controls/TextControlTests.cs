@@ -42,7 +42,7 @@ public class TextControlTests : IDisposable
     {
         var fontPath = Path.GetFullPath(
             string.Join(
-                Path.PathSeparator,
+                Path.DirectorySeparatorChar,
                 "..",
                 "..",
                 "..",
