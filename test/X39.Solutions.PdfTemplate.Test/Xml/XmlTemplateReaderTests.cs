@@ -2,6 +2,7 @@
 using System.Xml;
 using X39.Solutions.PdfTemplate.Transformers;
 using X39.Solutions.PdfTemplate.Xml;
+using X39.Solutions.PdfTemplate.Xml.Exceptions;
 
 namespace X39.Solutions.PdfTemplate.Test.Xml;
 

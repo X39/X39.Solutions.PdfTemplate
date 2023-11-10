@@ -1,7 +1,7 @@
 using System.Runtime.Serialization;
 using System.Xml;
 
-namespace X39.Solutions.PdfTemplate.Xml;
+namespace X39.Solutions.PdfTemplate.Xml.Exceptions;
 
 /// <summary>
 /// Base class for exceptions thrown during parsing of an XML document.

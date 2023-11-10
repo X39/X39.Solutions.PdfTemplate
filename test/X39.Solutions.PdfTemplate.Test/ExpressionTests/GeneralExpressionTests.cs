@@ -53,4 +53,24 @@ public class GeneralExpressionTests
         Assert.Equal(1, nodeInformation.Children.Count);
         Assert.Equal("foo: bar baz! @nono- no-error", nodeInformation.Children.ElementAt(0).TextContent);
     }
+
+    [Fact]
+    public void NestedFunctionCalls()
+    {
+        const string ns = Constants.ControlsNamespace;
+        var template = $$"""
+                         <?xml version="1.0" encoding="utf-8"?>
+                         <text>@foo(bar(baz()))</text>
+                         """;
+        var data = new TemplateData();
+        data.RegisterFunction(new DummyValueFunction("foo", (args) => string.Concat(args.Prepend("foo")), new[] {typeof(string)}));
+        data.RegisterFunction(new DummyValueFunction("bar", (args) => string.Concat(args.Prepend("bar")), new[] {typeof(string)}));
+        data.RegisterFunction(new DummyValueFunction("baz", "baz", Type.EmptyTypes));
+        var templateReader = new XmlTemplateReader(data, Array.Empty<ITransformer>());
+        using var xmlStream = new MemoryStream(Encoding.UTF8.GetBytes(template));
+        using var xmlReader = XmlReader.Create(xmlStream);
+        var nodeInformation = templateReader.Read(xmlReader);
+
+        Assert.Equal("foobarbaz", nodeInformation.TextContent);
+    }
 }

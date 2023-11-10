@@ -1,4 +1,4 @@
-﻿namespace X39.Solutions.PdfTemplate.Xml;
+﻿namespace X39.Solutions.PdfTemplate.Xml.Exceptions;
 
 internal class XmlTemplateTransformerNotFoundException : Exception
 {

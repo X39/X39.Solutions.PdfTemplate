@@ -63,4 +63,12 @@ public interface ITemplateData
     /// <param name="expression">The expression to evaluate.</param>
     /// <returns>The result of the expression.</returns>
     object? Evaluate(string expression);
+
+    
+    /// <summary>
+    /// Returns a function by name.
+    /// </summary>
+    /// <param name="name">The name of the function.</param>
+    /// <returns>The function or null if not found.</returns>
+    IFunction? GetFunction(string name);
 }

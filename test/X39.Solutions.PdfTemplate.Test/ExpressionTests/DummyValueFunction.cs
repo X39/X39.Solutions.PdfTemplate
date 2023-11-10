@@ -2,15 +2,22 @@
 
 public class DummyValueFunction : IFunction
 {
-    private readonly Type[]  _inputTypes;
-    private readonly object? _returnValue;
+    private readonly Type[]                   _inputTypes;
+    private readonly Func<object?[], object?> _returnFunction;
 
     public DummyValueFunction(string name, object? returnValue, Type[] inputTypes)
+    {
+        Name            = name;
+        Arguments       = inputTypes.Length;
+        _inputTypes     = inputTypes;
+        _returnFunction = (_) => returnValue;
+    }
+    public DummyValueFunction(string name, Func<object?[], object?> returnFunction, Type[] inputTypes)
     {
         Name         = name;
         Arguments    = inputTypes.Length;
         _inputTypes  = inputTypes;
-        _returnValue = returnValue;
+        _returnFunction = returnFunction;
     }
 
     public string Name { get; }
@@ -20,6 +27,6 @@ public class DummyValueFunction : IFunction
     {
         if (!arguments.Select((q) => q?.GetType()).SequenceEqual(_inputTypes))
             throw new ArgumentException("Invalid arguments.", nameof(arguments));
-        return _returnValue;
+        return _returnFunction(arguments);
     }
 }

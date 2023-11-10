@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.Text;
 using System.Xml;
+using X39.Solutions.PdfTemplate.Xml.Exceptions;
 
 namespace X39.Solutions.PdfTemplate.Xml;
 
@@ -74,14 +75,18 @@ public sealed class XmlTemplateReader : IDisposable
     {
         if (node is {IsTextNode: true, Text: { } text} && (text.Contains('@') || text.Contains('{')))
         {
+#if !DEBUG
             try
             {
-                TransformNodeTreeExpressionCandidate(ref nodeIndex, nodeTree, node, text);
+#endif
+            TransformNodeTreeExpressionCandidate(ref nodeIndex, nodeTree, node, text);
+#if !DEBUG
             }
             catch (Exception ex)
             {
                 throw new UnhandledXmlTemplateTransformationException(ex, node);
             }
+#endif
         }
         else
         {
@@ -131,7 +136,16 @@ public sealed class XmlTemplateReader : IDisposable
                         text,
                         node,
                         bracketCount);
-                var functionResult = _templateData.Evaluate(text[lookAhead..endOfFunction]);
+                object? functionResult;
+                try
+                {
+                    functionResult = _templateData.Evaluate(text[(indexOfExpressionStart + 1)..endOfFunction]);
+                }
+                catch (FunctionNotFoundDuringEvaluationException ex)
+                {
+                    throw new TransformationFunctionNotFoundException(text[(indexOfExpressionStart + 1)..endOfFunction], node, ex.FunctionName);
+                }
+
                 previousIndex = endOfFunction;
                 builder.Append(previousText);
                 AppendValueToStringBuilder(functionResult, builder);
@@ -217,7 +231,6 @@ public sealed class XmlTemplateReader : IDisposable
 
                 if (endNode is null)
                     throw new TransformationMissingEndNodeBracketException(text, node);
-
 
                 nodeTree.RemoveChild(endNode);
                 foreach (var xmlNode in nodesOfTransformer)

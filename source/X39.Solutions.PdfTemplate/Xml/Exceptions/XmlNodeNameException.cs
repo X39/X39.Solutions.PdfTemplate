@@ -1,6 +1,4 @@
-﻿using System.Xml;
-
-namespace X39.Solutions.PdfTemplate.Xml;
+﻿namespace X39.Solutions.PdfTemplate.Xml.Exceptions;
 
 /// <summary>
 /// Thrown during parsing of an XML document if a node name is invalid.

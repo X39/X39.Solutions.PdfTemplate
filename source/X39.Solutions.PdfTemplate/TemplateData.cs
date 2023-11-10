@@ -48,9 +48,9 @@ internal sealed class TemplateData : ITemplateData
         _functions.Add(function.Name, function);
     }
 
-    private IFunction GetFunction(string name)
+    public IFunction? GetFunction(string name)
     {
-        return _functions.GetValueOrDefault(name) ?? new EmptyFunction();
+        return _functions.GetValueOrDefault(name);
     }
 
     public void SetVariable(string name, object? value)
@@ -130,14 +130,17 @@ internal sealed class TemplateData : ITemplateData
     {
         var functionName = expression[..expression.IndexOf('(')];
         var function = GetFunction(functionName);
-        var argumentEnd = expression.IndexOf(')');
-        var arguments = expression[(functionName.Length + 1)..argumentEnd]
-            .Split(',')
-            .Select((s) => s.Trim())
-            .Select(Evaluate)
-            .ToArray();
+        var argumentEnd = expression.LastIndexOf(')');
+        var argumentsExpression = expression[(functionName.Length + 1)..(argumentEnd)].Trim();
+        var arguments = argumentsExpression.IsNullOrEmpty()
+            ? Array.Empty<object?>()
+            : argumentsExpression
+                .Split(',')
+                .Select((s) => s.Trim())
+                .Select(Evaluate)
+                .ToArray();
         if (function is null)
-            throw new InvalidOperationException($"Function '{functionName}' not found.");
+            throw new FunctionNotFoundDuringEvaluationException(functionName);
         return function.Execute(arguments);
     }
 

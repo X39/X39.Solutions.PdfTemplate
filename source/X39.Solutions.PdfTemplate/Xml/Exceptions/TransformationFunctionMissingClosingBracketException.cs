@@ -1,4 +1,4 @@
-﻿namespace X39.Solutions.PdfTemplate.Xml;
+﻿namespace X39.Solutions.PdfTemplate.Xml.Exceptions;
 
 /// <summary>
 /// Thrown during the transformation of an XML document if a function is missing a closing bracket.
