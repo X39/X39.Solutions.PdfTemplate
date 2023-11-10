@@ -85,4 +85,34 @@ public class ForEachTransformerTests
         Assert.Equal("8: 9", nodeInformation.Children.ElementAt(8).TextContent);
         Assert.Equal("9: 10", nodeInformation.Children.ElementAt(9).TextContent);
     }
+
+    [Fact]
+    public void NestedForEachLoop()
+    {
+        const string ns = Constants.ControlsNamespace;
+        const string template = $$"""
+                                  <?xml version="1.0" encoding="utf-8"?>
+                                  <styleMustBeEmptyTagTest xmlns="{{ns}}" someAttribute="asd">
+                                     @foreach i in list(1, "") with indexA {
+                                        @foreach j in list(1, "") with index {
+                                           <text>@indexA @i - @index: @j</text>
+                                        }
+                                        @foreach j in list(1, "") with index {
+                                          <text>@indexA @i - @index: @j</text>
+                                        }
+                                     }
+                                  </styleMustBeEmptyTagTest>
+                                  """;
+        var data = new TemplateData();
+        data.RegisterFunction(new DummyValueCollectionFunction("list", Enumerable.Range(1, 2).Cast<object>().ToList(), new[] {typeof(int), typeof(string)}));
+        var templateReader = new XmlTemplateReader(data, new[] {new ForEachTransformer()});
+        using var xmlStream = new MemoryStream(Encoding.UTF8.GetBytes(template));
+        using var xmlReader = XmlReader.Create(xmlStream);
+        var nodeInformation = templateReader.Read(xmlReader);
+        Assert.Equal(8, nodeInformation.Children.Count);
+        Assert.Equal("0 1 - 0: 1", nodeInformation.Children.ElementAt(0).TextContent);
+        Assert.Equal("0 1 - 1: 2", nodeInformation.Children.ElementAt(1).TextContent);
+        Assert.Equal("1 2 - 0: 1", nodeInformation.Children.ElementAt(2).TextContent);
+        Assert.Equal("1 2 - 1: 2", nodeInformation.Children.ElementAt(3).TextContent);
+    }
 }
