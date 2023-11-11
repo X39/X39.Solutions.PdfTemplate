@@ -112,7 +112,11 @@ public class ForEachTransformerTests
         Assert.Equal(8, nodeInformation.Children.Count);
         Assert.Equal("0 1 - 0: 1", nodeInformation.Children.ElementAt(0).TextContent);
         Assert.Equal("0 1 - 1: 2", nodeInformation.Children.ElementAt(1).TextContent);
-        Assert.Equal("1 2 - 0: 1", nodeInformation.Children.ElementAt(2).TextContent);
-        Assert.Equal("1 2 - 1: 2", nodeInformation.Children.ElementAt(3).TextContent);
+        Assert.Equal("0 1 - 0: 1", nodeInformation.Children.ElementAt(2).TextContent);
+        Assert.Equal("0 1 - 1: 2", nodeInformation.Children.ElementAt(3).TextContent);
+        Assert.Equal("1 2 - 0: 1", nodeInformation.Children.ElementAt(4).TextContent);
+        Assert.Equal("1 2 - 1: 2", nodeInformation.Children.ElementAt(5).TextContent);
+        Assert.Equal("1 2 - 0: 1", nodeInformation.Children.ElementAt(6).TextContent);
+        Assert.Equal("1 2 - 1: 2", nodeInformation.Children.ElementAt(7).TextContent);
     }
 }
