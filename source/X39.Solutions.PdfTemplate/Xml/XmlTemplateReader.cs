@@ -82,6 +82,10 @@ public sealed class XmlTemplateReader : IDisposable
             TransformNodeTreeExpressionCandidate(ref nodeIndex, nodeTree, node, text);
 #if !DEBUG
             }
+            catch (XmlTemplateReaderException)
+            {
+                throw;
+            }
             catch (Exception ex)
             {
                 throw new UnhandledXmlTemplateTransformationException(ex, node);
@@ -143,7 +147,10 @@ public sealed class XmlTemplateReader : IDisposable
                 }
                 catch (FunctionNotFoundDuringEvaluationException ex)
                 {
-                    throw new TransformationFunctionNotFoundException(text[(indexOfExpressionStart + 1)..endOfFunction], node, ex.FunctionName);
+                    throw new TransformationFunctionNotFoundException(
+                        text[(indexOfExpressionStart + 1)..endOfFunction],
+                        node,
+                        ex.FunctionName);
                 }
 
                 previousIndex = endOfFunction;
@@ -213,13 +220,14 @@ public sealed class XmlTemplateReader : IDisposable
                             nodesOfTransformer.Add(tmpNode);
                             currentNodeIndex++;
                         }
-                        
+
                         var trailingText = childText[(i + 1)..];
                         if (trailingText.IsNotNullOrWhiteSpace())
                         {
                             var tmpNode = new XmlNode(childNode.Line, childNode.Column, trailingText.TrimStart());
                             nodeTree.InsertChild(currentNodeIndex + 1, tmpNode);
                         }
+
                         childNode.SetText("}");
 
                         break;
@@ -271,7 +279,9 @@ public sealed class XmlTemplateReader : IDisposable
                     var nodeCountDelta = nodeTree.Children.Count - tmpNodeCount;
                     for (; nodeCountDelta < 0; nodeCountDelta++)
                         scopeList.RemoveAt(scopeList.Count - 1);
-                    for (var nodeIndexDelta = nodeIndex - tmpNodeIndex - Math.Max(nodeCountDelta, 0); nodeIndexDelta > 0; nodeIndexDelta--)
+                    for (var nodeIndexDelta = nodeIndex - tmpNodeIndex - Math.Max(nodeCountDelta, 0);
+                         nodeIndexDelta > 0;
+                         nodeIndexDelta--)
                         scopeList.RemoveAt(scopeList.Count - 1);
                 }
 
