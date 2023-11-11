@@ -36,36 +36,52 @@ internal class Template
 
     private static IControl CreateControl(XmlNodeInformation node, ControlStorage storage, CultureInfo cultureInfo)
     {
-        var control = storage.Create(node.NodeNamespace, node.NodeName, node.Attributes, node.TextContent, cultureInfo);
-        if (control is not IContentControl contentControl)
+        try
         {
-            if (node.Children.Any())
-                throw new InvalidOperationException(
-                    $"The control {node.NodeNamespace}:{node.NodeName} does not support child controls.");
-        }
-        else
-        {
-            foreach (var child in node.Children)
+            var control = storage.Create(
+                node.NodeNamespace,
+                node.NodeName,
+                node.Attributes,
+                node.TextContent,
+                cultureInfo);
+            if (control is not IContentControl contentControl)
             {
-                IControl? childControl = null;
-                try
+                if (node.Children.Any())
+                    throw new InvalidOperationException(
+                        $"The control {node.NodeNamespace}:{node.NodeName} does not support child controls.");
+            }
+            else
+            {
+                foreach (var child in node.Children)
                 {
-                    childControl = CreateControl(child, storage, cultureInfo);
-                    var childType = childControl.GetType();
-                    if (!contentControl.CanAdd(childType))
-                        throw new ContentControlDoesNotSupportChild(child.Line, child.Column, childType, $"The parent control does not support the child control at L{child.Line}:C{child.Column}.");
-                    contentControl.Add(childControl);
-                }
-                catch when (childControl is not null)
-                {
-                    // ReSharper disable once SuspiciousTypeConversion.Global
-                    if (childControl is IDisposable disposable)
-                        disposable.Dispose();
-                    throw;
+                    IControl? childControl = null;
+                    try
+                    {
+                        childControl = CreateControl(child, storage, cultureInfo);
+                        var childType = childControl.GetType();
+                        if (!contentControl.CanAdd(childType))
+                            throw new ContentControlDoesNotSupportChild(
+                                child.Line,
+                                child.Column,
+                                childType,
+                                $"The parent control does not support the child control at L{child.Line}:C{child.Column}.");
+                        contentControl.Add(childControl);
+                    }
+                    catch when (childControl is not null)
+                    {
+                        // ReSharper disable once SuspiciousTypeConversion.Global
+                        if (childControl is IDisposable disposable)
+                            disposable.Dispose();
+                        throw;
+                    }
                 }
             }
-        }
 
-        return control;
+            return control;
+        }
+        catch (Exception ex)
+        {
+            throw new FailedToCreateControlException(ex, node);
+        }
     }
 }
