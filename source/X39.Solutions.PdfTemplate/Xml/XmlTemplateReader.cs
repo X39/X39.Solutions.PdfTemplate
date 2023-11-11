@@ -174,10 +174,12 @@ public sealed class XmlTemplateReader : IDisposable
                     nodeTree.RemoveChild(node);
                 if (remainingText.IsNotNullOrWhiteSpace())
                 {
-                    nodeTree.InsertChild(nodeIndex, new XmlNode(node.Line, node.Column, remainingText.TrimStart())
-                    {
-                        Scope = node.Scope,
-                    });
+                    nodeTree.InsertChild(
+                        nodeIndex,
+                        new XmlNode(node.Line, node.Column, remainingText.TrimStart())
+                        {
+                            Scope = node.Scope,
+                        });
                 }
 
                 var nodesOfTransformer = new List<XmlNode>();
@@ -347,7 +349,9 @@ public sealed class XmlTemplateReader : IDisposable
         var node = new XmlNode(
             location.line,
             location.column,
-            nodeNamespace,
+            nodeNamespace.IsNullOrEmpty()
+                ? Constants.ControlsNamespace
+                : nodeNamespace,
             nodeName);
         if (nodeStack.Count > 0)
             nodeStack.Peek().AddChild(node);
