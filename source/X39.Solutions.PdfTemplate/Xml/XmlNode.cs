@@ -7,6 +7,11 @@ namespace X39.Solutions.PdfTemplate.Xml;
 /// </summary>
 public sealed class XmlNode
 {
+    /// <summary>
+    /// The data scope of this node.
+    /// </summary>
+    internal Dictionary<string, object?>? Scope { get; set; }
+    
     private readonly Dictionary<string, string> _attributes = new();
     private          XmlNode?                   _parent;
     private readonly List<XmlNode>              _children = new();
@@ -213,8 +218,8 @@ public sealed class XmlNode
     public XmlNode DeepCopy()
     {
         if (IsTextNode)
-            return new XmlNode(Line, Column, Text!);
-        var node = new XmlNode(Line, Column, Namespace, Name);
+            return new XmlNode(Line, Column, Text!) {Scope = Scope};
+        var node = new XmlNode(Line, Column, Namespace, Name){Scope = Scope};
         foreach (var (key, value) in _attributes)
         {
             node.SetAttribute(key, value);

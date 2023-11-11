@@ -174,7 +174,10 @@ public sealed class XmlTemplateReader : IDisposable
                     nodeTree.RemoveChild(node);
                 if (remainingText.IsNotNullOrWhiteSpace())
                 {
-                    nodeTree.InsertChild(nodeIndex, new XmlNode(node.Line, node.Column, remainingText.TrimStart()));
+                    nodeTree.InsertChild(nodeIndex, new XmlNode(node.Line, node.Column, remainingText.TrimStart())
+                    {
+                        Scope = node.Scope,
+                    });
                 }
 
                 var nodesOfTransformer = new List<XmlNode>();
@@ -215,7 +218,10 @@ public sealed class XmlTemplateReader : IDisposable
 
                         if (leadingText.IsNotNullOrWhiteSpace())
                         {
-                            var tmpNode = new XmlNode(childNode.Line, childNode.Column, leadingText.TrimEnd());
+                            var tmpNode = new XmlNode(childNode.Line, childNode.Column, leadingText.TrimEnd())
+                            {
+                                Scope = node.Scope,
+                            };
                             nodeTree.InsertChild(currentNodeIndex, tmpNode);
                             nodesOfTransformer.Add(tmpNode);
                             currentNodeIndex++;
@@ -224,7 +230,10 @@ public sealed class XmlTemplateReader : IDisposable
                         var trailingText = childText[(i + 1)..];
                         if (trailingText.IsNotNullOrWhiteSpace())
                         {
-                            var tmpNode = new XmlNode(childNode.Line, childNode.Column, trailingText.TrimStart());
+                            var tmpNode = new XmlNode(childNode.Line, childNode.Column, trailingText.TrimStart())
+                            {
+                                Scope = node.Scope,
+                            };
                             nodeTree.InsertChild(currentNodeIndex + 1, tmpNode);
                         }
 
@@ -259,30 +268,21 @@ public sealed class XmlTemplateReader : IDisposable
                     transformerBody,
                     nodesOfTransformer.AsReadOnly());
                 currentNodeIndex = nodeIndex;
-                var scopeList = new List<Dictionary<string, object?>>();
                 foreach (var transformedNode in transformedNodes)
                 {
-                    scopeList.Add(_templateData.PeekScope().ToDictionary((q) => q.Key, (q) => q.Value));
+                    var scope = _templateData
+                        .PeekScope()
+                        .ToDictionary((q) => q.Key, (q) => q.Value);
+                    transformedNode.Scope = scope;
                     nodeTree.InsertChild(currentNodeIndex++, transformedNode);
                 }
 
-                scopeList.Reverse();
                 var distanceToEnd = nodeTree.Children.Count - currentNodeIndex;
                 for (; nodeIndex < nodeTree.Children.Count - distanceToEnd; nodeIndex++)
                 {
-                    var currentScope = scopeList.Last();
-                    scopeList.RemoveAt(scopeList.Count - 1);
-                    using var adjustedScope = _templateData.Scope(currentScope);
-                    var tmpNodeIndex = nodeIndex;
-                    var tmpNodeCount = nodeTree.Children.Count;
-                    TransformNode(nodeTree, nodeTree[nodeIndex], ref nodeIndex);
-                    var nodeCountDelta = nodeTree.Children.Count - tmpNodeCount;
-                    for (; nodeCountDelta < 0; nodeCountDelta++)
-                        scopeList.RemoveAt(scopeList.Count - 1);
-                    for (var nodeIndexDelta = nodeIndex - tmpNodeIndex - Math.Max(nodeCountDelta, 0);
-                         nodeIndexDelta > 0;
-                         nodeIndexDelta--)
-                        scopeList.RemoveAt(scopeList.Count - 1);
+                    var lNode = nodeTree[nodeIndex];
+                    using var adjustedScope = _templateData.Scope(lNode.Scope ?? new Dictionary<string, object?>());
+                    TransformNode(nodeTree, lNode, ref nodeIndex);
                 }
 
                 nodeIndex--;
