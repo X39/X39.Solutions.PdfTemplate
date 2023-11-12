@@ -183,6 +183,7 @@ public sealed class Generator : IDisposable, IAsyncDisposable
                     var bitmap = new SKBitmap((int) Math.Ceiling(pageSize.Width), (int) Math.Ceiling(pageSize.Height));
                     bitmaps.Add(bitmap);
                     canvas = new SKCanvas(bitmap);
+                    canvas.Clear(SKColors.White);
                     return canvas;
                 },
                 reader,
