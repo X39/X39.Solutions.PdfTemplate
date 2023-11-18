@@ -18,6 +18,7 @@ public partial class ForTransformer : ITransformer
 
     /// <inheritdoc />
     public IEnumerable<XmlNode> Transform(
+        CultureInfo cultureInfo,
         ITemplateData templateData,
         string remainingLine,
         IReadOnlyCollection<XmlNode> nodes)
@@ -27,10 +28,10 @@ public partial class ForTransformer : ITransformer
         if (!match.Success)
             throw new ArgumentException("Invalid arguments.", nameof(remainingLine));
         var variable = match.Groups["variable"].Value;
-        var from = Convert.ToDouble(templateData.Evaluate(match.Groups["from"].Value), CultureInfo.InvariantCulture);
-        var to = Convert.ToDouble(templateData.Evaluate(match.Groups["to"].Value), CultureInfo.InvariantCulture);
+        var from = Convert.ToDouble(templateData.Evaluate(cultureInfo, match.Groups["from"].Value), CultureInfo.InvariantCulture);
+        var to = Convert.ToDouble(templateData.Evaluate(cultureInfo, match.Groups["to"].Value), CultureInfo.InvariantCulture);
         var step = match.Groups["step"].Success
-            ? Convert.ToDouble(templateData.Evaluate(match.Groups["step"].Value), CultureInfo.InvariantCulture)
+            ? Convert.ToDouble(templateData.Evaluate(cultureInfo, match.Groups["step"].Value), CultureInfo.InvariantCulture)
             : 1D;
         var body = nodes;
         if (from < to && step < 0)

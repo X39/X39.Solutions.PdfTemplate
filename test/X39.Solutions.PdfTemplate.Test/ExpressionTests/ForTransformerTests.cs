@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Globalization;
+using System.Text;
 using System.Xml;
 using X39.Solutions.PdfTemplate.Transformers;
 using X39.Solutions.PdfTemplate.Xml;
@@ -21,7 +22,7 @@ public class ForTransformerTests
                             }
                          </styleMustBeEmptyTagTest>
                          """;
-        var templateReader = new XmlTemplateReader(new TemplateData(), new[] {new ForTransformer()});
+        var templateReader = new XmlTemplateReader(CultureInfo.InvariantCulture, new TemplateData(), new[] {new ForTransformer()});
         using var xmlStream = new MemoryStream(Encoding.UTF8.GetBytes(template));
         using var xmlReader = XmlReader.Create(xmlStream);
         var nodeInformation = templateReader.Read(xmlReader);
@@ -43,7 +44,7 @@ public class ForTransformerTests
                             }
                          </styleMustBeEmptyTagTest>
                          """;
-        var templateReader = new XmlTemplateReader(new TemplateData(), new[] {new ForTransformer()});
+        var templateReader = new XmlTemplateReader(CultureInfo.InvariantCulture, new TemplateData(), new[] {new ForTransformer()});
         using var xmlStream = new MemoryStream(Encoding.UTF8.GetBytes(template));
         using var xmlReader = XmlReader.Create(xmlStream);
         var nodeInformation = templateReader.Read(xmlReader);
@@ -63,7 +64,7 @@ public class ForTransformerTests
                             <text>After</text>
                          </styleMustBeEmptyTagTest>
                          """;
-        var templateReader = new XmlTemplateReader(new TemplateData(), new[] {new ForTransformer()});
+        var templateReader = new XmlTemplateReader(CultureInfo.InvariantCulture, new TemplateData(), new[] {new ForTransformer()});
         using var xmlStream = new MemoryStream(Encoding.UTF8.GetBytes(template));
         using var xmlReader = XmlReader.Create(xmlStream);
         var nodeInformation = templateReader.Read(xmlReader);
@@ -87,7 +88,7 @@ public class ForTransformerTests
                             }
                          </styleMustBeEmptyTagTest>
                          """;
-        var templateReader = new XmlTemplateReader(new TemplateData(), new[] {new ForTransformer()});
+        var templateReader = new XmlTemplateReader(CultureInfo.InvariantCulture, new TemplateData(), new[] {new ForTransformer()});
         using var xmlStream = new MemoryStream(Encoding.UTF8.GetBytes(template));
         using var xmlReader = XmlReader.Create(xmlStream);
         var nodeInformation = templateReader.Read(xmlReader);
@@ -115,7 +116,7 @@ public class ForTransformerTests
         data.RegisterFunction(new DummyValueFunction("start", start, new[] {typeof(int), typeof(string)}));
         data.RegisterFunction(new DummyValueFunction("end", end, new[] {typeof(int), typeof(string)}));
         data.RegisterFunction(new DummyValueFunction("step", step ?? 1, new[] {typeof(int), typeof(string)}));
-        var templateReader = new XmlTemplateReader(data, new[] {new ForTransformer()});
+        var templateReader = new XmlTemplateReader(CultureInfo.InvariantCulture, data, new[] {new ForTransformer()});
         using var xmlStream = new MemoryStream(Encoding.UTF8.GetBytes(template));
         using var xmlReader = XmlReader.Create(xmlStream);
         var nodeInformation = templateReader.Read(xmlReader);
@@ -143,7 +144,7 @@ public class ForTransformerTests
         data.SetVariable("start", start);
         data.SetVariable("end", end);
         data.SetVariable("step", step ?? 1);
-        var templateReader = new XmlTemplateReader(data, new[] {new ForTransformer()});
+        var templateReader = new XmlTemplateReader(CultureInfo.InvariantCulture, data, new[] {new ForTransformer()});
         using var xmlStream = new MemoryStream(Encoding.UTF8.GetBytes(template));
         using var xmlReader = XmlReader.Create(xmlStream);
         var nodeInformation = templateReader.Read(xmlReader);

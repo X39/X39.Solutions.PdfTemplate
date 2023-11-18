@@ -183,7 +183,7 @@ public sealed class Generator : IDisposable, IAsyncDisposable, IAddControls, IAd
         using var templateDataScope = TemplateData.Scope("Document");
         var options = documentOptions ?? DocumentOptions.Default;
         XmlNodeInformation rootNode;
-        using (var templateReader = new XmlTemplateReader(TemplateData, _transformers))
+        using (var templateReader = new XmlTemplateReader(cultureInfo, TemplateData, _transformers))
             rootNode = templateReader.Read(reader);
 
         var template = Template.Create(rootNode, _controlStorage, cultureInfo);

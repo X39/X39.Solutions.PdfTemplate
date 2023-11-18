@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Globalization;
+using System.Text;
 using System.Xml;
 using X39.Solutions.PdfTemplate.Xml;
 
@@ -23,7 +24,7 @@ public class GeneralExpressionTests
                          """;
         var data = new TemplateData();
         data.SetVariable(variable, value);
-        var templateReader = new XmlTemplateReader(data, Array.Empty<ITransformer>());
+        var templateReader = new XmlTemplateReader(CultureInfo.InvariantCulture, data, Array.Empty<ITransformer>());
         using var xmlStream = new MemoryStream(Encoding.UTF8.GetBytes(template));
         using var xmlReader = XmlReader.Create(xmlStream);
         var nodeInformation = templateReader.Read(xmlReader);
@@ -46,7 +47,7 @@ public class GeneralExpressionTests
         data.SetVariable("k", "baz");
         data.SetVariable("nono", "error");
         data.SetVariable("yes-yes", "no-error");
-        var templateReader = new XmlTemplateReader(data, Array.Empty<ITransformer>());
+        var templateReader = new XmlTemplateReader(CultureInfo.InvariantCulture, data, Array.Empty<ITransformer>());
         using var xmlStream = new MemoryStream(Encoding.UTF8.GetBytes(template));
         using var xmlReader = XmlReader.Create(xmlStream);
         var nodeInformation = templateReader.Read(xmlReader);
@@ -66,7 +67,7 @@ public class GeneralExpressionTests
         data.RegisterFunction(new DummyValueFunction("foo", (args) => string.Concat(args.Prepend("foo")), new[] {typeof(string)}));
         data.RegisterFunction(new DummyValueFunction("bar", (args) => string.Concat(args.Prepend("bar")), new[] {typeof(string)}));
         data.RegisterFunction(new DummyValueFunction("baz", "baz", Type.EmptyTypes));
-        var templateReader = new XmlTemplateReader(data, Array.Empty<ITransformer>());
+        var templateReader = new XmlTemplateReader(CultureInfo.InvariantCulture, data, Array.Empty<ITransformer>());
         using var xmlStream = new MemoryStream(Encoding.UTF8.GetBytes(template));
         using var xmlReader = XmlReader.Create(xmlStream);
         var nodeInformation = templateReader.Read(xmlReader);

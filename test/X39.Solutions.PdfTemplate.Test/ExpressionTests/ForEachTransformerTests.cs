@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Globalization;
+using System.Text;
 using System.Xml;
 using X39.Solutions.PdfTemplate.Transformers;
 using X39.Solutions.PdfTemplate.Xml;
@@ -21,7 +22,7 @@ public class ForEachTransformerTests
                                   """;
         var data = new TemplateData();
         data.SetVariable("list", new[] {1, 2, 3});
-        var templateReader = new XmlTemplateReader(data, new[] {new ForEachTransformer()});
+        var templateReader = new XmlTemplateReader(CultureInfo.InvariantCulture, data, new[] {new ForEachTransformer()});
         using var xmlStream = new MemoryStream(Encoding.UTF8.GetBytes(template));
         using var xmlReader = XmlReader.Create(xmlStream);
         var nodeInformation = templateReader.Read(xmlReader);
@@ -45,7 +46,7 @@ public class ForEachTransformerTests
                                   """;
         var data = new TemplateData();
         data.SetVariable("list", new[] {1, 2, 3});
-        var templateReader = new XmlTemplateReader(data, new[] {new ForEachTransformer()});
+        var templateReader = new XmlTemplateReader(CultureInfo.InvariantCulture, data, new[] {new ForEachTransformer()});
         using var xmlStream = new MemoryStream(Encoding.UTF8.GetBytes(template));
         using var xmlReader = XmlReader.Create(xmlStream);
         var nodeInformation = templateReader.Read(xmlReader);
@@ -69,7 +70,7 @@ public class ForEachTransformerTests
                                   """;
         var data = new TemplateData();
         data.SetVariable("list", new object[] {});
-        var templateReader = new XmlTemplateReader(data, new[] {new ForEachTransformer()});
+        var templateReader = new XmlTemplateReader(CultureInfo.InvariantCulture, data, new[] {new ForEachTransformer()});
         using var xmlStream = new MemoryStream(Encoding.UTF8.GetBytes(template));
         using var xmlReader = XmlReader.Create(xmlStream);
         var nodeInformation = templateReader.Read(xmlReader);
@@ -90,7 +91,7 @@ public class ForEachTransformerTests
                                   """;
         var data = new TemplateData();
         data.RegisterFunction(new DummyValueCollectionFunction("list", Enumerable.Range(1, 10).Cast<object>().ToList(), new[] {typeof(int), typeof(string)}));
-        var templateReader = new XmlTemplateReader(data, new[] {new ForEachTransformer()});
+        var templateReader = new XmlTemplateReader(CultureInfo.InvariantCulture, data, new[] {new ForEachTransformer()});
         using var xmlStream = new MemoryStream(Encoding.UTF8.GetBytes(template));
         using var xmlReader = XmlReader.Create(xmlStream);
         var nodeInformation = templateReader.Read(xmlReader);
@@ -126,7 +127,7 @@ public class ForEachTransformerTests
                                   """;
         var data = new TemplateData();
         data.RegisterFunction(new DummyValueCollectionFunction("list", Enumerable.Range(1, 2).Cast<object>().ToList(), new[] {typeof(int), typeof(string)}));
-        var templateReader = new XmlTemplateReader(data, new[] {new ForEachTransformer()});
+        var templateReader = new XmlTemplateReader(CultureInfo.InvariantCulture, data, new[] {new ForEachTransformer()});
         using var xmlStream = new MemoryStream(Encoding.UTF8.GetBytes(template));
         using var xmlReader = XmlReader.Create(xmlStream);
         var nodeInformation = templateReader.Read(xmlReader);
@@ -161,7 +162,7 @@ public class ForEachTransformerTests
         var data = new TemplateData();
         data.RegisterFunction(new DummyValueCollectionFunction("list", Enumerable.Empty<object>().ToList(), new[] {typeof(int), typeof(string)}));
         data.RegisterFunction(new DummyValueCollectionFunction("list2", Enumerable.Range(1, 2).Cast<object>().ToList(), new[] {typeof(int), typeof(string)}));
-        var templateReader = new XmlTemplateReader(data, new[] {new ForEachTransformer()});
+        var templateReader = new XmlTemplateReader(CultureInfo.InvariantCulture, data, new[] {new ForEachTransformer()});
         using var xmlStream = new MemoryStream(Encoding.UTF8.GetBytes(template));
         using var xmlReader = XmlReader.Create(xmlStream);
         var nodeInformation = templateReader.Read(xmlReader);

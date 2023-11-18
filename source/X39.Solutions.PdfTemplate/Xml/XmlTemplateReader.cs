@@ -18,15 +18,17 @@ public sealed class XmlTemplateReader : IDisposable
     }
 
     private readonly TemplateData                      _templateData;
+    private readonly CultureInfo                       _cultureInfo;
     private readonly IReadOnlyCollection<ITransformer> _transformers;
     private readonly IDisposable?                      _disposable;
 
     /// <summary>
     /// Creates a new <see cref="XmlTemplateReader"/> with the given <paramref name="templateData"/> and <paramref name="transformers"/>.
     /// </summary>
+    /// <param name="cultureInfo">The culture info to use.</param>
     /// <param name="templateData">The template data to use.</param>
     /// <param name="transformers">The transformers to use.</param>
-    public XmlTemplateReader(ITemplateData templateData, IReadOnlyCollection<ITransformer> transformers)
+    public XmlTemplateReader(CultureInfo cultureInfo, ITemplateData templateData, IReadOnlyCollection<ITransformer> transformers)
     {
         if (templateData is not TemplateData data)
         {
@@ -38,7 +40,8 @@ public sealed class XmlTemplateReader : IDisposable
             _templateData = data;
         }
 
-        _transformers = transformers;
+        _cultureInfo = cultureInfo;
+        _transformers     = transformers;
     }
 
     private readonly Stack<XmlStyleInformation> _styles = new();
@@ -143,7 +146,7 @@ public sealed class XmlTemplateReader : IDisposable
                 object? functionResult;
                 try
                 {
-                    functionResult = _templateData.Evaluate(text[(indexOfExpressionStart + 1)..endOfFunction]);
+                    functionResult = _templateData.Evaluate(_cultureInfo, text[(indexOfExpressionStart + 1)..endOfFunction]);
                 }
                 catch (FunctionNotFoundDuringEvaluationException ex)
                 {
@@ -266,6 +269,7 @@ public sealed class XmlTemplateReader : IDisposable
                 }
 
                 var transformedNodes = transformer.Transform(
+                    _cultureInfo,
                     _templateData,
                     transformerBody,
                     nodesOfTransformer.AsReadOnly());

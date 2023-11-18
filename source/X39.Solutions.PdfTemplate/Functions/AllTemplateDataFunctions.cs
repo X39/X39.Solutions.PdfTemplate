@@ -16,7 +16,7 @@ internal class AllTemplateDataFunctions : IFunction
     public int Arguments => 0;
     public bool IsVariadic => false;
 
-    public object Execute(object?[] arguments)
+    public object Execute(CultureInfo cultureInfo, object?[] arguments)
     {
         return _templateData.Functions
             .Select(

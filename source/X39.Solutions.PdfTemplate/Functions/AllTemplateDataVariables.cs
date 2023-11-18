@@ -1,4 +1,6 @@
-﻿namespace X39.Solutions.PdfTemplate.Functions;
+﻿using System.Globalization;
+
+namespace X39.Solutions.PdfTemplate.Functions;
 
 internal class AllTemplateDataVariables : IFunction
 {
@@ -13,7 +15,7 @@ internal class AllTemplateDataVariables : IFunction
     public int Arguments => 0;
     public bool IsVariadic => false;
 
-    public object Execute(object?[] arguments)
+    public object Execute(CultureInfo cultureInfo, object?[] arguments)
     {
         return _templateData.Variables.Select((q) => $"{q.Key}: {q.Value}");
     }

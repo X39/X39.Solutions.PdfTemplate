@@ -1,3 +1,5 @@
+using System.Globalization;
+
 namespace X39.Solutions.PdfTemplate.Test.ExpressionTests;
 
 public class DummyValueCollectionFunction : IFunction
@@ -17,7 +19,7 @@ public class DummyValueCollectionFunction : IFunction
     public int Arguments { get; }
     public bool IsVariadic => false;
 
-    public object Execute(object?[] arguments)
+    public object Execute(CultureInfo cultureInfo, object?[] arguments)
     {
         if (!arguments.Select((q) => q?.GetType()).SequenceEqual(_inputTypes))
             throw new ArgumentException("Invalid arguments.", nameof(arguments));

@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Globalization;
+using System.Text;
 
 namespace X39.Solutions.PdfTemplate;
 
@@ -79,14 +80,14 @@ internal sealed class TemplateData : ITemplateData
         return dict.TryGetValue(name, out value);
     }
 
-    public object? Evaluate(string expression)
+    public object? Evaluate(CultureInfo cultureInfo, string expression)
     {
         var firstChar = expression.Length > 0 ? expression[0] : '\0';
         if (expression.Length > 1 && firstChar == '"')
             return HandleStringExpression(expression);
 
         if (IsFunctionExpression(expression))
-            return HandleFunctionExpression(expression);
+            return HandleFunctionExpression(cultureInfo, expression);
         if (IsTrue(expression))
             return true;
         if (IsFalse(expression))
@@ -126,7 +127,7 @@ internal sealed class TemplateData : ITemplateData
         return GetVariable(expression);
     }
 
-    private object? HandleFunctionExpression(string expression)
+    private object? HandleFunctionExpression(CultureInfo cultureInfo, string expression)
     {
         var functionName = expression[..expression.IndexOf('(')];
         var function = GetFunction(functionName);
@@ -137,11 +138,11 @@ internal sealed class TemplateData : ITemplateData
             : argumentsExpression
                 .Split(',')
                 .Select((s) => s.Trim())
-                .Select(Evaluate)
+                .Select(expression1 => Evaluate(cultureInfo, expression1))
                 .ToArray();
         if (function is null)
             throw new FunctionNotFoundDuringEvaluationException(functionName);
-        return function.Execute(arguments);
+        return function.Execute(cultureInfo, arguments);
     }
 
     private static string HandleStringExpression(string expression)

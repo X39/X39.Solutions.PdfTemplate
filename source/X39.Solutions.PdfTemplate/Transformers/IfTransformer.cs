@@ -18,6 +18,7 @@ public partial class IfTransformer : ITransformer
 
     /// <inheritdoc />
     public IEnumerable<XmlNode> Transform(
+        CultureInfo cultureInfo,
         ITemplateData templateData,
         string remainingLine,
         IReadOnlyCollection<XmlNode> nodes)
@@ -30,7 +31,7 @@ public partial class IfTransformer : ITransformer
                 "@if <expression> [operator <expression>] (supported operators: >, <, >=, <=, ==, !=, ===, !==, in)",
                 nameof(remainingLine));
         var leftExpressionString = match.Groups["leftExpression"].Value;
-        var leftExpression = templateData.Evaluate(leftExpressionString);
+        var leftExpression = templateData.Evaluate(cultureInfo, leftExpressionString);
 
         if (!match.Groups["operator"].Success)
         {
@@ -52,7 +53,7 @@ public partial class IfTransformer : ITransformer
 
         var @operator = match.Groups["operator"].Value;
         var rightExpressionString = match.Groups["rightExpression"].Value;
-        var rightExpression = templateData.Evaluate(rightExpressionString);
+        var rightExpression = templateData.Evaluate(cultureInfo, rightExpressionString);
         var result = @operator switch
         {
             ">"   => Compare(leftExpression, rightExpression) > 0,

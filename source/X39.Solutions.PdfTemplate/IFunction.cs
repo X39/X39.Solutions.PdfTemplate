@@ -1,4 +1,6 @@
-﻿namespace X39.Solutions.PdfTemplate;
+﻿using System.Globalization;
+
+namespace X39.Solutions.PdfTemplate;
 
 /// <summary>
 /// A function that can be used in a template.
@@ -27,7 +29,8 @@ public interface IFunction
     /// <remarks>
     /// The number of arguments passed to this function is guaranteed to be equal to <see cref="Arguments"/>.
     /// </remarks>
+    /// <param name="cultureInfo">The culture info to use for the function.</param>
     /// <param name="arguments">The arguments to pass to the function.</param>
     /// <returns>The result of the function.</returns>
-    object? Execute(object?[] arguments);
+    object? Execute(CultureInfo cultureInfo, object?[] arguments);
 }

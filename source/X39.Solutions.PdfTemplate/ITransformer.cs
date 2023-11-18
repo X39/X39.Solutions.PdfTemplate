@@ -1,4 +1,5 @@
-﻿using XmlNode = X39.Solutions.PdfTemplate.Xml.XmlNode;
+﻿using System.Globalization;
+using XmlNode = X39.Solutions.PdfTemplate.Xml.XmlNode;
 
 namespace X39.Solutions.PdfTemplate;
 
@@ -16,11 +17,13 @@ public interface ITransformer
     /// <summary>
     /// Transforms the given template element into a different format.
     /// </summary>
+    /// <param name="cultureInfo"></param>
     /// <param name="templateData">The data storage available to the template.</param>
     /// <param name="remainingLine">The remaining line of the template.</param>
     /// <param name="nodes">The nodes contained in the template.</param>
     /// <returns>The transformed nodes.</returns>
     IEnumerable<XmlNode> Transform(
+        CultureInfo cultureInfo,
         ITemplateData templateData,
         string remainingLine,
         IReadOnlyCollection<XmlNode> nodes);

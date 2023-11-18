@@ -19,6 +19,7 @@ public partial class ForEachTransformer : ITransformer
 
     /// <inheritdoc />
     public IEnumerable<XmlNode> Transform(
+        CultureInfo cultureInfo,
         ITemplateData templateData,
         string remainingLine,
         IReadOnlyCollection<XmlNode> nodes)
@@ -28,7 +29,7 @@ public partial class ForEachTransformer : ITransformer
         if (!match.Success)
             throw new ArgumentException("Invalid arguments.", nameof(remainingLine));
         var variable = match.Groups["variable"].Value;
-        var @in = templateData.Evaluate(match.Groups["in"].Value);
+        var @in = templateData.Evaluate(cultureInfo, match.Groups["in"].Value);
         if (@in is not IEnumerable enumerable)
             throw new ArgumentException("In must be an enumerable.", nameof(remainingLine));
         if (match.Groups["indexVariable"].Success)

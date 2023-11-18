@@ -1,4 +1,6 @@
-﻿namespace X39.Solutions.PdfTemplate;
+﻿using System.Globalization;
+
+namespace X39.Solutions.PdfTemplate;
 
 /// <summary>
 /// Allows access to pdf template data.
@@ -60,9 +62,10 @@ public interface ITemplateData
     /// Unlike <see cref="Evaluate"/>, this method may execute <see cref="IFunction"/>'s, access <see cref="Variables"/>
     /// or parse <paramref name="expression"/> to the expected type (eg. <see cref="int"/>).
     /// </remarks>
+    /// <param name="cultureInfo"></param>
     /// <param name="expression">The expression to evaluate.</param>
     /// <returns>The result of the expression.</returns>
-    object? Evaluate(string expression);
+    object? Evaluate(CultureInfo cultureInfo, string expression);
 
     
     /// <summary>

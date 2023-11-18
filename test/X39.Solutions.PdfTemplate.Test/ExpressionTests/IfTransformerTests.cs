@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Globalization;
+using System.Text;
 using System.Xml;
 using X39.Solutions.PdfTemplate.Transformers;
 using X39.Solutions.PdfTemplate.Xml;
@@ -19,7 +20,7 @@ public class IfTransformerTests
                                      }
                                   </styleMustBeEmptyTagTest>
                                   """;
-        var templateReader = new XmlTemplateReader(new TemplateData(), new[] {new IfTransformer()});
+        var templateReader = new XmlTemplateReader(CultureInfo.InvariantCulture, new TemplateData(), new[] {new IfTransformer()});
         using var xmlStream = new MemoryStream(Encoding.UTF8.GetBytes(template));
         using var xmlReader = XmlReader.Create(xmlStream);
         var nodeInformation = templateReader.Read(xmlReader);
@@ -39,7 +40,7 @@ public class IfTransformerTests
                                      }
                                   </styleMustBeEmptyTagTest>
                                   """;
-        var templateReader = new XmlTemplateReader(new TemplateData(), new[] {new IfTransformer()});
+        var templateReader = new XmlTemplateReader(CultureInfo.InvariantCulture, new TemplateData(), new[] {new IfTransformer()});
         using var xmlStream = new MemoryStream(Encoding.UTF8.GetBytes(template));
         using var xmlReader = XmlReader.Create(xmlStream);
         var nodeInformation = templateReader.Read(xmlReader);
@@ -91,7 +92,7 @@ public class IfTransformerTests
         var data = new TemplateData();
         data.SetVariable("variable", left);
         data.RegisterFunction(new DummyValueFunction("function", right, new[] {typeof(int), typeof(string)}));
-        var templateReader = new XmlTemplateReader(data, new[] {new IfTransformer()});
+        var templateReader = new XmlTemplateReader(CultureInfo.InvariantCulture, data, new[] {new IfTransformer()});
         using var xmlStream = new MemoryStream(Encoding.UTF8.GetBytes(template));
         using var xmlReader = XmlReader.Create(xmlStream);
         var nodeInformation = templateReader.Read(xmlReader);
