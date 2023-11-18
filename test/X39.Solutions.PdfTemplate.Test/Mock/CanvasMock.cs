@@ -1,4 +1,6 @@
-﻿using X39.Solutions.PdfTemplate.Abstraction;
+﻿using System.Diagnostics;
+using System.Runtime.CompilerServices;
+using X39.Solutions.PdfTemplate.Abstraction;
 using X39.Solutions.PdfTemplate.Data;
 using X39.Util;
 
@@ -35,9 +37,13 @@ public partial class CanvasMock : ICanvas
         public Rectangle Clip { get; set; }
     }
 
+
+    private Point Translation => _stateStack.Any() ? _stateStack.Peek().Translation : new Point();
+
     private readonly Stack<State>       _stateStack    = new(new State().MakeEnumerable());
     private readonly List<DrawLineCall> _drawLineCalls = new();
     private readonly List<DrawTextCall> _drawTextCalls = new();
+    private readonly List<Rectangle>    _clipCalls     = new();
 
     public void PushState()
     {
@@ -52,6 +58,8 @@ public partial class CanvasMock : ICanvas
 
     public void Clip(Rectangle rectangle)
     {
+        rectangle += Translation;
+        _clipCalls.Add(rectangle);
         _stateStack.Peek().Clip = rectangle;
     }
 
@@ -62,15 +70,14 @@ public partial class CanvasMock : ICanvas
 
     public void DrawLine(Color color, float thickness, float startX, float startY, float endX, float endY)
     {
-        var translation = _stateStack.Any() ? _stateStack.Peek().Translation : new Point();
         _drawLineCalls.Add(
             new DrawLineCall(
                 color,
                 thickness,
-                startX + translation.X,
-                startY + translation.Y,
-                endX + translation.X,
-                endY + translation.Y));
+                startX + Translation.X,
+                startY + Translation.Y,
+                endX + Translation.X,
+                endY + Translation.Y));
     }
 
     public void Translate(Point point)
@@ -147,5 +154,47 @@ public partial class CanvasMock
             var expected = new DrawTextCall(callExpected.textStyle, callExpected.text, callExpected.x, callExpected.y);
             Assert.Equal(expected, actual);
         }
+    }
+
+    [StackTraceHidden]
+    public void AssertClip(Rectangle rectangle)
+    {
+        Assert.NotEmpty(_clipCalls);
+        var actual = _clipCalls.First();
+        var expected = rectangle;
+        Assert.Equal(expected, actual);
+    }
+
+    [StackTraceHidden]
+    public void AssertClip(int index, Rectangle rectangle, bool withTranslation = true)
+    {
+        Assert.NotEmpty(_clipCalls);
+        Assert.True(_clipCalls.Count > index, $"The assertion failed because the amount of clip calls is less than {index}.");
+        var actual = _clipCalls.ElementAt(index);
+        var expected = rectangle;
+        if (withTranslation)
+            Assert.Equal(expected, actual);
+        else
+            Assert.Equal<Size>(expected, actual);
+    }
+
+    [StackTraceHidden]
+    public void AssertClip(params Rectangle[] clipCalls)
+    {
+        Assert.Equal(clipCalls.Length, _clipCalls.Count);
+        var zipped = _clipCalls.Zip(clipCalls);
+        foreach (var (actual, expected) in zipped)
+        {
+            Assert.Equal(expected, actual);
+        }
+    }
+
+    [StackTraceHidden]
+    public void AssertAllClip(
+        Func<Rectangle, bool> predicate,
+        [CallerArgumentExpression(nameof(predicate))] string expression = "")
+    {
+        Assert.NotEmpty(_clipCalls);
+        Assert.True(_clipCalls.All(predicate), $"The predicate {expression} was not true for all clip calls.");
     }
 }
