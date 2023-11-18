@@ -32,6 +32,15 @@ internal sealed class CanvasImpl : ICanvas
         _drawActions.Add((canvas) => canvas.ClipRect(rectangle));
     }
 
+    public void DrawRect(Rectangle rectangle, Color color)
+    {
+        _drawActions.Add((canvas) =>
+        {
+            var paint = _paintCache.Get(color);
+            canvas.DrawRect(rectangle, paint);
+        });
+    }
+
     public void Translate(Point point)
     {
         _drawActions.Add((canvas) => canvas.Translate(point));

@@ -53,4 +53,12 @@ public interface ICanvas
     /// <param name="y">The y-coordinate of the origin of the text being drawn.</param>
     /// <param name="textStyle">The <see cref="TextStyle"/> to use when drawing the text.</param>
     void DrawText(TextStyle textStyle, string text, float x, float y);
+
+    /// <summary>
+    ///     Draws a rectangle on the canvas at the coordinates specified
+    ///     by <see cref="Rectangle.Left"/> and <see cref="Rectangle.Top"/>.
+    /// </summary>
+    /// <param name="rectangle">The rectangle position.</param>
+    /// <param name="color">The fill color of the rectangle.</param>
+    void DrawRect(Rectangle rectangle, Color color);
 }

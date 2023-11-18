@@ -87,6 +87,10 @@ public partial class CanvasMock : ICanvas
                 x,
                 y));
     }
+
+    public void DrawRect(Rectangle rectangle, Color color)
+    {
+    }
 }
 
 public partial class CanvasMock
