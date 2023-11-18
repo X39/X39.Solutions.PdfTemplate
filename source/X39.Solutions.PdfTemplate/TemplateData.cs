@@ -201,14 +201,3 @@ internal sealed class TemplateData : ITemplateData
             : new Dictionary<string, object?>();
     }
 }
-
-internal class EmptyFunction : IFunction
-{
-    public string Name => string.Empty;
-    public int Arguments => 0;
-
-    public object? Execute(object?[] arguments)
-    {
-        return null;
-    }
-}
