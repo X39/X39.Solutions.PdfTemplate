@@ -11,6 +11,7 @@ internal class AllTemplateDataVariables : IFunction
 
     public string Name => "allVariables";
     public int Arguments => 0;
+    public bool IsVariadic => false;
 
     public object Execute(object?[] arguments)
     {

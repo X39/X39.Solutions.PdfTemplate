@@ -16,6 +16,12 @@ public interface IFunction
     int Arguments { get; }
     
     /// <summary>
+    /// If set to <c>true</c>, the function may be called with a variable number of arguments but
+    /// at least <see cref="Arguments"/> arguments.
+    /// </summary>
+    bool IsVariadic { get; }
+
+    /// <summary>
     /// Executes the function.
     /// </summary>
     /// <remarks>

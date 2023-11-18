@@ -1,4 +1,7 @@
-﻿namespace X39.Solutions.PdfTemplate.Functions;
+﻿using System.Globalization;
+using X39.Util.Collections;
+
+namespace X39.Solutions.PdfTemplate.Functions;
 
 internal class AllTemplateDataFunctions : IFunction
 {
@@ -11,12 +14,13 @@ internal class AllTemplateDataFunctions : IFunction
 
     public string Name => "allFunctions";
     public int Arguments => 0;
+    public bool IsVariadic => false;
 
     public object Execute(object?[] arguments)
     {
         return _templateData.Functions
             .Select(
                 (function) =>
-                    $"{function.Name}({string.Join(", ", Enumerable.Range(0, function.Arguments).Select((argNo) => $"arg{argNo}"))})");
+                    $"{function.Name}({string.Join(", ", Enumerable.Range(0, function.Arguments).Select((argNo) => $"arg{argNo}").Append(IsVariadic ? "..." : null).NotNull())})");
     }
 }
