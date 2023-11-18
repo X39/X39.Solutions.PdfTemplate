@@ -16,6 +16,37 @@ public class TextControlTests : IDisposable
         _paintCache.Dispose();
     }
 
+    [Theory]
+    [InlineData("A")]
+    [InlineData("AB")]
+    [InlineData("ABC")]
+    [InlineData("ABCD")]
+    [InlineData("ABCDE")]
+    [InlineData("ABCDEF")]
+    [InlineData("ABCDEFG")]
+    [InlineData("ABCDEFGH")]
+    [InlineData("ABCDEFGHI")]
+    [InlineData("ABCDEFGHIJ")]
+    public void SizeGreaterZero(string s)
+    {
+        const string text = "The quick brown fox jumps over the lazy dog";
+        var pageBounds = new Size(595, 842);
+        var mock = new CanvasMock();
+        var fontPath = GetTestFont();
+        var control = new TextControl(new TextService(_paintCache))
+        {
+            Text       = text,
+            FontSize   = 12,
+            Style      = EFontStyle.Italic,
+            FontFamily = fontPath,
+        };
+        control.Measure(pageBounds, pageBounds, pageBounds, CultureInfo.InvariantCulture);
+        control.Arrange(pageBounds, pageBounds, pageBounds, CultureInfo.InvariantCulture);
+        control.Render(mock, pageBounds, CultureInfo.InvariantCulture);
+        mock.AssertState();
+        mock.AssertAllClip((rectangle) => rectangle is {Width: > 0, Height: > 0});
+    }
+
     [Fact(Skip = "This test is not working in CI environment")]
     public void LeftAlignedText()
     {
