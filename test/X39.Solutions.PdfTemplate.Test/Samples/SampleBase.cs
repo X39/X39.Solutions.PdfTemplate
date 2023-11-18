@@ -22,7 +22,7 @@ public abstract class SampleBase : IAsyncDisposable
             _serviceProvider.GetRequiredService<SkPaintCache>(),
             _serviceProvider.GetRequiredService<ControlExpressionCache>(),
             Enumerable.Empty<IFunction>());
-        generator.AddDefaultControls();
+        generator.AddDefaults();
         return generator;
     }
 

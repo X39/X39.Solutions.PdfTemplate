@@ -11,20 +11,32 @@ public static class GeneratorDefaults
     /// <summary>
     /// Adds the default controls to the generator.
     /// </summary>
-    /// <param name="generator">The generator to add the controls to.</param>
-    /// <returns>The <paramref name="generator"/> passed to allow chaining.</returns>
-    public static Generator AddDefaultControls(this Generator generator)
+    /// <param name="self">The generator to add the controls to.</param>
+    /// <returns>The <paramref name="self"/> passed to allow chaining.</returns>
+    public static Generator AddDefaults(this Generator self)
     {
-        generator.AddControl<Controls.LineControl>();
-        generator.AddControl<Controls.TextControl>();
-        generator.AddControl<Controls.TableControl>();
-        generator.AddControl<Controls.TableCellControl>();
-        generator.AddControl<Controls.TableHeaderControl>();
-        generator.AddControl<Controls.TableRowControl>();
-        
-        generator.AddTransformer(new ForTransformer());
-        generator.AddTransformer(new IfTransformer());
-        generator.AddTransformer(new ForEachTransformer());
-        return generator;
+        AddDefaultControls(self);
+        self.AddDefaultTransformers();
+        return self;
+    }
+
+    internal static T AddDefaultControls<T>(this T self) where T : IAddControls
+    {
+        self.AddControl<Controls.LineControl>();
+        self.AddControl<Controls.TextControl>();
+        self.AddControl<Controls.TableControl>();
+        self.AddControl<Controls.TableCellControl>();
+        self.AddControl<Controls.TableHeaderControl>();
+        self.AddControl<Controls.TableRowControl>();
+        self.AddControl<Controls.BorderControl>();
+        return self;
+    }
+
+    internal static T AddDefaultTransformers<T>(this T self) where T : IAddTransformers
+    {
+        self.AddTransformer(new ForTransformer());
+        self.AddTransformer(new IfTransformer());
+        self.AddTransformer(new ForEachTransformer());
+        return self;
     }
 }

@@ -1,9 +1,11 @@
 ﻿using System.Data;
 using System.Globalization;
+using System.Reflection;
+using X39.Solutions.PdfTemplate.Attributes;
 
 namespace X39.Solutions.PdfTemplate;
 
-internal class ControlStorage
+internal class ControlStorage : IAddControls
 {
     private readonly ControlExpressionCache                             _controlExpressionCache;
     private readonly Dictionary<(string @namespace, string name), Type> _controls = new();
@@ -43,5 +45,36 @@ internal class ControlStorage
             throw new InvalidOperationException($"The control {@namespace}:{name} does not exist.");
         var control = _controlExpressionCache.CreateControl(type, parameterDictionary, content, cultureInfo);
         return control;
+    }
+
+    public void AddControl<
+        [MeansImplicitUse(
+            ImplicitUseKindFlags.InstantiatedNoFixedConstructorSignature | ImplicitUseKindFlags.Assign)]
+        TControl>()
+        where TControl : IControl
+    {
+        var type = typeof(TControl);
+
+        if (type.IsGenericType)
+            throw new InvalidOperationException(
+                $"The type {type.FullName} is a generic type and cannot be used as a control.");
+        var attribute = typeof(TControl).GetCustomAttribute<ControlAttribute>();
+        if (attribute is null)
+            throw new InvalidOperationException(
+                $"The type {typeof(TControl).FullName} does not have a {nameof(ControlAttribute)}.");
+        var name = attribute.Name;
+        if (name.IsNullOrEmpty())
+        {
+            const string controlSuffix = "Control";
+            name = typeof(TControl).Name();
+
+            if (name.EndsWith(controlSuffix, StringComparison.Ordinal))
+                name = name[..^controlSuffix.Length];
+        }
+
+        Add(
+            attribute.Namespace,
+            name,
+            typeof(TControl));
     }
 }

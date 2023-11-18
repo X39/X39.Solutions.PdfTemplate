@@ -18,7 +18,7 @@ namespace X39.Solutions.PdfTemplate;
 /// This class is not thread safe. Make sure to implement locking if you want to use it in a multi-threaded environment.
 /// </remarks>
 [PublicAPI]
-public sealed class Generator : IDisposable, IAsyncDisposable
+public sealed class Generator : IDisposable, IAsyncDisposable, IAddControls, IAddTransformers
 {
     /// <summary>
     /// The data available to the templates processed by this generator.
@@ -63,32 +63,7 @@ public sealed class Generator : IDisposable, IAsyncDisposable
         [MeansImplicitUse(
             ImplicitUseKindFlags.InstantiatedNoFixedConstructorSignature | ImplicitUseKindFlags.Assign)]
         TControl>()
-        where TControl : IControl
-    {
-        var type = typeof(TControl);
-
-        if (type.IsGenericType)
-            throw new InvalidOperationException(
-                $"The type {type.FullName} is a generic type and cannot be used as a control.");
-        var attribute = typeof(TControl).GetCustomAttribute<ControlAttribute>();
-        if (attribute is null)
-            throw new InvalidOperationException(
-                $"The type {typeof(TControl).FullName} does not have a {nameof(ControlAttribute)}.");
-        var name = attribute.Name;
-        if (name.IsNullOrEmpty())
-        {
-            const string controlSuffix = "Control";
-            name = typeof(TControl).Name();
-
-            if (name.EndsWith(controlSuffix, StringComparison.Ordinal))
-                name = name[..^controlSuffix.Length];
-        }
-
-        _controlStorage.Add(
-            attribute.Namespace,
-            name,
-            typeof(TControl));
-    }
+        where TControl : IControl => _controlStorage.AddControl<TControl>();
 
     /// <summary>
     /// Adds a transformer to the generator, making it available for use in templates.
