@@ -95,11 +95,13 @@ public partial class CanvasMock : ICanvas
 
 public partial class CanvasMock
 {
+    [StackTraceHidden]
     public void AssertState()
     {
         Assert.Single(_stateStack);
     }
 
+    [StackTraceHidden]
     public void AssertDrawLine(Color color, float thickness, float startX, float startY, float endX, float endY)
     {
         var actual = _drawLineCalls.FirstOrDefault();
@@ -107,6 +109,7 @@ public partial class CanvasMock
         Assert.Equal(expected, actual);
     }
 
+    [StackTraceHidden]
     public void AssertDrawLine(
         params (Color color, float thickness, float startX, float startY, float endX, float endY)[] drawLineCalls)
     {
@@ -124,14 +127,17 @@ public partial class CanvasMock
             Assert.Equal(expected, actual);
         }
     }
-    
+
+    [StackTraceHidden]
     public void AssertDrawText(TextStyle textStyle, string text, float x, float y)
     {
+        Assert.NotEmpty(_drawTextCalls);
         var actual = _drawTextCalls.FirstOrDefault();
         var expected = new DrawTextCall(textStyle, text, x, y);
         Assert.Equal(expected, actual);
     }
-    
+
+    [StackTraceHidden]
     public void AssertDrawText(params (TextStyle textStyle, string text, float x, float y)[] drawTextCalls)
     {
         Assert.Equal(drawTextCalls.Length, _drawTextCalls.Count);
