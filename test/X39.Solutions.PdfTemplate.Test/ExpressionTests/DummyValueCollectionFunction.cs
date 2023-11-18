@@ -15,6 +15,7 @@ public class DummyValueCollectionFunction : IFunction
 
     public string Name { get; }
     public int Arguments { get; }
+    public bool IsVariadic => false;
 
     public object Execute(object?[] arguments)
     {
