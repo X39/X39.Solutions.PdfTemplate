@@ -22,7 +22,10 @@ public readonly record struct Rectangle(float Left, float Top, float Width, floa
         ISubtractionOperators<Rectangle, Rectangle, Rectangle>,
         IUnaryPlusOperators<Rectangle, Rectangle>,
         IUnaryNegationOperators<Rectangle, Rectangle>,
-        IMinMaxValue<Rectangle>
+        IMinMaxValue<Rectangle>,
+        
+        IAdditionOperators<Rectangle, Point, Rectangle>,
+        ISubtractionOperators<Rectangle, System.Drawing.Point, Rectangle>
 {
     /// <summary>
     /// The bottom position of the rectangle
@@ -108,4 +111,34 @@ public readonly record struct Rectangle(float Left, float Top, float Width, floa
     /// <returns>The converted point</returns>
     public static implicit operator Point(Rectangle rectangle)
         => new(rectangle.Left, rectangle.Top);
+
+    /// <summary>
+    /// Add a <see cref="Point"/> to a <see cref="Rectangle"/>
+    /// </summary>
+    /// <param name="left">The rectangle to add to</param>
+    /// <param name="right">The point to add</param>
+    /// <returns>A new rectangle with the added point</returns>
+    public static Rectangle operator +(Rectangle left, Point right)
+    {
+        return left with
+        {
+            Left = left.Left + right.X,
+            Top = left.Top + right.Y,
+        };
+    }
+
+    /// <summary>
+    /// Subtract a <see cref="System.Drawing.Point"/> from a <see cref="Rectangle"/>
+    /// </summary>
+    /// <param name="left">The rectangle to subtract from</param>
+    /// <param name="right">The point to subtract</param>
+    /// <returns>A new rectangle with the subtracted point</returns>
+    public static Rectangle operator -(Rectangle left, System.Drawing.Point right)
+    {
+        return left with
+        {
+            Left = left.Left - right.X,
+            Top = left.Top - right.Y,
+        };
+    }
 }
