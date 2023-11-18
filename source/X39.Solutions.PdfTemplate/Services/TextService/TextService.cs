@@ -84,8 +84,6 @@ internal class TextService : ITextService
     public void Draw(ICanvas canvas, TextStyle textStyle, ReadOnlySpan<char> text, float maxWidth)
     {
         var skPaint = _paintCache.Get(textStyle);
-        if (maxWidth < skPaint.FontMetrics.MaxCharacterWidth)
-            return;
         var height = skPaint.FontMetrics.Bottom + -skPaint.FontMetrics.Top;
         var right = text;
         var left = text;
