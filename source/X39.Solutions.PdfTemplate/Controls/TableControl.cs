@@ -73,12 +73,38 @@ public sealed class TableControl : AlignableContentControl
         }
 
         var totalCellWidth = CellWidths.Values.Sum();
-        var factor = remainingSize.Width / totalCellWidth;
-        foreach (var (index, width) in CellWidths)
+        var factor = remainingSize.Width / (totalCellWidth is 0F ? CellWidths.Count : totalCellWidth);
+        if (factor > 1)
         {
-            CellWidths[index] = width * factor;
+            var max = CellWidths.Values.Max();
+            if (max * CellWidths.Count <= remainingSize.Width)
+            {
+                var delta = remainingSize.Width / CellWidths.Count;
+                foreach (var (index, _) in CellWidths)
+                {
+                    CellWidths[index] = delta;
+                }
+            }
+            else
+            {
+                max = remainingSize.Width / CellWidths.Count;
+                var larger = CellWidths.Values.Where(x => x > max).Sum();
+                var remainingWidth = remainingSize.Width - larger;
+                var remainingCount = CellWidths.Values.Count(x => x <= max);
+                var newWidth = remainingWidth / remainingCount;
+                foreach (var (index, width) in CellWidths.Where(x => x.Value <= max))
+                {
+                    CellWidths[index] = newWidth;
+                }
+            }
         }
-
+        else
+        {
+            foreach (var (index, width) in CellWidths)
+            {
+                CellWidths[index] = width * factor;
+            }
+        }
 
         return new Size(maxWidth, totalHeight);
     }

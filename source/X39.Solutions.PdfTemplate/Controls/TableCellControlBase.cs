@@ -50,7 +50,9 @@ public sealed class TableCellControl : AlignableContentControl
             _heights.Add(size.Height);
         }
 
-        return new Size(width, height);
+        return new Size(
+            Math.Min(width, remainingSize.Width), 
+            Math.Min(height, remainingSize.Height));
     }
 
     /// <inheritdoc />
