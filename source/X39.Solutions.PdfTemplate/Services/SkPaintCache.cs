@@ -11,21 +11,23 @@ namespace X39.Solutions.PdfTemplate.Services;
 public sealed class SkPaintCache : IDisposable
 {
     // ReSharper disable NotAccessedPositionalProperty.Local -- Disabled as this is a key-only record
-    private readonly record struct ColorPaintKey(Color Color, float Thickness);
+    private readonly record struct StrokePaintKey(Color Color, float Thickness);
     // ReSharper restore NotAccessedPositionalProperty.Local
 
-    private readonly Dictionary<ColorPaintKey, SKPaint> _colorPaints     = new();
-    private readonly Dictionary<TextStyle, SKPaint>     _textPaints      = new();
-    private readonly ReaderWriterLockSlim               _colorPaintsLock = new();
-    private readonly ReaderWriterLockSlim               _textPaintsLock  = new();
+    private readonly Dictionary<StrokePaintKey, SKPaint> _strokePaints     = new();
+    private readonly ReaderWriterLockSlim                _strokePaintsLock = new();
+    private readonly Dictionary<TextStyle, SKPaint>      _textPaints       = new();
+    private readonly ReaderWriterLockSlim                _textPaintsLock   = new();
+    private readonly Dictionary<Color, SKPaint>      _fillPaintKey     = new();
+    private readonly ReaderWriterLockSlim                _fillPaintKeyLock = new();
 
     /// <inheritdoc />
     public void Dispose()
     {
-        _colorPaintsLock.WriteLocked(
+        _strokePaintsLock.WriteLocked(
             () =>
             {
-                foreach (var skPaint in _colorPaints.Values)
+                foreach (var skPaint in _strokePaints.Values)
                     skPaint.Dispose();
             });
         _textPaintsLock.WriteLocked(
@@ -47,22 +49,52 @@ public sealed class SkPaintCache : IDisposable
     /// <returns>A <see cref="SKPaint"/> with the given parameters.</returns>
     public SKPaint Get(Color color, float thickness)
     {
-        var key = new ColorPaintKey(color, thickness);
-        return _colorPaintsLock.UpgradeableReadLocked(
+        var key = new StrokePaintKey(color, thickness);
+        return _strokePaintsLock.UpgradeableReadLocked(
             () =>
             {
-                if (_colorPaints.TryGetValue(key, out var skPaint1))
+                if (_strokePaints.TryGetValue(key, out var skPaint1))
                     return skPaint1;
-                return _colorPaintsLock.WriteLocked(
+                return _strokePaintsLock.WriteLocked(
                     () =>
                     {
-                        if (_colorPaints.TryGetValue(key, out var skPaint2))
+                        if (_strokePaints.TryGetValue(key, out var skPaint2))
                             return skPaint2;
-                        return _colorPaints[key] = new SKPaint
+                        return _strokePaints[key] = new SKPaint
                         {
                             Color       = color,
                             StrokeWidth = thickness,
-                            StrokeCap   = SKStrokeCap.Round,
+                            IsStroke = true,
+                        };
+                    });
+            });
+    }
+
+    /// <summary>
+    /// Method to receive the <see cref="SKPaint"/> for a filled color.
+    /// </summary>
+    /// <remarks>
+    /// Gets a <see cref="SKPaint"/> from the cache or adds it if it does not exist.
+    /// </remarks>
+    /// <param name="color">The color of the paint.</param>
+    /// <returns>A <see cref="SKPaint"/> with the given parameters.</returns>
+    public SKPaint Get(Color color)
+    {
+        var key = color;
+        return _fillPaintKeyLock.UpgradeableReadLocked(
+            () =>
+            {
+                if (_fillPaintKey.TryGetValue(key, out var skPaint1))
+                    return skPaint1;
+                return _fillPaintKeyLock.WriteLocked(
+                    () =>
+                    {
+                        if (_fillPaintKey.TryGetValue(key, out var skPaint2))
+                            return skPaint2;
+                        return _fillPaintKey[key] = new SKPaint
+                        {
+                            Color       = color,
+                            IsStroke = false,
                         };
                     });
             });
