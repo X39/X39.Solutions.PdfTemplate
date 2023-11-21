@@ -76,6 +76,9 @@ internal class TextService : ITextService
                 break;
             }
 
+            if (end < 0)
+                return new ReadOnlySpanPair<char>(ReadOnlySpan<char>.Empty, text);
+
             leftWidth = skPaint.MeasureText(text[..end]);
         }
         return new ReadOnlySpanPair<char>(text[..end], text[end..]);
