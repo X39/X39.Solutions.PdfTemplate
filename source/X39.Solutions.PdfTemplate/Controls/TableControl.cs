@@ -125,6 +125,9 @@ public sealed class TableControl : AlignableContentControl
             .Select((q) => q.desiredWidth)
             .Sum();
 
+        var autoCoef = remainingWidth < totalAutoWidth
+            ? remainingWidth / totalAutoWidth
+            : 1.0F;
         if (totalParts > 0)
         {
             remainingWidth -= totalAutoWidth;
@@ -134,7 +137,7 @@ public sealed class TableControl : AlignableContentControl
             {
                 outWidths[index] = length.Unit switch
                 {
-                    EColumnUnit.Auto    => desiredWidth,
+                    EColumnUnit.Auto    => desiredWidth * autoCoef,
                     EColumnUnit.Pixel   => length.Value,
                     EColumnUnit.Part    => partWidth * length.Value,
                     EColumnUnit.Percent => totalWidth * length.Value,
@@ -152,22 +155,22 @@ public sealed class TableControl : AlignableContentControl
             var max = totalWidth / columns.Count;
             var larger = columns
                 .Where(x => x.length.Unit == EColumnUnit.Auto)
-                .Where(x => x.length.Value > max)
+                .Where(x => x.desiredWidth > max)
                 .DefaultIfEmpty()
-                .Sum(x => x.length.Value);
+                .Sum(x => x.desiredWidth);
             var remainingWidthWithoutLarger = remainingWidth - larger;
             var remainingCount = columns
                 .Where(x => x.length.Unit == EColumnUnit.Auto)
-                .Where(x => x.length.Value <= max)
-                .DefaultIfEmpty()
-                .Count();
+                .Count(x => x.desiredWidth <= max);
             var newWidth = remainingWidthWithoutLarger / remainingCount;
             var outWidths = new float[columns.Count];
             foreach (var ((length, desiredWidth), index) in columns.Indexed())
             {
                 outWidths[index] = length.Unit switch
                 {
-                    EColumnUnit.Auto    => desiredWidth > max ? desiredWidth : newWidth,
+                    EColumnUnit.Auto => desiredWidth > max || autoCoef < 1.0F
+                        ? desiredWidth * autoCoef
+                        : newWidth,
                     EColumnUnit.Pixel   => length.Value,
                     EColumnUnit.Part    => 0F, // We don't have any parts in this branch
                     EColumnUnit.Percent => totalWidth * length.Value,
