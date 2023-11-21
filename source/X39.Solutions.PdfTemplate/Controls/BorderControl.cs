@@ -41,7 +41,12 @@ public class BorderControl : AlignableContentControl
         var size = Children.FirstOrDefault()
                        ?.Measure(fullPageSize, framedPageSize, remainingSize - thickness, cultureInfo)
                    ?? Size.Zero;
-        return size + new Size(thickness.Left, thickness.Top) + new Size(thickness.Width, thickness.Height);
+        var result = size + new Size(thickness.Left, thickness.Top) + new Size(thickness.Width, thickness.Height);
+        // if (HorizontalAlignment is EHorizontalAlignment.Stretch)
+        //     result = result with {Width = Math.Max(result.Width, framedPageSize.Width)};
+        // if (VerticalAlignment is EVerticalAlignment.Stretch)
+        //     result = result with {Height = Math.Max(result.Height, framedPageSize.Height)};
+        return result;
     }
 
     /// <inheritdoc />
@@ -55,7 +60,12 @@ public class BorderControl : AlignableContentControl
         var size = Children.FirstOrDefault()
                        ?.Arrange(fullPageSize, framedPageSize, remainingSize - thickness, cultureInfo)
                    ?? Size.Zero;
-        return size + new Size(thickness.Left, thickness.Top) + new Size(thickness.Width, thickness.Height);
+        var result = size + new Size(thickness.Left, thickness.Top) + new Size(thickness.Width, thickness.Height);
+        if (HorizontalAlignment is EHorizontalAlignment.Stretch)
+            result = result with {Width = Math.Max(result.Width, remainingSize.Width)};
+        if (VerticalAlignment is EVerticalAlignment.Stretch)
+            result = result with {Height = Math.Max(result.Height, remainingSize.Height)};
+        return result;
     }
 
     /// <inheritdoc />
@@ -98,7 +108,7 @@ public class BorderControl : AlignableContentControl
                 Arrangement.Height,
                 0,
                 Arrangement.Height);
-        
+
         canvas.Translate(-Arrangement);
         canvas.Translate(ArrangementInner);
         using var state = canvas.CreateState();
