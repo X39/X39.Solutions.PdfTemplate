@@ -15,9 +15,9 @@ namespace X39.Solutions.PdfTemplate.Test.Controls;
 public class TableControlTest
 {
     [Fact]
-    public void TableWith2X100PXLinesWillScaleToFullPageSize()
+    public async Task TableWith2X100PXLinesWillScaleToFullPageSize()
     {
-        var control = CreateControl<TableControl>(
+        var control = await CreateControl<TableControl>(
             $$"""
               <table>
                   <tr>
@@ -42,9 +42,9 @@ public class TableControlTest
         mockCanvas.AssertClip(5, new Rectangle(100, 0, 100, 100)); // line
     }
     [Fact]
-    public void TableWith2X200PXLinesWillScaleToFullPageSize()
+    public async Task TableWith2X200PXLinesWillScaleToFullPageSize()
     {
-        var control = CreateControl<TableControl>(
+        var control = await CreateControl<TableControl>(
             $$"""
               <table>
                   <tr>
@@ -69,9 +69,9 @@ public class TableControlTest
         mockCanvas.AssertClip(5, new Rectangle(100, 0, 2000, 100)); // line
     }
     [Fact]
-    public void TableWith2X50PXLinesWillScaleToFullPageSize()
+    public async Task TableWith2X50PXLinesWillScaleToFullPageSize()
     {
-        var control = CreateControl<TableControl>(
+        var control = await CreateControl<TableControl>(
             $$"""
               <table>
                   <tr>
@@ -105,9 +105,9 @@ public class TableControlTest
     [InlineData(8)]
     [InlineData(9)]
     [InlineData(10)]
-    public void TableWithEmptyColsWillScaleToFullPageSizeInSum(int amount)
+    public async Task TableWithEmptyColsWillScaleToFullPageSizeInSum(int amount)
     {
-        var control = CreateControl<TableControl>(
+        var control = await CreateControl<TableControl>(
             $$"""
               <table>
                   <tr>
@@ -133,9 +133,9 @@ public class TableControlTest
         }
     }
     [Fact]
-    public void TableWith2EmptyColsWillScaleToFullPageSizeEachColHalf()
+    public async Task TableWith2EmptyColsWillScaleToFullPageSizeEachColHalf()
     {
-        var control = CreateControl<TableControl>(
+        var control = await CreateControl<TableControl>(
             $$"""
               <table>
                   <tr>
@@ -157,7 +157,7 @@ public class TableControlTest
         mockCanvas.AssertClip(3, new Rectangle(100, 0, 0, 0)); // td
     }
 
-    private T CreateControl<T>([LanguageInjection(InjectedLanguage.XML)] string template) where T : IControl
+    private async Task<T> CreateControl<T>([LanguageInjection(InjectedLanguage.XML)] string template) where T : IControl
     {
         template = string.Concat(
             $"<?xml version=\"1.0\" encoding=\"utf-8\"?><template xmlns=\"{Constants.ControlsNamespace}\"><body>",
@@ -168,7 +168,7 @@ public class TableControlTest
         ITemplateData templateData = new TemplateData();
         var transformers = new TransformerList().AddDefaultTransformers();
         using var xmlTemplateReader = new XmlTemplateReader(CultureInfo.InvariantCulture, templateData, transformers);
-        var root = xmlTemplateReader.Read(xmlReader);
+        var root = await xmlTemplateReader.ReadAsync(xmlReader);
         var serviceCollection = new ServiceCollection();
         serviceCollection.AddPdfTemplateServices();
         using var serviceProvider = serviceCollection.BuildServiceProvider();

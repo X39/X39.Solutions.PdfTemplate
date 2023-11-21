@@ -10,7 +10,7 @@ namespace X39.Solutions.PdfTemplate.Test.Xml;
 public class XmlTemplateReaderTests
 {
     [Fact]
-    public void EffectiveStyle()
+    public async Task EffectiveStyle()
     {
         const string ns = Constants.ControlsNamespace;
         const string template = $"""
@@ -31,7 +31,7 @@ public class XmlTemplateReaderTests
         var templateReader = new XmlTemplateReader(CultureInfo.InvariantCulture, new TemplateData(), ArraySegment<ITransformer>.Empty);
         using var xmlStream = new MemoryStream(Encoding.UTF8.GetBytes(template));
         using var xmlReader = XmlReader.Create(xmlStream);
-        var node = templateReader.Read(xmlReader);
+        var node = await templateReader.ReadAsync(xmlReader);
 
         // Assert all nodes are present
         Assert.Equal("effectiveStyleTest", node.NodeName);
@@ -53,7 +53,7 @@ public class XmlTemplateReaderTests
     }
 
     [Fact]
-    public void NoDotInName()
+    public async Task NoDotInName()
     {
         const string ns = Constants.ControlsNamespace;
         const string template = $"""
@@ -65,11 +65,11 @@ public class XmlTemplateReaderTests
         var templateReader = new XmlTemplateReader(CultureInfo.InvariantCulture, new TemplateData(), ArraySegment<ITransformer>.Empty);
         using var xmlStream = new MemoryStream(Encoding.UTF8.GetBytes(template));
         using var xmlReader = XmlReader.Create(xmlStream);
-        Assert.Throws<XmlNodeNameException>(() => templateReader.Read(xmlReader));
+        await Assert.ThrowsAsync<XmlNodeNameException>(() => templateReader.ReadAsync(xmlReader));
     }
 
     [Fact]
-    public void StyleMustBeEmptyTag()
+    public async Task StyleMustBeEmptyTag()
     {
         const string ns = Constants.ControlsNamespace;
         const string template = $"""
@@ -85,11 +85,11 @@ public class XmlTemplateReaderTests
         var templateReader = new XmlTemplateReader(CultureInfo.InvariantCulture, new TemplateData(), ArraySegment<ITransformer>.Empty);
         using var xmlStream = new MemoryStream(Encoding.UTF8.GetBytes(template));
         using var xmlReader = XmlReader.Create(xmlStream);
-        Assert.Throws<XmlStyleInformationCannotNestException>(() => templateReader.Read(xmlReader));
+        await Assert.ThrowsAsync<XmlStyleInformationCannotNestException>(() => templateReader.ReadAsync(xmlReader));
     }
 
     [Fact]
-    public void ForLoop()
+    public async Task ForLoop()
     {
         const string ns = Constants.ControlsNamespace;
         const string template = $$"""
@@ -103,7 +103,7 @@ public class XmlTemplateReaderTests
         var templateReader = new XmlTemplateReader(CultureInfo.InvariantCulture, new TemplateData(), new []{new ForTransformer()});
         using var xmlStream = new MemoryStream(Encoding.UTF8.GetBytes(template));
         using var xmlReader = XmlReader.Create(xmlStream);
-        var nodeInformation = templateReader.Read(xmlReader);
+        var nodeInformation = await templateReader.ReadAsync(xmlReader);
         Assert.Equal(10, nodeInformation.Children.Count);
     }
 }

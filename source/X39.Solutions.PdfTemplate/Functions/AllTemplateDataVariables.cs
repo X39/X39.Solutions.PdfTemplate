@@ -15,8 +15,11 @@ internal class AllTemplateDataVariables : IFunction
     public int Arguments => 0;
     public bool IsVariadic => false;
 
-    public object Execute(CultureInfo cultureInfo, object?[] arguments)
+    public ValueTask<object?> ExecuteAsync(
+        CultureInfo cultureInfo,
+        object?[] arguments,
+        CancellationToken cancellationToken = default)
     {
-        return _templateData.Variables.Select((q) => $"{q.Key}: {q.Value}");
+        return ValueTask.FromResult<object?>(_templateData.Variables.Select((q) => $"{q.Key}: {q.Value}"));
     }
 }

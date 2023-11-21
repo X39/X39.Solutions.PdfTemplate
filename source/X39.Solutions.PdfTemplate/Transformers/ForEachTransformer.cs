@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Globalization;
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using XmlNode = X39.Solutions.PdfTemplate.Xml.XmlNode;
 
@@ -18,18 +19,20 @@ public partial class ForEachTransformer : ITransformer
     public string Name => "forEach";
 
     /// <inheritdoc />
-    public IEnumerable<XmlNode> Transform(
+    public async IAsyncEnumerable<XmlNode> TransformAsync(
         CultureInfo cultureInfo,
         ITemplateData templateData,
         string remainingLine,
-        IReadOnlyCollection<XmlNode> nodes)
+        IReadOnlyCollection<XmlNode> nodes,
+        [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         using var scope = templateData.Scope("forEach");
         var match = ParseArguments().Match(remainingLine);
         if (!match.Success)
             throw new ArgumentException("Invalid arguments.", nameof(remainingLine));
         var variable = match.Groups["variable"].Value;
-        var @in = templateData.Evaluate(cultureInfo, match.Groups["in"].Value);
+        var @in = await templateData.EvaluateAsync(cultureInfo, match.Groups["in"].Value, cancellationToken)
+            .ConfigureAwait(false);
         if (@in is not IEnumerable enumerable)
             throw new ArgumentException("In must be an enumerable.", nameof(remainingLine));
         if (match.Groups["indexVariable"].Success)

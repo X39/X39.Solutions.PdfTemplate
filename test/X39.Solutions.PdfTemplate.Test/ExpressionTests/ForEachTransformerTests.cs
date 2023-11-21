@@ -9,7 +9,7 @@ namespace X39.Solutions.PdfTemplate.Test.ExpressionTests;
 public class ForEachTransformerTests
 {
     [Fact]
-    public void ForEachLoopWithVariableSourceAndIndex()
+    public async Task ForEachLoopWithVariableSourceAndIndex()
     {
         const string ns = Constants.ControlsNamespace;
         const string template = $$"""
@@ -25,7 +25,7 @@ public class ForEachTransformerTests
         var templateReader = new XmlTemplateReader(CultureInfo.InvariantCulture, data, new[] {new ForEachTransformer()});
         using var xmlStream = new MemoryStream(Encoding.UTF8.GetBytes(template));
         using var xmlReader = XmlReader.Create(xmlStream);
-        var nodeInformation = templateReader.Read(xmlReader);
+        var nodeInformation = await templateReader.ReadAsync(xmlReader);
         Assert.Equal(3, nodeInformation.Children.Count);
         Assert.Equal("0 -- 1", nodeInformation.Children.ElementAt(0).TextContent);
         Assert.Equal("1 -- 2", nodeInformation.Children.ElementAt(1).TextContent);
@@ -33,7 +33,7 @@ public class ForEachTransformerTests
     }
     
     [Fact]
-    public void ForEachLoopWithVariableSource()
+    public async Task ForEachLoopWithVariableSource()
     {
         const string ns = Constants.ControlsNamespace;
         const string template = $$"""
@@ -49,7 +49,7 @@ public class ForEachTransformerTests
         var templateReader = new XmlTemplateReader(CultureInfo.InvariantCulture, data, new[] {new ForEachTransformer()});
         using var xmlStream = new MemoryStream(Encoding.UTF8.GetBytes(template));
         using var xmlReader = XmlReader.Create(xmlStream);
-        var nodeInformation = templateReader.Read(xmlReader);
+        var nodeInformation = await templateReader.ReadAsync(xmlReader);
         Assert.Equal(3, nodeInformation.Children.Count);
         Assert.Equal("1", nodeInformation.Children.ElementAt(0).TextContent);
         Assert.Equal("2", nodeInformation.Children.ElementAt(1).TextContent);
@@ -57,7 +57,7 @@ public class ForEachTransformerTests
     }
     
     [Fact]
-    public void ForEachLoopWithEmptyVariableSource()
+    public async Task ForEachLoopWithEmptyVariableSource()
     {
         const string ns = Constants.ControlsNamespace;
         const string template = $$"""
@@ -73,12 +73,12 @@ public class ForEachTransformerTests
         var templateReader = new XmlTemplateReader(CultureInfo.InvariantCulture, data, new[] {new ForEachTransformer()});
         using var xmlStream = new MemoryStream(Encoding.UTF8.GetBytes(template));
         using var xmlReader = XmlReader.Create(xmlStream);
-        var nodeInformation = templateReader.Read(xmlReader);
+        var nodeInformation = await templateReader.ReadAsync(xmlReader);
         Assert.Equal(0, nodeInformation.Children.Count);
     }
 
     [Fact]
-    public void ForEachLoopWithFunctionSourceAndIndex()
+    public async Task ForEachLoopWithFunctionSourceAndIndex()
     {
         const string ns = Constants.ControlsNamespace;
         const string template = $$"""
@@ -94,7 +94,7 @@ public class ForEachTransformerTests
         var templateReader = new XmlTemplateReader(CultureInfo.InvariantCulture, data, new[] {new ForEachTransformer()});
         using var xmlStream = new MemoryStream(Encoding.UTF8.GetBytes(template));
         using var xmlReader = XmlReader.Create(xmlStream);
-        var nodeInformation = templateReader.Read(xmlReader);
+        var nodeInformation = await templateReader.ReadAsync(xmlReader);
         Assert.Equal(10, nodeInformation.Children.Count);
         Assert.Equal("0: 1", nodeInformation.Children.ElementAt(0).TextContent);
         Assert.Equal("1: 2", nodeInformation.Children.ElementAt(1).TextContent);
@@ -109,7 +109,7 @@ public class ForEachTransformerTests
     }
 
     [Fact]
-    public void NestedForEachLoop()
+    public async Task NestedForEachLoop()
     {
         const string ns = Constants.ControlsNamespace;
         const string template = $$"""
@@ -130,7 +130,7 @@ public class ForEachTransformerTests
         var templateReader = new XmlTemplateReader(CultureInfo.InvariantCulture, data, new[] {new ForEachTransformer()});
         using var xmlStream = new MemoryStream(Encoding.UTF8.GetBytes(template));
         using var xmlReader = XmlReader.Create(xmlStream);
-        var nodeInformation = templateReader.Read(xmlReader);
+        var nodeInformation =await  templateReader.ReadAsync(xmlReader);
         Assert.Equal(8, nodeInformation.Children.Count);
         Assert.Equal("0 1 - 0: 1", nodeInformation.Children.ElementAt(0).TextContent);
         Assert.Equal("0 1 - 1: 2", nodeInformation.Children.ElementAt(1).TextContent);
@@ -143,7 +143,7 @@ public class ForEachTransformerTests
     }
 
     [Fact]
-    public void NestedForEachLoopWithEmptyCollection()
+    public async Task NestedForEachLoopWithEmptyCollection()
     {
         const string ns = Constants.ControlsNamespace;
         const string template = $$"""
@@ -165,7 +165,7 @@ public class ForEachTransformerTests
         var templateReader = new XmlTemplateReader(CultureInfo.InvariantCulture, data, new[] {new ForEachTransformer()});
         using var xmlStream = new MemoryStream(Encoding.UTF8.GetBytes(template));
         using var xmlReader = XmlReader.Create(xmlStream);
-        var nodeInformation = templateReader.Read(xmlReader);
+        var nodeInformation = await templateReader.ReadAsync(xmlReader);
         Assert.Equal(4, nodeInformation.Children.Count);
         Assert.Equal("0 1 - 0: 1", nodeInformation.Children.ElementAt(0).TextContent);
         Assert.Equal("0 1 - 1: 2", nodeInformation.Children.ElementAt(1).TextContent);

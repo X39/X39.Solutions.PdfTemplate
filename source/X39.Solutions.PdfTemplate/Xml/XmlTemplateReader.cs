@@ -28,7 +28,10 @@ public sealed class XmlTemplateReader : IDisposable
     /// <param name="cultureInfo">The culture info to use.</param>
     /// <param name="templateData">The template data to use.</param>
     /// <param name="transformers">The transformers to use.</param>
-    public XmlTemplateReader(CultureInfo cultureInfo, ITemplateData templateData, IReadOnlyCollection<ITransformer> transformers)
+    public XmlTemplateReader(
+        CultureInfo cultureInfo,
+        ITemplateData templateData,
+        IReadOnlyCollection<ITransformer> transformers)
     {
         if (templateData is not TemplateData data)
         {
@@ -40,8 +43,8 @@ public sealed class XmlTemplateReader : IDisposable
             _templateData = data;
         }
 
-        _cultureInfo = cultureInfo;
-        _transformers     = transformers;
+        _cultureInfo  = cultureInfo;
+        _transformers = transformers;
     }
 
     private readonly Stack<XmlStyleInformation> _styles = new();
@@ -57,24 +60,34 @@ public sealed class XmlTemplateReader : IDisposable
     /// Reads the template from the given <paramref name="reader"/> and returns the root node.
     /// </summary>
     /// <param name="reader">The reader to read from.</param>
-    /// <returns>The root node of the template.</returns>
-    public XmlNodeInformation Read(XmlReader reader)
+    /// <param name="cancellationToken">A cancellation token to cancel the execution.</param>
+    /// <returns>
+    ///     A <see cref="Task{TResult}"/> that will complete when the template has been read,
+    ///     returning the root node of the template.
+    /// </returns>
+    public async Task<XmlNodeInformation> ReadAsync(XmlReader reader, CancellationToken cancellationToken = default)
     {
         var nodeTree = ReadXmlNode(reader);
-        TransformNodeTree(nodeTree);
+        await TransformNodeTreeAsync(nodeTree, cancellationToken)
+            .ConfigureAwait(false);
         return HandleNode(nodeTree);
     }
 
-    private void TransformNodeTree(XmlNode nodeTree)
+    private async Task TransformNodeTreeAsync(XmlNode nodeTree, CancellationToken cancellationToken = default)
     {
         for (var nodeIndex = 0; nodeIndex < nodeTree.Children.Count; nodeIndex++)
         {
             var node = nodeTree[nodeIndex];
-            TransformNode(nodeTree, node, ref nodeIndex);
+            nodeIndex = await TransformNodeAsync(nodeTree, node, nodeIndex, cancellationToken)
+                .ConfigureAwait(false);
         }
     }
 
-    private void TransformNode(XmlNode nodeTree, XmlNode node, ref int nodeIndex)
+    private async Task<int> TransformNodeAsync(
+        XmlNode nodeTree,
+        XmlNode node,
+        int nodeIndex,
+        CancellationToken cancellationToken)
     {
         if (node is {IsTextNode: true, Text: { } text} && (text.Contains('@') || text.Contains('{')))
         {
@@ -82,7 +95,12 @@ public sealed class XmlTemplateReader : IDisposable
             try
             {
 #endif
-            TransformNodeTreeExpressionCandidate(ref nodeIndex, nodeTree, node, text);
+            nodeIndex = await TransformNodeTreeExpressionCandidateAsync(
+                nodeIndex,
+                nodeTree,
+                node,
+                text,
+                cancellationToken);
 #if !DEBUG
             }
             catch (XmlTemplateReaderException)
@@ -97,11 +115,19 @@ public sealed class XmlTemplateReader : IDisposable
         }
         else
         {
-            TransformNodeTree(node);
+            await TransformNodeTreeAsync(node, cancellationToken)
+                .ConfigureAwait(false);
         }
+
+        return nodeIndex;
     }
 
-    private void TransformNodeTreeExpressionCandidate(ref int nodeIndex, XmlNode nodeTree, XmlNode node, string text)
+    private async Task<int> TransformNodeTreeExpressionCandidateAsync(
+        int nodeIndex,
+        XmlNode nodeTree,
+        XmlNode node,
+        string text,
+        CancellationToken cancellationToken = default)
     {
         var builder = new StringBuilder(text.Length);
         var previousIndex = -1;
@@ -146,7 +172,11 @@ public sealed class XmlTemplateReader : IDisposable
                 object? functionResult;
                 try
                 {
-                    functionResult = _templateData.Evaluate(_cultureInfo, text[(indexOfExpressionStart + 1)..endOfFunction]);
+                    functionResult = await _templateData.EvaluateAsync(
+                            _cultureInfo,
+                            text[(indexOfExpressionStart + 1)..endOfFunction],
+                            cancellationToken)
+                        .ConfigureAwait(false);
                 }
                 catch (FunctionNotFoundDuringEvaluationException ex)
                 {
@@ -268,13 +298,14 @@ public sealed class XmlTemplateReader : IDisposable
                     nodeTree.RemoveChild(xmlNode);
                 }
 
-                var transformedNodes = transformer.Transform(
+                var transformedNodes = transformer.TransformAsync(
                     _cultureInfo,
                     _templateData,
                     transformerBody,
-                    nodesOfTransformer.AsReadOnly());
+                    nodesOfTransformer.AsReadOnly(),
+                    cancellationToken);
                 currentNodeIndex = nodeIndex;
-                foreach (var transformedNode in transformedNodes)
+                await foreach (var transformedNode in transformedNodes.ConfigureAwait(false))
                 {
                     var scope = _templateData
                         .PeekScope()
@@ -288,7 +319,8 @@ public sealed class XmlTemplateReader : IDisposable
                 {
                     var lNode = nodeTree[nodeIndex];
                     using var adjustedScope = _templateData.Scope(lNode.Scope ?? new Dictionary<string, object?>());
-                    TransformNode(nodeTree, lNode, ref nodeIndex);
+                    nodeIndex = await TransformNodeAsync(nodeTree, lNode, nodeIndex, cancellationToken)
+                        .ConfigureAwait(false);
                 }
 
                 nodeIndex--;
@@ -309,10 +341,11 @@ public sealed class XmlTemplateReader : IDisposable
         } while (previousIndex < text.Length);
 
         if (previousIndex < 0)
-            return;
+            return nodeIndex;
         if (previousIndex < text.Length)
             builder.Append(text[previousIndex..]);
         node.SetText(builder.ToString());
+        return nodeIndex;
     }
 
     private static void AppendValueToStringBuilder(object? functionResult, StringBuilder builder)

@@ -9,8 +9,8 @@ namespace X39.Solutions.PdfTemplate.Test.Samples;
 public class BorderSample : SampleBase
 {
 
-    [Fact, Conditional("DEBUG")]
-    public void SomeSample()
+    [Fact]
+    public async Task SomeSample()
     {
         using var generator = CreateGenerator();
         using var xmlStream = new MemoryStream(
@@ -60,7 +60,7 @@ public class BorderSample : SampleBase
                   """));
         using var disposable = CreateStream(out var pdfStream);
         using var xmlReader = XmlReader.Create(xmlStream);
-        generator.GeneratePdf(
+        await generator.GeneratePdfAsync(
             pdfStream,
             xmlReader,
             CultureInfo.InvariantCulture);

@@ -25,11 +25,10 @@ public class DummyValueFunction : IFunction
     public string Name { get; }
     public int Arguments { get; }
     public bool IsVariadic => false;
-
-    public object? Execute(CultureInfo cultureInfo, object?[] arguments)
+    public ValueTask<object?> ExecuteAsync(CultureInfo cultureInfo, object?[] arguments, CancellationToken cancellationToken = default)
     {
         if (!arguments.Select((q) => q?.GetType()).SequenceEqual(_inputTypes))
             throw new ArgumentException("Invalid arguments.", nameof(arguments));
-        return _returnFunction(arguments);
+        return ValueTask.FromResult(_returnFunction(arguments));
     }
 }

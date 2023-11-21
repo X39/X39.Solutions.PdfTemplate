@@ -46,7 +46,7 @@ public interface ITemplateData
     /// <param name="name">The name of the variable.</param>
     /// <returns>The value of the variable.</returns>
     object? GetVariable(string name);
-    
+
     /// <summary>
     /// Tries to get a variable.
     /// </summary>
@@ -59,15 +59,22 @@ public interface ITemplateData
     /// The expression to evaluate.
     /// </summary>
     /// <remarks>
-    /// Unlike <see cref="Evaluate"/>, this method may execute <see cref="IFunction"/>'s, access <see cref="Variables"/>
+    /// Unlike <see cref="EvaluateAsync"/>, this method may execute <see cref="IFunction"/>'s, access <see cref="Variables"/>
     /// or parse <paramref name="expression"/> to the expected type (eg. <see cref="int"/>).
     /// </remarks>
     /// <param name="cultureInfo"></param>
     /// <param name="expression">The expression to evaluate.</param>
-    /// <returns>The result of the expression.</returns>
-    object? Evaluate(CultureInfo cultureInfo, string expression);
+    /// <param name="cancellationToken">A cancellation token to cancel the evaluation.</param>
+    /// <returns>
+    ///     A <see cref="ValueTask"/> that will complete when the expression was evaluated,
+    ///     returning the result of the expression.
+    /// </returns>
+    ValueTask<object?> EvaluateAsync(
+        CultureInfo cultureInfo,
+        string expression,
+        CancellationToken cancellationToken = default);
 
-    
+
     /// <summary>
     /// Returns a function by name.
     /// </summary>

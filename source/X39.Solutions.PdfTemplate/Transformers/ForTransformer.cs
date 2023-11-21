@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using XmlNode = X39.Solutions.PdfTemplate.Xml.XmlNode;
 
@@ -17,21 +18,31 @@ public partial class ForTransformer : ITransformer
     public string Name => "for";
 
     /// <inheritdoc />
-    public IEnumerable<XmlNode> Transform(
+    public async IAsyncEnumerable<XmlNode> TransformAsync(
         CultureInfo cultureInfo,
         ITemplateData templateData,
         string remainingLine,
-        IReadOnlyCollection<XmlNode> nodes)
+        IReadOnlyCollection<XmlNode> nodes,
+        [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         using var scope = templateData.Scope("for");
         var match = ParseArguments().Match(remainingLine);
         if (!match.Success)
             throw new ArgumentException("Invalid arguments.", nameof(remainingLine));
         var variable = match.Groups["variable"].Value;
-        var from = Convert.ToDouble(templateData.Evaluate(cultureInfo, match.Groups["from"].Value), CultureInfo.InvariantCulture);
-        var to = Convert.ToDouble(templateData.Evaluate(cultureInfo, match.Groups["to"].Value), CultureInfo.InvariantCulture);
+        var from = Convert.ToDouble(
+            await templateData.EvaluateAsync(cultureInfo, match.Groups["from"].Value, cancellationToken)
+                .ConfigureAwait(false),
+            CultureInfo.InvariantCulture);
+        var to = Convert.ToDouble(
+            await templateData.EvaluateAsync(cultureInfo, match.Groups["to"].Value, cancellationToken)
+                .ConfigureAwait(false),
+            CultureInfo.InvariantCulture);
         var step = match.Groups["step"].Success
-            ? Convert.ToDouble(templateData.Evaluate(cultureInfo, match.Groups["step"].Value), CultureInfo.InvariantCulture)
+            ? Convert.ToDouble(
+                await templateData.EvaluateAsync(cultureInfo, match.Groups["step"].Value, cancellationToken)
+                    .ConfigureAwait(false),
+                CultureInfo.InvariantCulture)
             : 1D;
         var body = nodes;
         if (from < to && step < 0)

@@ -9,7 +9,7 @@ namespace X39.Solutions.PdfTemplate.Test.ExpressionTests;
 public class IfTransformerTests
 {
     [Fact]
-    public void IfTrue()
+    public async Task IfTrue()
     {
         const string ns = Constants.ControlsNamespace;
         const string template = $$"""
@@ -20,16 +20,19 @@ public class IfTransformerTests
                                      }
                                   </styleMustBeEmptyTagTest>
                                   """;
-        var templateReader = new XmlTemplateReader(CultureInfo.InvariantCulture, new TemplateData(), new[] {new IfTransformer()});
+        var templateReader = new XmlTemplateReader(
+            CultureInfo.InvariantCulture,
+            new TemplateData(),
+            new[] {new IfTransformer()});
         using var xmlStream = new MemoryStream(Encoding.UTF8.GetBytes(template));
         using var xmlReader = XmlReader.Create(xmlStream);
-        var nodeInformation = templateReader.Read(xmlReader);
+        var nodeInformation = await templateReader.ReadAsync(xmlReader);
         Assert.Single(nodeInformation.Children);
         Assert.Equal("True", nodeInformation.Children.ElementAt(0).TextContent);
     }
 
     [Fact]
-    public void IfFalse()
+    public async Task IfFalse()
     {
         const string ns = Constants.ControlsNamespace;
         const string template = $$"""
@@ -40,10 +43,13 @@ public class IfTransformerTests
                                      }
                                   </styleMustBeEmptyTagTest>
                                   """;
-        var templateReader = new XmlTemplateReader(CultureInfo.InvariantCulture, new TemplateData(), new[] {new IfTransformer()});
+        var templateReader = new XmlTemplateReader(
+            CultureInfo.InvariantCulture,
+            new TemplateData(),
+            new[] {new IfTransformer()});
         using var xmlStream = new MemoryStream(Encoding.UTF8.GetBytes(template));
         using var xmlReader = XmlReader.Create(xmlStream);
-        var nodeInformation = templateReader.Read(xmlReader);
+        var nodeInformation = await templateReader.ReadAsync(xmlReader);
         Assert.Empty(nodeInformation.Children);
     }
 
@@ -78,7 +84,7 @@ public class IfTransformerTests
     [InlineData("b", "in", "abc", true)]
     [InlineData("c", "in", "abc", true)]
     [InlineData("d", "in", "abc", false)]
-    public void IfTheory(object left, string op, object right, bool exists)
+    public async Task IfTheory(object left, string op, object right, bool exists)
     {
         const string ns = Constants.ControlsNamespace;
         var template = $$"""
@@ -95,7 +101,7 @@ public class IfTransformerTests
         var templateReader = new XmlTemplateReader(CultureInfo.InvariantCulture, data, new[] {new IfTransformer()});
         using var xmlStream = new MemoryStream(Encoding.UTF8.GetBytes(template));
         using var xmlReader = XmlReader.Create(xmlStream);
-        var nodeInformation = templateReader.Read(xmlReader);
+        var nodeInformation = await templateReader.ReadAsync(xmlReader);
 
         if (exists)
         {

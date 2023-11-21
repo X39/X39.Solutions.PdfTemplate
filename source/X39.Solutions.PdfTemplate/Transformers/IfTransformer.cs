@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using System.Globalization;
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
+using SkiaSharp;
 using XmlNode = X39.Solutions.PdfTemplate.Xml.XmlNode;
 
 namespace X39.Solutions.PdfTemplate.Transformers;
@@ -17,11 +19,12 @@ public partial class IfTransformer : ITransformer
     public string Name => "if";
 
     /// <inheritdoc />
-    public IEnumerable<XmlNode> Transform(
+    public async IAsyncEnumerable<XmlNode> TransformAsync(
         CultureInfo cultureInfo,
         ITemplateData templateData,
         string remainingLine,
-        IReadOnlyCollection<XmlNode> nodes)
+        IReadOnlyCollection<XmlNode> nodes,
+        [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         using var scope = templateData.Scope("if");
         var match = ParseArguments().Match(remainingLine);
@@ -31,7 +34,8 @@ public partial class IfTransformer : ITransformer
                 "@if <expression> [operator <expression>] (supported operators: >, <, >=, <=, ==, !=, ===, !==, in)",
                 nameof(remainingLine));
         var leftExpressionString = match.Groups["leftExpression"].Value;
-        var leftExpression = templateData.Evaluate(cultureInfo, leftExpressionString);
+        var leftExpression = await templateData.EvaluateAsync(cultureInfo, leftExpressionString, cancellationToken)
+            .ConfigureAwait(false);
 
         if (!match.Groups["operator"].Success)
         {
@@ -53,7 +57,8 @@ public partial class IfTransformer : ITransformer
 
         var @operator = match.Groups["operator"].Value;
         var rightExpressionString = match.Groups["rightExpression"].Value;
-        var rightExpression = templateData.Evaluate(cultureInfo, rightExpressionString);
+        var rightExpression = await templateData.EvaluateAsync(cultureInfo, rightExpressionString, cancellationToken)
+            .ConfigureAwait(false);
         var result = @operator switch
         {
             ">"   => Compare(leftExpression, rightExpression) > 0,

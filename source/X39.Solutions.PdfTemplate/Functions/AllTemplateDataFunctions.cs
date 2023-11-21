@@ -16,11 +16,14 @@ internal class AllTemplateDataFunctions : IFunction
     public int Arguments => 0;
     public bool IsVariadic => false;
 
-    public object Execute(CultureInfo cultureInfo, object?[] arguments)
+    public ValueTask<object?> ExecuteAsync(
+        CultureInfo cultureInfo,
+        object?[] arguments,
+        CancellationToken cancellationToken = default)
     {
-        return _templateData.Functions
+        return ValueTask.FromResult<object?>(_templateData.Functions
             .Select(
                 (function) =>
-                    $"{function.Name}({string.Join(", ", Enumerable.Range(0, function.Arguments).Select((argNo) => $"arg{argNo}").Append(IsVariadic ? "..." : null).NotNull())})");
+                    $"{function.Name}({string.Join(", ", Enumerable.Range(0, function.Arguments).Select((argNo) => $"arg{argNo}").Append(IsVariadic ? "..." : null).NotNull())})"));
     }
 }

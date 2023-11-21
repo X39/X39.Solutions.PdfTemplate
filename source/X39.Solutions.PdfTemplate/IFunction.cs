@@ -11,12 +11,12 @@ public interface IFunction
     /// The name of the function.
     /// </summary>
     string Name { get; }
-    
+
     /// <summary>
     /// The number of arguments the function takes.
     /// </summary>
     int Arguments { get; }
-    
+
     /// <summary>
     /// If set to <c>true</c>, the function may be called with a variable number of arguments but
     /// at least <see cref="Arguments"/> arguments.
@@ -31,6 +31,13 @@ public interface IFunction
     /// </remarks>
     /// <param name="cultureInfo">The culture info to use for the function.</param>
     /// <param name="arguments">The arguments to pass to the function.</param>
-    /// <returns>The result of the function.</returns>
-    object? Execute(CultureInfo cultureInfo, object?[] arguments);
+    /// <param name="cancellationToken">A cancellation token to cancel the execution.</param>
+    /// <returns>
+    ///     A <see cref="ValueTask"/> that will complete when the function has finished executing,
+    ///     returning the result of the function.
+    /// </returns>
+    ValueTask<object?> ExecuteAsync(
+        CultureInfo cultureInfo,
+        object?[] arguments,
+        CancellationToken cancellationToken = default);
 }

@@ -21,10 +21,12 @@ public interface ITransformer
     /// <param name="templateData">The data storage available to the template.</param>
     /// <param name="remainingLine">The remaining line of the template.</param>
     /// <param name="nodes">The nodes contained in the template.</param>
+    /// <param name="cancellationToken">A cancellation token to cancel the execution.</param>
     /// <returns>The transformed nodes.</returns>
-    IEnumerable<XmlNode> Transform(
+    IAsyncEnumerable<XmlNode> TransformAsync(
         CultureInfo cultureInfo,
         ITemplateData templateData,
         string remainingLine,
-        IReadOnlyCollection<XmlNode> nodes);
+        IReadOnlyCollection<XmlNode> nodes,
+        CancellationToken cancellationToken = default);
 }

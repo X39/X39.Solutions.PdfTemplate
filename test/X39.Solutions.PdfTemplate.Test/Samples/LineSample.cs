@@ -9,8 +9,8 @@ namespace X39.Solutions.PdfTemplate.Test.Samples;
 public class LineSample : SampleBase
 {
 
-    [Fact, Conditional("DEBUG")]
-    public void SimpleLineSample()
+    [Fact]
+    public async Task SimpleLineSample()
     {
         using var generator = CreateGenerator();
         using var xmlStream = new MemoryStream(
@@ -102,14 +102,14 @@ public class LineSample : SampleBase
                  """));
         using var disposable = CreateStream(out var pdfStream);
         using var xmlReader = XmlReader.Create(xmlStream);
-        generator.GeneratePdf(
+        await generator.GeneratePdfAsync(
             pdfStream,
             xmlReader,
             CultureInfo.InvariantCulture);
     }
 
-    [Fact, Conditional("DEBUG")]
-    public void PageBreak()
+    [Fact]
+    public async Task PageBreak()
     {
         using var generator = CreateGenerator();
         using var xmlStream = new MemoryStream(
@@ -125,7 +125,7 @@ public class LineSample : SampleBase
                  """));
         using var disposable = CreateStream(out var pdfStream);
         using var xmlReader = XmlReader.Create(xmlStream);
-        generator.GeneratePdf(
+        await generator.GeneratePdfAsync(
             pdfStream,
             xmlReader,
             CultureInfo.InvariantCulture);

@@ -13,7 +13,7 @@ public class GeneralExpressionTests
     [InlineData("@is", "@is", "i", "shouldNotAppear")]
     [InlineData("s@i", "s@i", "i", "shouldNotAppear")]
     [InlineData("some@email.com", "some@email.com", "email", "shouldNotAppear")]
-    public void VariableReplacements(string textInTemplate, string textExpected, string variable, object value)
+    public async Task VariableReplacements(string textInTemplate, string textExpected, string variable, object value)
     {
         const string ns = Constants.ControlsNamespace;
         var template = $$"""
@@ -27,20 +27,21 @@ public class GeneralExpressionTests
         var templateReader = new XmlTemplateReader(CultureInfo.InvariantCulture, data, Array.Empty<ITransformer>());
         using var xmlStream = new MemoryStream(Encoding.UTF8.GetBytes(template));
         using var xmlReader = XmlReader.Create(xmlStream);
-        var nodeInformation = templateReader.Read(xmlReader);
+        var nodeInformation = await templateReader.ReadAsync(xmlReader);
         Assert.Equal(1, nodeInformation.Children.Count);
         Assert.Equal(textExpected, nodeInformation.Children.ElementAt(0).TextContent);
     }
+
     [Fact]
-    public void VariableNotCutOff()
+    public async Task VariableNotCutOff()
     {
         const string ns = Constants.ControlsNamespace;
         const string template = $"""
-                                  <?xml version="1.0" encoding="utf-8"?>
-                                  <styleMustBeEmptyTagTest xmlns="{ns}" someAttribute="asd">
-                                     <text>@i: @j @k! @nono- @yes-yes</text>
-                                  </styleMustBeEmptyTagTest>
-                                  """;
+                                 <?xml version="1.0" encoding="utf-8"?>
+                                 <styleMustBeEmptyTagTest xmlns="{ns}" someAttribute="asd">
+                                    <text>@i: @j @k! @nono- @yes-yes</text>
+                                 </styleMustBeEmptyTagTest>
+                                 """;
         var data = new TemplateData();
         data.SetVariable("i", "foo");
         data.SetVariable("j", "bar");
@@ -50,13 +51,13 @@ public class GeneralExpressionTests
         var templateReader = new XmlTemplateReader(CultureInfo.InvariantCulture, data, Array.Empty<ITransformer>());
         using var xmlStream = new MemoryStream(Encoding.UTF8.GetBytes(template));
         using var xmlReader = XmlReader.Create(xmlStream);
-        var nodeInformation = templateReader.Read(xmlReader);
+        var nodeInformation = await templateReader.ReadAsync(xmlReader);
         Assert.Equal(1, nodeInformation.Children.Count);
         Assert.Equal("foo: bar baz! @nono- no-error", nodeInformation.Children.ElementAt(0).TextContent);
     }
 
     [Fact]
-    public void NestedFunctionCalls()
+    public async Task NestedFunctionCalls()
     {
         const string ns = Constants.ControlsNamespace;
         var template = $$"""
@@ -64,13 +65,15 @@ public class GeneralExpressionTests
                          <text>@foo(bar(baz()))</text>
                          """;
         var data = new TemplateData();
-        data.RegisterFunction(new DummyValueFunction("foo", (args) => string.Concat(args.Prepend("foo")), new[] {typeof(string)}));
-        data.RegisterFunction(new DummyValueFunction("bar", (args) => string.Concat(args.Prepend("bar")), new[] {typeof(string)}));
+        data.RegisterFunction(
+            new DummyValueFunction("foo", (args) => string.Concat(args.Prepend("foo")), new[] {typeof(string)}));
+        data.RegisterFunction(
+            new DummyValueFunction("bar", (args) => string.Concat(args.Prepend("bar")), new[] {typeof(string)}));
         data.RegisterFunction(new DummyValueFunction("baz", "baz", Type.EmptyTypes));
         var templateReader = new XmlTemplateReader(CultureInfo.InvariantCulture, data, Array.Empty<ITransformer>());
         using var xmlStream = new MemoryStream(Encoding.UTF8.GetBytes(template));
         using var xmlReader = XmlReader.Create(xmlStream);
-        var nodeInformation = templateReader.Read(xmlReader);
+        var nodeInformation = await templateReader.ReadAsync(xmlReader);
 
         Assert.Equal("foobarbaz", nodeInformation.TextContent);
     }

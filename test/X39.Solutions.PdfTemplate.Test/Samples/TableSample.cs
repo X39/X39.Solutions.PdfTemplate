@@ -8,8 +8,8 @@ namespace X39.Solutions.PdfTemplate.Test.Samples;
 [Collection("Samples")]
 public class TableSample : SampleBase
 {
-    [Fact, Conditional("DEBUG")]
-    public void SimpleTable()
+    [Fact]
+    public async Task SimpleTable()
     {
         using var generator = CreateGenerator();
         using var xmlStream = new MemoryStream(
@@ -37,14 +37,14 @@ public class TableSample : SampleBase
                   """));
         using var disposable = CreateStream(out var pdfStream);
         using var xmlReader = XmlReader.Create(xmlStream);
-        generator.GeneratePdf(
+        await generator.GeneratePdfAsync(
             pdfStream,
             xmlReader,
             CultureInfo.InvariantCulture);
     }
 
-    [Fact, Conditional("DEBUG")]
-    public void WidthWeightedTable()
+    [Fact]
+    public async Task WidthWeightedTable()
     {
         using var generator = CreateGenerator();
         using var xmlStream = new MemoryStream(
@@ -74,14 +74,14 @@ public class TableSample : SampleBase
                   """));
         using var disposable = CreateStream(out var pdfStream);
         using var xmlReader = XmlReader.Create(xmlStream);
-        generator.GeneratePdf(
+        await generator.GeneratePdfAsync(
             pdfStream,
             xmlReader,
             CultureInfo.InvariantCulture);
     }
 
-    [Fact, Conditional("DEBUG")]
-    public void LongTableRows()
+    [Fact]
+    public async Task LongTableRows()
     {
         using var generator = CreateGenerator();
         using var xmlStream = new MemoryStream(
@@ -117,7 +117,7 @@ public class TableSample : SampleBase
                   """));
         using var disposable = CreateStream(out var pdfStream);
         using var xmlReader = XmlReader.Create(xmlStream);
-        generator.GeneratePdf(
+        await generator.GeneratePdfAsync(
             pdfStream,
             xmlReader,
             CultureInfo.InvariantCulture);

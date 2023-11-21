@@ -93,11 +93,17 @@ public sealed class Generator : IDisposable, IAsyncDisposable, IAddControls, IAd
     /// <param name="reader">The reader to read the template from.</param>
     /// <param name="cultureInfo">The culture to use for the generation.</param>
     /// <param name="documentOptions">The options for the document.</param>
-    public void GeneratePdf(
+    /// <param name="cancellationToken">A cancellation token to cancel the execution.</param>
+    /// <returns>
+    ///     A <see cref="Task{TResult}"/> that will complete when the generation has finished,
+    ///     returning the <see cref="SKBitmap"/>'s.
+    /// </returns>
+    public async Task GeneratePdfAsync(
         Stream outputStream,
         XmlReader reader,
         CultureInfo cultureInfo,
-        DocumentOptions? documentOptions = default)
+        DocumentOptions? documentOptions = default,
+        CancellationToken cancellationToken = default)
     {
         var options = documentOptions ?? DocumentOptions.Default;
         var pageSize = new Size(
@@ -113,15 +119,17 @@ public sealed class Generator : IDisposable, IAsyncDisposable, IAddControls, IAd
                 PdfA      = true,
             });
         var hasOpenPage = false;
-        Generate(
-            () =>
-            {
-                hasOpenPage = true;
-                return skDocument.BeginPage(pageSize.Width, pageSize.Height);
-            },
-            reader,
-            cultureInfo,
-            options);
+        await GenerateAsync(
+                () =>
+                {
+                    hasOpenPage = true;
+                    return skDocument.BeginPage(pageSize.Width, pageSize.Height);
+                },
+                reader,
+                cultureInfo,
+                options,
+                cancellationToken)
+            .ConfigureAwait(false);
         if (!hasOpenPage) skDocument.BeginPage(pageSize.Width, pageSize.Height).Dispose();
         skDocument.EndPage();
         skDocument.Close();
@@ -137,11 +145,16 @@ public sealed class Generator : IDisposable, IAsyncDisposable, IAddControls, IAd
     /// <param name="reader">The reader to read the template from.</param>
     /// <param name="cultureInfo">The culture to use for the generation.</param>
     /// <param name="documentOptions">The options for the document.</param>
-    /// <returns>The generated <see cref="SKBitmap"/>'s.</returns>
-    public IReadOnlyCollection<SKBitmap> GenerateBitmaps(
+    /// <param name="cancellationToken">A cancellation token to cancel the execution.</param>
+    /// <returns>
+    ///     A <see cref="Task{TResult}"/> that will complete when the generation has finished,
+    ///     returning the <see cref="SKBitmap"/>'s.
+    /// </returns>
+    public async Task<IReadOnlyCollection<SKBitmap>> GenerateBitmapsAsync(
         XmlReader reader,
         CultureInfo cultureInfo,
-        DocumentOptions? documentOptions = default)
+        DocumentOptions? documentOptions = default,
+        CancellationToken cancellationToken = default)
     {
         var options = documentOptions ?? DocumentOptions.Default;
         var pageSize = new Size(
@@ -151,7 +164,7 @@ public sealed class Generator : IDisposable, IAsyncDisposable, IAddControls, IAd
         try
         {
             SKCanvas? canvas = null;
-            Generate(
+            await GenerateAsync(
                 () =>
                 {
                     var bitmap = new SKBitmap((int) Math.Ceiling(pageSize.Width), (int) Math.Ceiling(pageSize.Height));
@@ -162,7 +175,9 @@ public sealed class Generator : IDisposable, IAsyncDisposable, IAddControls, IAd
                 },
                 reader,
                 cultureInfo,
-                options);
+                options,
+                cancellationToken)
+                .ConfigureAwait(false);
             canvas?.Dispose();
             return bitmaps.AsReadOnly();
         }
@@ -173,17 +188,19 @@ public sealed class Generator : IDisposable, IAsyncDisposable, IAddControls, IAd
         }
     }
 
-    private void Generate(
+    private async Task GenerateAsync(
         [InstantHandle] Func<SKCanvas> nextCanvas,
         XmlReader reader,
         CultureInfo cultureInfo,
-        DocumentOptions? documentOptions = default)
+        DocumentOptions? documentOptions = default,
+        CancellationToken cancellationToken = default)
     {
         using var templateDataScope = TemplateData.Scope("Document");
         var options = documentOptions ?? DocumentOptions.Default;
         XmlNodeInformation rootNode;
         using (var templateReader = new XmlTemplateReader(cultureInfo, TemplateData, _transformers))
-            rootNode = templateReader.Read(reader);
+            rootNode = await templateReader.ReadAsync(reader, cancellationToken)
+                .ConfigureAwait(false);
 
         var template = Template.Create(rootNode, _controlStorage, cultureInfo);
         var pageSize = new Size(
