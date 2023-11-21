@@ -12,6 +12,12 @@ namespace X39.Solutions.PdfTemplate.Controls;
 [Control(Constants.ControlsNamespace, "td")]
 public sealed class TableCellControl : AlignableContentControl
 {
+    /// <summary>
+    /// The width of the column.
+    /// </summary>
+    [Parameter]
+    public ColumnLength Width { get; set; } = new();
+    
     private readonly List<float> _heights = new();
 
     /// <inheritdoc />

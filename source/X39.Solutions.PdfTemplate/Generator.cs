@@ -1,5 +1,4 @@
 ﻿using System.Globalization;
-using System.Reflection;
 using System.Xml;
 using SkiaSharp;
 using X39.Solutions.PdfTemplate.Abstraction;

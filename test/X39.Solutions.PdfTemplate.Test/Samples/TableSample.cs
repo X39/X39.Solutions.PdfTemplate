@@ -6,7 +6,7 @@ using System.Xml;
 namespace X39.Solutions.PdfTemplate.Test.Samples;
 
 [Collection("Samples")]
-public class TableSample: SampleBase
+public class TableSample : SampleBase
 {
     [Fact, Conditional("DEBUG")]
     public void SimpleTable()
@@ -15,26 +15,26 @@ public class TableSample: SampleBase
         using var xmlStream = new MemoryStream(
             Encoding.UTF8.GetBytes(
                 $$"""
-                 <?xml version="1.0" encoding="utf-8"?>
-                 <template xmlns="{{Constants.ControlsNamespace}}">
-                     <body>
-                        <table>
-                            <th>
-                                <td><text>Header 1</text></td>
-                                <td><text>Header 2</text></td>
-                                <td><text>Header 3</text></td>
-                            </th>
-                            @for i from 0 to 100 {
-                                <tr>
-                                    <td><text>Row @i Column 1</text></td>
-                                    <td><text>Row @i Column 2</text></td>
-                                    <td><text>Row @i Column 3</text></td>
-                                </tr>
-                            }
-                        </table>
-                     </body>
-                 </template>
-                 """));
+                  <?xml version="1.0" encoding="utf-8"?>
+                  <template xmlns="{{Constants.ControlsNamespace}}">
+                      <body>
+                         <table>
+                             <th>
+                                 <td><text>Header 1</text></td>
+                                 <td><text>Header 2</text></td>
+                                 <td><text>Header 3</text></td>
+                             </th>
+                             @for i from 1 to 101 {
+                                 <tr>
+                                     <td><text>Row @i Column 1</text></td>
+                                     <td><text>Row @i Column 2</text></td>
+                                     <td><text>Row @i Column 3</text></td>
+                                 </tr>
+                             }
+                         </table>
+                      </body>
+                  </template>
+                  """));
         using var disposable = CreateStream(out var pdfStream);
         using var xmlReader = XmlReader.Create(xmlStream);
         generator.GeneratePdf(
@@ -42,6 +42,44 @@ public class TableSample: SampleBase
             xmlReader,
             CultureInfo.InvariantCulture);
     }
+
+    [Fact, Conditional("DEBUG")]
+    public void WidthWeightedTable()
+    {
+        using var generator = CreateGenerator();
+        using var xmlStream = new MemoryStream(
+            Encoding.UTF8.GetBytes(
+                $$"""
+                  <?xml version="1.0" encoding="utf-8"?>
+                  <template xmlns="{{Constants.ControlsNamespace}}">
+                      <body>
+                         <table>
+                             <th>
+                                 <td width="1*"><text>Header 1</text></td>
+                                 <td width="50%"><text>Header 2</text></td>
+                                 <td width="2*"><text>Header 3</text></td>
+                                 <td width="auto"><text>Header 4</text></td>
+                             </th>
+                             @for i from 1 to 101 {
+                                 <tr>
+                                     <td><text>Row @i Column 1</text></td>
+                                     <td><text>Row @i Column 2</text></td>
+                                     <td><text>Row @i Column 3</text></td>
+                                     <td><text>Row @i Column 4</text></td>
+                                 </tr>
+                             }
+                         </table>
+                      </body>
+                  </template>
+                  """));
+        using var disposable = CreateStream(out var pdfStream);
+        using var xmlReader = XmlReader.Create(xmlStream);
+        generator.GeneratePdf(
+            pdfStream,
+            xmlReader,
+            CultureInfo.InvariantCulture);
+    }
+
     [Fact, Conditional("DEBUG")]
     public void LongTableRows()
     {

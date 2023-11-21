@@ -24,13 +24,24 @@ public abstract class TableRowControlBase : AlignableContentControl
             throw new InvalidOperationException("A TableRowControl must be added to a TableControl");
         var width = 0F;
         var height = 0F;
-        foreach (var (control, index) in Children.Indexed())
+        foreach (var (control, index) in Children.Cast<TableCellControl>().Indexed())
         {
             var size = control.Measure(fullPageSize, framedPageSize, remainingSize, cultureInfo);
-            width                   += size.Width;
-            height                  =  Math.Max(height, size.Height);
-            _                       =  Table.CellWidths.TryGetValue(index, out var cellWidth);
-            Table.CellWidths[index] =  Math.Max(size.Width, cellWidth);
+            width              += size.Width;
+            height             =  Math.Max(height, size.Height);
+            if (Table.CellWidths.TryGetValue(index, out var tuple))
+            {
+                var (cellWidth, columnLength) = tuple;
+                var desiredWidth = Math.Max(size.Width, cellWidth);
+                // ReSharper disable once CompareOfFloatsByEqualityOperator
+                if (desiredWidth != cellWidth) // We explicitly want to check for equality here.
+                    Table.CellWidths[index] = (desiredWidth, columnLength);
+            }
+            else
+            {
+                var desiredWidth = size.Width;
+                Table.CellWidths[index] = (desiredWidth, control.Width);
+            }
         }
 
         return new Size(width, height);
@@ -49,7 +60,8 @@ public abstract class TableRowControlBase : AlignableContentControl
         var height = 0F;
         foreach (var (control, index) in Children.Indexed())
         {
-            _ = Table.CellWidths.TryGetValue(index, out var cellWidth);
+            _                  = Table.CellWidths.TryGetValue(index, out var tuple);
+            var (cellWidth, _) = tuple;
             var remainingCellSize = remainingSize with {Width = cellWidth};
             var size = control.Arrange(fullPageSize, framedPageSize, remainingCellSize, cultureInfo);
             width  += cellWidth;
@@ -68,9 +80,10 @@ public abstract class TableRowControlBase : AlignableContentControl
         foreach (var (control, index) in Children.OfType<TableCellControl>().Indexed())
         {
             control.Render(canvas, parentSize, cultureInfo);
-            var width = Table.CellWidths[index];
+            var (width, _) = Table.CellWidths[index];
             canvas.Translate(width, 0);
         }
+
         canvas.PopState();
     }
 

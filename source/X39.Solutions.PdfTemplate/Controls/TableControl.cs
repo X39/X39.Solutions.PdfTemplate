@@ -1,8 +1,11 @@
-﻿using System.Globalization;
+﻿using System.Collections.Immutable;
+using System.ComponentModel;
+using System.Globalization;
 using X39.Solutions.PdfTemplate.Abstraction;
 using X39.Solutions.PdfTemplate.Attributes;
 using X39.Solutions.PdfTemplate.Controls.Base;
 using X39.Solutions.PdfTemplate.Data;
+using X39.Util.Collections;
 
 namespace X39.Solutions.PdfTemplate.Controls;
 
@@ -12,7 +15,7 @@ namespace X39.Solutions.PdfTemplate.Controls;
 [Control(Constants.ControlsNamespace)]
 public sealed class TableControl : AlignableContentControl
 {
-    internal readonly Dictionary<int, float> CellWidths = new();
+    internal readonly Dictionary<int, (float desiredWitdth, ColumnLength columnLength)> CellWidths = new();
 
     /// <inheritdoc />
     public override void Add(IControl item)
@@ -72,41 +75,111 @@ public sealed class TableControl : AlignableContentControl
             totalHeight   += size.Height;
         }
 
-        var totalCellWidth = CellWidths.Values.Sum();
-        var factor = remainingSize.Width / (totalCellWidth is 0F ? CellWidths.Count : totalCellWidth);
-        if (factor > 1)
+        var desiredTotalWidth =
+            HorizontalAlignment is EHorizontalAlignment.Stretch
+                ? framedPageSize.Width
+                : CellWidths.Values.Select((q) => q.desiredWitdth).Sum();
+
+        var outWidths = CalculateWidths(
+            desiredTotalWidth,
+            CellWidths.Values
+                .Select((q) => (q.columnLength, q.desiredWitdth))
+                .ToArray());
+        for (var i = 0; i < CellWidths.Count; i++)
         {
-            var max = CellWidths.Values.Max();
-            if (max * CellWidths.Count <= remainingSize.Width)
-            {
-                var delta = remainingSize.Width / CellWidths.Count;
-                foreach (var (index, _) in CellWidths)
-                {
-                    CellWidths[index] = delta;
-                }
-            }
-            else
-            {
-                max = remainingSize.Width / CellWidths.Count;
-                var larger = CellWidths.Values.Where(x => x > max).Sum();
-                var remainingWidth = remainingSize.Width - larger;
-                var remainingCount = CellWidths.Values.Count(x => x <= max);
-                var newWidth = remainingWidth / remainingCount;
-                foreach (var (index, width) in CellWidths.Where(x => x.Value <= max))
-                {
-                    CellWidths[index] = newWidth;
-                }
-            }
-        }
-        else
-        {
-            foreach (var (index, width) in CellWidths)
-            {
-                CellWidths[index] = width * factor;
-            }
+            var key = CellWidths.Keys.ElementAt(i);
+            var (_, columnLength) = CellWidths[key];
+            var newValue = (outWidths.ElementAt(i), columnLength);
+            CellWidths[key] = newValue;
         }
 
         return new Size(maxWidth, totalHeight);
+    }
+
+    private static IReadOnlyCollection<float> CalculateWidths(
+        float totalWidth,
+        IReadOnlyCollection<(ColumnLength length, float desiredWidth)> columns)
+    {
+        var totalPixelWidth = columns
+            .Where((q) => q.length.Unit == EColumnUnit.Pixel)
+            .Select((q) => q.length.Value)
+            .DefaultIfEmpty()
+            .Sum();
+        var totalPercentWidth = columns
+            .Where((q) => q.length.Unit == EColumnUnit.Percent)
+            .Select((q) => q.length.Value * totalWidth)
+            .DefaultIfEmpty()
+            .Sum();
+
+        var remainingWidth = totalWidth;
+        remainingWidth -= totalPixelWidth;
+        remainingWidth -= totalPercentWidth;
+
+        var totalParts = columns
+            .Where((q) => q.length.Unit == EColumnUnit.Part)
+            .Select((q) => q.length.Value)
+            .DefaultIfEmpty()
+            .Sum();
+        var totalAutoWidth = columns
+            .Where((q) => q.length.Unit == EColumnUnit.Auto)
+            .Select((q) => q.desiredWidth)
+            .Sum();
+
+        if (totalParts > 0)
+        {
+            remainingWidth -= totalAutoWidth;
+            var partWidth = remainingWidth / totalParts;
+            var outWidths = new float[columns.Count];
+            foreach (var ((length, desiredWidth), index) in columns.Indexed())
+            {
+                outWidths[index] = length.Unit switch
+                {
+                    EColumnUnit.Auto    => desiredWidth,
+                    EColumnUnit.Pixel   => length.Value,
+                    EColumnUnit.Part    => partWidth * length.Value,
+                    EColumnUnit.Percent => totalWidth * length.Value,
+                    _ => throw new InvalidEnumArgumentException(
+                        nameof(length.Unit),
+                        (int) length.Unit,
+                        typeof(EColumnUnit)),
+                };
+            }
+
+            return outWidths.ToImmutableArray();
+        }
+        else
+        {
+            var max = totalWidth / columns.Count;
+            var larger = columns
+                .Where(x => x.length.Unit == EColumnUnit.Auto)
+                .Where(x => x.length.Value > max)
+                .DefaultIfEmpty()
+                .Sum(x => x.length.Value);
+            var remainingWidthWithoutLarger = remainingWidth - larger;
+            var remainingCount = columns
+                .Where(x => x.length.Unit == EColumnUnit.Auto)
+                .Where(x => x.length.Value <= max)
+                .DefaultIfEmpty()
+                .Count();
+            var newWidth = remainingWidthWithoutLarger / remainingCount;
+            var outWidths = new float[columns.Count];
+            foreach (var ((length, desiredWidth), index) in columns.Indexed())
+            {
+                outWidths[index] = length.Unit switch
+                {
+                    EColumnUnit.Auto    => desiredWidth > max ? desiredWidth : newWidth,
+                    EColumnUnit.Pixel   => length.Value,
+                    EColumnUnit.Part    => 0F, // We don't have any parts in this branch
+                    EColumnUnit.Percent => totalWidth * length.Value,
+                    _ => throw new InvalidEnumArgumentException(
+                        nameof(length.Unit),
+                        (int) length.Unit,
+                        typeof(EColumnUnit)),
+                };
+            }
+
+            return outWidths.ToImmutableArray();
+        }
     }
 
     /// <inheritdoc />
