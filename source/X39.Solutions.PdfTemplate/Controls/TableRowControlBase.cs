@@ -62,7 +62,11 @@ public abstract class TableRowControlBase : AlignableContentControl
         {
             _                  = Table.CellWidths.TryGetValue(index, out var tuple);
             var (cellWidth, _) = tuple;
-            var remainingCellSize = remainingSize with {Width = cellWidth};
+            var remainingCellSize = remainingSize with
+            {
+                Width = cellWidth,
+                Height = MeasurementInner.Height,
+            };
             var size = control.Arrange(fullPageSize, framedPageSize, remainingCellSize, cultureInfo);
             width  += cellWidth;
             height =  Math.Max(height, size.Height);
