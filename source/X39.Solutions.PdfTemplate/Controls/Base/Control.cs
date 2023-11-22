@@ -140,6 +140,26 @@ public abstract class Control : IControl
         private set;
     }
 
+    /// <summary>
+    /// The size of the control available for the frame as given by the parent control.
+    /// </summary>
+    public Size FramedSize
+    {
+        get;
+        [EditorBrowsable(EditorBrowsableState.Advanced)]
+        private set;
+    }
+
+    /// <summary>
+    /// The size of the control remaining for the frame as given by the parent control.
+    /// </summary>
+    public Size RemainingSize
+    {
+        get;
+        [EditorBrowsable(EditorBrowsableState.Advanced)]
+        private set;
+    }
+
     /// <inheritdoc />
     public virtual Size Measure(
         in Size fullPageSize,
@@ -193,6 +213,8 @@ public abstract class Control : IControl
         in Size remainingSize,
         CultureInfo cultureInfo)
     {
+        FramedSize    = framedPageSize;
+        RemainingSize = framedPageSize;
         var padding = Padding.ToRectangle(remainingSize);
         var margin = Margin.ToRectangle(remainingSize);
         var measureResult = DoArrange(
@@ -236,13 +258,13 @@ public abstract class Control : IControl
         canvas.PushState();
         try
         {
-            if (Clip)
-                canvas.Clip(Arrangement);
-            canvas.Translate(ArrangementInner);
             var arrangedSize = new Size(
                 parentSize.Width - padding.Width - padding.Width - margin.Width - margin.Width,
                 parentSize.Height - padding.Height - padding.Height - margin.Height - margin.Height);
             PreRender(canvas, arrangedSize, cultureInfo);
+            if (Clip)
+                canvas.Clip(Arrangement);
+            canvas.Translate(ArrangementInner);
             DoRender(canvas, arrangedSize, cultureInfo);
         }
         finally

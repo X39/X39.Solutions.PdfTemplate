@@ -26,15 +26,14 @@ public abstract class AlignableControl : Control
     /// <inheritdoc />
     protected override void PreRender(ICanvas canvas, in Size parentSize, CultureInfo cultureInfo)
     {
-        var delta = parentSize - Arrangement;
         canvas.Translate(
             new Point
             {
                 X = HorizontalAlignment switch
                 {
                     EHorizontalAlignment.Left    => 0,
-                    EHorizontalAlignment.Center  => delta.Width / 2,
-                    EHorizontalAlignment.Right   => delta.Width,
+                    EHorizontalAlignment.Center  => RemainingSize.Width / 2 -  Arrangement.Width / 2,
+                    EHorizontalAlignment.Right   => RemainingSize.Width - Arrangement.Width,
                     EHorizontalAlignment.Stretch => 0,
                     _ => throw new InvalidEnumArgumentException(
                         nameof(HorizontalAlignment),
@@ -44,8 +43,8 @@ public abstract class AlignableControl : Control
                 Y = VerticalAlignment switch
                 {
                     EVerticalAlignment.Top     => 0,
-                    EVerticalAlignment.Center  => delta.Height / 2,
-                    EVerticalAlignment.Bottom  => delta.Height,
+                    EVerticalAlignment.Center  => RemainingSize.Height / 2 - Arrangement.Height / 2,
+                    EVerticalAlignment.Bottom  => RemainingSize.Height - Arrangement.Height,
                     EVerticalAlignment.Stretch => 0,
                     _ => throw new InvalidEnumArgumentException(
                         nameof(VerticalAlignment),
