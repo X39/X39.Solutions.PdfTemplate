@@ -57,6 +57,25 @@ public class GeneralExpressionTests
     }
 
     [Fact]
+    public async Task ChainedFunctionCalls()
+    {
+        const string ns = Constants.ControlsNamespace;
+        var template = $$"""
+                         <?xml version="1.0" encoding="utf-8"?>
+                         <text>@foo() - @bar() - @baz()</text>
+                         """;
+        var data = new TemplateData();
+        data.RegisterFunction(new DummyValueFunction("foo", "foo", Type.EmptyTypes));
+        data.RegisterFunction(new DummyValueFunction("bar", "bar", Type.EmptyTypes));
+        data.RegisterFunction(new DummyValueFunction("baz", "baz", Type.EmptyTypes));
+        var templateReader = new XmlTemplateReader(CultureInfo.InvariantCulture, data, Array.Empty<ITransformer>());
+        using var xmlStream = new MemoryStream(Encoding.UTF8.GetBytes(template));
+        using var xmlReader = XmlReader.Create(xmlStream);
+        var nodeInformation = await templateReader.ReadAsync(xmlReader);
+        Assert.Equal("foo - bar - baz", nodeInformation.TextContent);
+    }
+
+    [Fact]
     public async Task NestedFunctionCalls()
     {
         const string ns = Constants.ControlsNamespace;
@@ -76,5 +95,27 @@ public class GeneralExpressionTests
         var nodeInformation = await templateReader.ReadAsync(xmlReader);
 
         Assert.Equal("foobarbaz", nodeInformation.TextContent);
+    }
+
+    [Fact]
+    public async Task ChainedNestedFunctionCalls()
+    {
+        const string ns = Constants.ControlsNamespace;
+        var template = $$"""
+                         <?xml version="1.0" encoding="utf-8"?>
+                         <text>@foo(bar(baz())) - @foo(bar(baz())) - @foo(bar(baz()))</text>
+                         """;
+        var data = new TemplateData();
+        data.RegisterFunction(
+            new DummyValueFunction("foo", (args) => string.Concat(args.Prepend("foo")), new[] {typeof(string)}));
+        data.RegisterFunction(
+            new DummyValueFunction("bar", (args) => string.Concat(args.Prepend("bar")), new[] {typeof(string)}));
+        data.RegisterFunction(new DummyValueFunction("baz", "baz", Type.EmptyTypes));
+        var templateReader = new XmlTemplateReader(CultureInfo.InvariantCulture, data, Array.Empty<ITransformer>());
+        using var xmlStream = new MemoryStream(Encoding.UTF8.GetBytes(template));
+        using var xmlReader = XmlReader.Create(xmlStream);
+        var nodeInformation = await templateReader.ReadAsync(xmlReader);
+
+        Assert.Equal("foobarbaz - foobarbaz - foobarbaz", nodeInformation.TextContent);
     }
 }
