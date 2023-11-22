@@ -29,6 +29,8 @@ public class BorderControl : AlignableContentControl
     /// </summary>
     [Parameter]
     public Color Background { get; set; }
+    
+    private List<Size> _arrangedSizes = new();
 
     /// <inheritdoc />
     protected override Size DoMeasure(
@@ -38,9 +40,14 @@ public class BorderControl : AlignableContentControl
         CultureInfo cultureInfo)
     {
         var thickness = Thickness.ToRectangle(fullPageSize);
-        var size = Children.FirstOrDefault()
-                       ?.Measure(fullPageSize, framedPageSize, remainingSize - thickness, cultureInfo)
-                   ?? Size.Zero;
+        var size = Size.Zero;
+        foreach (var child in Children)
+        {
+            var measure = child.Measure(fullPageSize, remainingSize - thickness, remainingSize - thickness, cultureInfo);
+            size = new Size(
+                Math.Max(size.Width, measure.Width),
+                size.Height + measure.Height);
+        }
         var result = size + new Size(thickness.Left, thickness.Top) + new Size(thickness.Width, thickness.Height);
         // if (HorizontalAlignment is EHorizontalAlignment.Stretch)
         //     result = result with {Width = Math.Max(result.Width, framedPageSize.Width)};
@@ -57,9 +64,15 @@ public class BorderControl : AlignableContentControl
         CultureInfo cultureInfo)
     {
         var thickness = Thickness.ToRectangle(fullPageSize);
-        var size = Children.FirstOrDefault()
-                       ?.Arrange(fullPageSize, framedPageSize, remainingSize - thickness, cultureInfo)
-                   ?? Size.Zero;
+        var size = Size.Zero;
+        foreach (var child in Children)
+        {
+            var measure = child.Arrange(fullPageSize, remainingSize - thickness, remainingSize - thickness, cultureInfo);
+            size = new Size(
+                Math.Max(size.Width, measure.Width),
+                size.Height + measure.Height);
+            _arrangedSizes.Add(measure);
+        }
         var result = size + new Size(thickness.Left, thickness.Top) + new Size(thickness.Width, thickness.Height);
         if (HorizontalAlignment is EHorizontalAlignment.Stretch)
             result = result with {Width = Math.Max(result.Width, remainingSize.Width)};
@@ -71,6 +84,7 @@ public class BorderControl : AlignableContentControl
     /// <inheritdoc />
     protected override void DoRender(ICanvas canvas, in Size parentSize, CultureInfo cultureInfo)
     {
+        using var state = canvas.CreateState();
         canvas.Translate(-ArrangementInner);
         canvas.Translate(Arrangement);
         var thickness = Thickness.ToRectangle(parentSize);
@@ -111,14 +125,14 @@ public class BorderControl : AlignableContentControl
 
         canvas.Translate(-Arrangement);
         canvas.Translate(ArrangementInner);
-        using var state = canvas.CreateState();
         canvas.Translate(thickness);
-        foreach (var child in Children)
+        foreach (var (child, arrangedSize) in Children.Zip(_arrangedSizes))
         {
             child.Render(canvas, parentSize, cultureInfo);
+            canvas.Translate(0, arrangedSize.Height);
         }
     }
 
     /// <inheritdoc />
-    public override bool CanAdd(Type type) => Children.Count == 0;
+    public override bool CanAdd(Type type) => true;
 }
