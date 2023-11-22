@@ -26,7 +26,7 @@ public abstract class TableRowControlBase : AlignableContentControl
         var height = 0F;
         foreach (var (control, index) in Children.Cast<TableCellControl>().Indexed())
         {
-            var size = control.Measure(fullPageSize, framedPageSize, remainingSize, cultureInfo);
+            var size = control.Measure(fullPageSize, remainingSize, remainingSize, cultureInfo);
             width              += size.Width;
             height             =  Math.Max(height, size.Height);
             if (Table.CellWidths.TryGetValue(index, out var tuple))
@@ -67,7 +67,7 @@ public abstract class TableRowControlBase : AlignableContentControl
                 Width = cellWidth,
                 Height = MeasurementInner.Height,
             };
-            var size = control.Arrange(fullPageSize, framedPageSize, remainingCellSize, cultureInfo);
+            var size = control.Arrange(fullPageSize, remainingCellSize, remainingCellSize, cultureInfo);
             width  += cellWidth;
             height =  Math.Max(height, size.Height);
         }

@@ -54,7 +54,7 @@ public sealed class TableControl : AlignableContentControl
         var totalHeight = 0F;
         foreach (var control in Children.OfType<TableHeaderControl>())
         {
-            var size = control.Measure(fullPageSize, framedPageSize, remainingSize, cultureInfo);
+            var size = control.Measure(fullPageSize, remainingSize, remainingSize, cultureInfo);
             totalHeaderHeight += size.Height;
             maxWidth          =  Math.Max(maxWidth, size.Width);
         }
@@ -62,7 +62,7 @@ public sealed class TableControl : AlignableContentControl
         var currentHeight = remainingSize.Height;
         foreach (var control in Children.OfType<TableRowControl>())
         {
-            var size = control.Measure(fullPageSize, framedPageSize, remainingSize, cultureInfo);
+            var size = control.Measure(fullPageSize, remainingSize, remainingSize, cultureInfo);
             maxWidth = Math.Max(maxWidth, size.Width);
             if (currentHeight + size.Height >= remainingSize.Height)
             {
@@ -192,12 +192,25 @@ public sealed class TableControl : AlignableContentControl
         in Size remainingSize,
         CultureInfo cultureInfo)
     {
+        var outWidths = CalculateWidths(
+            framedPageSize.Width,
+            CellWidths.Values
+                .Select((q) => (q.columnLength, q.desiredWitdth))
+                .ToArray());
+        for (var i = 0; i < CellWidths.Count; i++)
+        {
+            var key = CellWidths.Keys.ElementAt(i);
+            var (_, columnLength) = CellWidths[key];
+            var newValue = (outWidths.ElementAt(i), columnLength);
+            CellWidths[key] = newValue;
+        }
+        
         var totalHeaderHeight = 0F;
         var maxWidth = 0F;
         var totalHeight = 0F;
         foreach (var control in Children.OfType<TableHeaderControl>())
         {
-            var size = control.Arrange(fullPageSize, framedPageSize, remainingSize, cultureInfo);
+            var size = control.Arrange(fullPageSize, remainingSize, remainingSize, cultureInfo);
             totalHeaderHeight += size.Height;
             maxWidth          =  Math.Max(maxWidth, size.Width);
         }
@@ -205,7 +218,7 @@ public sealed class TableControl : AlignableContentControl
         var currentHeight = remainingSize.Height;
         foreach (var control in Children.OfType<TableRowControl>())
         {
-            var size = control.Arrange(fullPageSize, framedPageSize, remainingSize, cultureInfo);
+            var size = control.Arrange(fullPageSize, remainingSize, remainingSize, cultureInfo);
             maxWidth = Math.Max(maxWidth, size.Width);
             if (currentHeight + size.Height >= remainingSize.Height)
             {

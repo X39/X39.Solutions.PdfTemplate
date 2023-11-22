@@ -31,7 +31,7 @@ public sealed class TableCellControl : AlignableContentControl
         var height = 0F;
         foreach (var control in Children)
         {
-            var size = control.Measure(fullPageSize, framedPageSize, remainingSize, cultureInfo);
+            var size = control.Measure(fullPageSize, remainingSize, remainingSize, cultureInfo);
             width  =  Math.Max(width, size.Width);
             height += size.Height;
         }
@@ -50,7 +50,7 @@ public sealed class TableCellControl : AlignableContentControl
         var height = 0F;
         foreach (var control in Children)
         {
-            var size = control.Arrange(fullPageSize, framedPageSize, remainingSize, cultureInfo);
+            var size = control.Arrange(fullPageSize, remainingSize, remainingSize, cultureInfo);
             width  =  Math.Max(width, size.Width);
             height += size.Height;
             _heights.Add(size.Height);
