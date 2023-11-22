@@ -201,7 +201,7 @@ public readonly record struct ColumnLength : ISpanParsable<ColumnLength>
                 throw new NotSupportedException($"The unit '{unit}' is not supported.");
         }
 
-        if (number.IsEmpty && lengthMode is not EColumnUnit.Auto and EColumnUnit.Part)
+        if (number.IsEmpty && lengthMode is not EColumnUnit.Auto && lengthMode is not EColumnUnit.Part)
             throw new FormatException("The string does not contain a number.");
         var value = number.IsEmpty ? 1F : float.Parse(number, provider);
         if (lengthMode is EColumnUnit.Percent)
