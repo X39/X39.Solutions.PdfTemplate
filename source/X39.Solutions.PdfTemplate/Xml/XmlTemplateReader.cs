@@ -187,7 +187,6 @@ public sealed class XmlTemplateReader : IDisposable
                 }
 
                 previousIndex = endOfFunction;
-                builder.Append(previousText);
                 AppendValueToStringBuilder(functionResult, builder);
             }
             else if (_transformers.FirstOrDefault(
@@ -324,8 +323,6 @@ public sealed class XmlTemplateReader : IDisposable
                 }
 
                 nodeIndex--;
-
-
                 break;
             }
             else if (_templateData.TryGetVariable(name, out var variableValue))
