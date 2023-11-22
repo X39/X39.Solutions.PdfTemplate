@@ -23,7 +23,7 @@ public class BorderSample : SampleBase
                             <border clip="true" thickness="1px" color="green" background="yellow" padding="1px" margin="1px">
                               <border clip="true" thickness="1px" color="red" background="blue" padding="1px" margin="1px">
                                 <border clip="true" thickness="1px" color="green" background="yellow" padding="1px" margin="1px">
-                                    <text color="white">Single line of text</text>
+                                    <text foreground="white">Single line of text</text>
                                  </border>
                                </border>
                              </border>
@@ -32,7 +32,7 @@ public class BorderSample : SampleBase
                             <border clip="true" thickness="5px" color="green" background="yellow" padding="5px" margin="5px">
                               <border clip="true" thickness="5px" color="red" background="blue" padding="5px" margin="5px">
                                 <border clip="true" thickness="5px" color="green" background="yellow" padding="5px" margin="5px">
-                                    <text color="white">Single line of text</text>
+                                    <text foreground="white">Single line of text</text>
                                  </border>
                                </border>
                              </border>
@@ -41,7 +41,7 @@ public class BorderSample : SampleBase
                             <border clip="false" thickness="1px" color="green" background="yellow" padding="1px" margin="1px">
                                 <border clip="false" thickness="1px" color="red" background="blue" padding="1px" margin="1px">
                                   <border clip="false" thickness="1px" color="green" background="yellow" padding="1px" margin="1px">
-                                      <text color="white">Single line of text</text>
+                                      <text foreground="white">Single line of text</text>
                                    </border>
                                  </border>
                              </border>
@@ -50,7 +50,7 @@ public class BorderSample : SampleBase
                             <border clip="false" thickness="5px" color="green" background="yellow" padding="5px" margin="5px">
                                 <border clip="false" thickness="5px" color="red" background="blue" padding="5px" margin="5px">
                                   <border clip="false" thickness="5px" color="green" background="yellow" padding="5px" margin="5px">
-                                      <text color="white">Single line of text</text>
+                                      <text foreground="white">Single line of text</text>
                                    </border>
                                  </border>
                              </border>
