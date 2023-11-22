@@ -17,7 +17,7 @@ public sealed class TableCellControl : AlignableContentControl
     /// </summary>
     [Parameter]
     public ColumnLength Width { get; set; } = new();
-    
+
     private readonly List<float> _heights = new();
 
     /// <inheritdoc />
@@ -56,9 +56,11 @@ public sealed class TableCellControl : AlignableContentControl
             _heights.Add(size.Height);
         }
 
+        var w = Math.Min(width, remainingSize.Width);
+        var h = Math.Min(height, remainingSize.Height);
         return new Size(
-            Math.Min(width, remainingSize.Width), 
-            Math.Min(height, remainingSize.Height));
+            HorizontalAlignment is EHorizontalAlignment.Stretch ? Math.Max(w, remainingSize.Width) : w,
+            VerticalAlignment is EVerticalAlignment.Stretch ? Math.Max(h, remainingSize.Height) : h);
     }
 
     /// <inheritdoc />
@@ -70,6 +72,7 @@ public sealed class TableCellControl : AlignableContentControl
             control.Render(canvas, parentSize, cultureInfo);
             canvas.Translate(0, height);
         }
+
         canvas.PopState();
     }
 
