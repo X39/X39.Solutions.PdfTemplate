@@ -311,7 +311,8 @@ public sealed class ControlExpressionCache : IDisposable
                 used
                     .Where((q) => !q.Value)
                     .Select((q) => q.Key)
-                    .ToArray());
+                    .ToArray(),
+                array.Select((q)=>q.parameterName).ToArray());
 
         if (!content.IsNotNullOrEmpty())
             return;

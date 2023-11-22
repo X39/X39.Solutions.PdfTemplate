@@ -11,14 +11,23 @@ public sealed class ControlParameterIsNotExistingException : Exception
     public Type ControlType { get; }
     
     /// <summary>
-    /// The name of the parameters.
+    /// The parameters that are not existing on the control.
     /// </summary>
-    public string[] Parameters { get; }
+    public string[] MissingParameters { get; }
 
-    internal ControlParameterIsNotExistingException(Type controlType, string[] parameters)
-        : base ($"The parameters {string.Join(", ", parameters)} do not exist in control {controlType.FullName()}.")
+    /// <summary>
+    /// The available parameters.
+    /// </summary>
+    public string[] AvailableParameters { get; }
+
+    internal ControlParameterIsNotExistingException(
+        Type controlType,
+        string[] missingParameters,
+        string[] availableParameters)
+        : base ($"The parameters {string.Join(", ", missingParameters)} do not exist in control {controlType.FullName()}.{Environment.NewLine}Available parameters: {string.Join($", ", availableParameters)}")
     {
-        ControlType = controlType;
-        Parameters   = parameters;
+        ControlType              = controlType;
+        MissingParameters        = missingParameters;
+        AvailableParameters = availableParameters;
     }
 }
