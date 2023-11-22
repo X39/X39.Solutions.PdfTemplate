@@ -298,13 +298,14 @@ public sealed class ControlExpressionCache : IDisposable
                 setter(control, value, cultureInfo);
                 used[parameter] = true;
             }
-            else
-            {
-                used[parameter] = true;
-            }
         }
 
-        if (!used.Values.All((q) => true))
+        foreach (var kvp in parameterDictionary)
+        {
+            used.TryAdd(kvp.Key, false);
+        }
+
+        if (!used.Values.All((q) => q))
             throw new ControlParameterIsNotExistingException(
                 controlType,
                 used
