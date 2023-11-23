@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using SkiaSharp;
 using X39.Solutions.PdfTemplate.Abstraction;
 using X39.Solutions.PdfTemplate.Data;
 using X39.Util;
@@ -96,6 +97,10 @@ public partial class CanvasMock : ICanvas
     }
 
     public void DrawRect(Rectangle rectangle, Color color)
+    {
+    }
+
+    public void DrawBitmap(SKBitmap bitmap, Rectangle rectangle)
     {
     }
 }

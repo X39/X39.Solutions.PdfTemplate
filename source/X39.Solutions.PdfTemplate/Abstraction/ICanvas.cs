@@ -1,4 +1,5 @@
-﻿using X39.Solutions.PdfTemplate.Data;
+﻿using SkiaSharp;
+using X39.Solutions.PdfTemplate.Data;
 
 namespace X39.Solutions.PdfTemplate.Abstraction;
 
@@ -61,4 +62,11 @@ public interface ICanvas
     /// <param name="rectangle">The rectangle position.</param>
     /// <param name="color">The fill color of the rectangle.</param>
     void DrawRect(Rectangle rectangle, Color color);
+
+    /// <summary>
+    ///     Draws a bitmap on the canvas.
+    /// </summary>
+    /// <param name="bitmap">The bitmap to draw.</param>
+    /// <param name="rectangle">The region to draw the bitmap into.</param>
+    void DrawBitmap(SKBitmap bitmap, Rectangle rectangle);
 }
