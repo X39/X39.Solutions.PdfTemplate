@@ -68,5 +68,5 @@ public interface ICanvas
     /// </summary>
     /// <param name="bitmap">The bitmap to draw.</param>
     /// <param name="rectangle">The region to draw the bitmap into.</param>
-    void DrawBitmap(SKBitmap bitmap, Rectangle rectangle);
+    void DrawBitmap(byte[] bitmap, Rectangle rectangle);
 }

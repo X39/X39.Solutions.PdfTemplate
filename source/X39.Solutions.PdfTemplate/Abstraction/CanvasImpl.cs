@@ -69,8 +69,15 @@ internal sealed class CanvasImpl : ICanvas
         });
     }
 
-    public void DrawBitmap(SKBitmap bitmap, Rectangle rectangle)
+    public void DrawBitmap(byte[] bytes, Rectangle rectangle)
     {
-        _drawActions.Add((canvas) => canvas.DrawBitmap(bitmap, rectangle));
+        _drawActions.Add((canvas) =>
+        {
+            using var stream = new MemoryStream(bytes);
+            using var bitmap = SKBitmap.Decode(stream);
+            if (bitmap is null)
+                return;
+            canvas.DrawBitmap(bitmap, rectangle);
+        });
     }
 }

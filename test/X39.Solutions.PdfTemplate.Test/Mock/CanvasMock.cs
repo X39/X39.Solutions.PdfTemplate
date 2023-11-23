@@ -100,7 +100,7 @@ public partial class CanvasMock : ICanvas
     {
     }
 
-    public void DrawBitmap(SKBitmap bitmap, Rectangle rectangle)
+    public void DrawBitmap(byte[] bitmap, Rectangle rectangle)
     {
     }
 }
