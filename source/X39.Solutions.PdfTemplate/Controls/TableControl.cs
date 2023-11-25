@@ -44,6 +44,7 @@ public sealed class TableControl : AlignableContentControl
 
     /// <inheritdoc />
     protected override Size DoMeasure(
+        float dpi,
         in Size fullPageSize,
         in Size framedPageSize,
         in Size remainingSize,
@@ -54,7 +55,7 @@ public sealed class TableControl : AlignableContentControl
         var totalHeight = 0F;
         foreach (var control in Children.OfType<TableHeaderControl>())
         {
-            var size = control.Measure(fullPageSize, remainingSize, remainingSize, cultureInfo);
+            var size = control.Measure(dpi, fullPageSize, remainingSize, remainingSize, cultureInfo);
             totalHeaderHeight += size.Height;
             maxWidth          =  Math.Max(maxWidth, size.Width);
         }
@@ -62,7 +63,7 @@ public sealed class TableControl : AlignableContentControl
         var currentHeight = remainingSize.Height;
         foreach (var control in Children.OfType<TableRowControl>())
         {
-            var size = control.Measure(fullPageSize, remainingSize, remainingSize, cultureInfo);
+            var size = control.Measure(dpi, fullPageSize, remainingSize, remainingSize, cultureInfo);
             maxWidth = Math.Max(maxWidth, size.Width);
             if (currentHeight + size.Height >= remainingSize.Height)
             {
@@ -187,6 +188,7 @@ public sealed class TableControl : AlignableContentControl
 
     /// <inheritdoc />
     protected override Size DoArrange(
+        float dpi,
         in Size fullPageSize,
         in Size framedPageSize,
         in Size remainingSize,
@@ -204,13 +206,13 @@ public sealed class TableControl : AlignableContentControl
             var newValue = (outWidths.ElementAt(i), columnLength);
             CellWidths[key] = newValue;
         }
-        
+
         var totalHeaderHeight = 0F;
         var maxWidth = 0F;
         var totalHeight = 0F;
         foreach (var control in Children.OfType<TableHeaderControl>())
         {
-            var size = control.Arrange(fullPageSize, remainingSize, remainingSize, cultureInfo);
+            var size = control.Arrange(dpi, fullPageSize, remainingSize, remainingSize, cultureInfo);
             totalHeaderHeight += size.Height;
             maxWidth          =  Math.Max(maxWidth, size.Width);
         }
@@ -218,7 +220,7 @@ public sealed class TableControl : AlignableContentControl
         var currentHeight = remainingSize.Height;
         foreach (var control in Children.OfType<TableRowControl>())
         {
-            var size = control.Arrange(fullPageSize, remainingSize, remainingSize, cultureInfo);
+            var size = control.Arrange(dpi, fullPageSize, remainingSize, remainingSize, cultureInfo);
             maxWidth = Math.Max(maxWidth, size.Width);
             if (currentHeight + size.Height >= remainingSize.Height)
             {
@@ -235,13 +237,13 @@ public sealed class TableControl : AlignableContentControl
     }
 
     /// <inheritdoc />
-    protected override void DoRender(ICanvas canvas, in Size parentSize, CultureInfo cultureInfo)
+    protected override void DoRender(ICanvas canvas, float dpi, in Size parentSize, CultureInfo cultureInfo)
     {
         var height = 0F;
         var headers = Children.OfType<TableHeaderControl>().ToArray();
         foreach (var headerControl in headers)
         {
-            headerControl.Render(canvas, parentSize, cultureInfo);
+            headerControl.Render(canvas, dpi, parentSize, cultureInfo);
             canvas.Translate(0, headerControl.Arrangement.Height);
             height += headerControl.Arrangement.Height;
         }
@@ -255,13 +257,13 @@ public sealed class TableControl : AlignableContentControl
                 height = 0F;
                 foreach (var headerControl in headers)
                 {
-                    headerControl.Render(canvas, parentSize, cultureInfo);
+                    headerControl.Render(canvas, dpi, parentSize, cultureInfo);
                     canvas.Translate(0, headerControl.Arrangement.Height);
                     height += headerControl.Arrangement.Height;
                 }
             }
 
-            control.Render(canvas, parentSize, cultureInfo);
+            control.Render(canvas, dpi, parentSize, cultureInfo);
             canvas.Translate(0, control.Arrangement.Height);
             height += control.Arrangement.Height;
         }

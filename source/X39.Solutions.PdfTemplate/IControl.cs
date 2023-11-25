@@ -16,6 +16,7 @@ public interface IControl
     /// <remarks>
     /// Desired size may overflow the bounds.
     /// </remarks>
+    /// <param name="dpi"></param>
     /// <param name="fullPageSize">
     ///     The full size of a single page, not including header and footer (in short: the printable area).
     /// </param>
@@ -29,6 +30,7 @@ public interface IControl
     /// <param name="cultureInfo">The culture info to use for the measurement.</param>
     /// <returns>The desired size of the control.</returns>
     Size Measure(
+        float dpi,
         in Size fullPageSize,
         in Size framedPageSize,
         in Size remainingSize,
@@ -37,6 +39,7 @@ public interface IControl
     /// <summary>
     /// Arrange the control within the given bounds.
     /// </summary>
+    /// <param name="dpi"></param>
     /// <param name="fullPageSize">
     ///     The full size of a single page, not including header and footer (in short: the printable area).
     /// </param>
@@ -51,6 +54,7 @@ public interface IControl
     /// <param name="cultureInfo">The culture info to use for the arrangement.</param>
     /// <returns>The actual size of the control.</returns>
     Size Arrange(
+        float dpi,
         in Size fullPageSize,
         in Size framedPageSize,
         in Size remainingSize,
@@ -60,10 +64,12 @@ public interface IControl
     /// Draw the control.
     /// </summary>
     /// <param name="canvas">The canvas to draw on.</param>
+    /// <param name="dpi"></param>
     /// <param name="parentSize">The size of the parent control.</param>
     /// <param name="cultureInfo">The culture info to use for the drawing.</param>
     void Render(
         ICanvas canvas,
+        float dpi,
         in Size parentSize,
         CultureInfo cultureInfo);
 }

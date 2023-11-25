@@ -162,6 +162,7 @@ public abstract class Control : IControl
 
     /// <inheritdoc />
     public virtual Size Measure(
+        float dpi,
         in Size fullPageSize,
         in Size framedPageSize,
         in Size remainingSize,
@@ -170,6 +171,7 @@ public abstract class Control : IControl
         var padding = Padding.ToRectangle(fullPageSize);
         var margin = Margin.ToRectangle(fullPageSize);
         var measureResult = DoMeasure(
+            dpi,
             ToSize(fullPageSize, margin),
             ToSize(framedPageSize, margin),
             ToSize(remainingSize, margin, padding),
@@ -201,6 +203,7 @@ public abstract class Control : IControl
 
     /// <inheritdoc cref="Measure"/>
     protected abstract Size DoMeasure(
+        float dpi,
         in Size fullPageSize,
         in Size framedPageSize,
         in Size remainingSize,
@@ -208,6 +211,7 @@ public abstract class Control : IControl
 
     /// <inheritdoc />
     public virtual Size Arrange(
+        float dpi,
         in Size fullPageSize,
         in Size framedPageSize,
         in Size remainingSize,
@@ -218,6 +222,7 @@ public abstract class Control : IControl
         var padding = Padding.ToRectangle(remainingSize);
         var margin = Margin.ToRectangle(remainingSize);
         var measureResult = DoArrange(
+            dpi,
             ToSize(fullPageSize, margin),
             ToSize(framedPageSize, margin),
             ToSize(remainingSize, margin, padding),
@@ -242,6 +247,7 @@ public abstract class Control : IControl
 
     /// <inheritdoc cref="Arrange"/>
     protected abstract Size DoArrange(
+        float dpi,
         in Size fullPageSize,
         in Size framedPageSize,
         in Size remainingSize,
@@ -250,6 +256,7 @@ public abstract class Control : IControl
     /// <inheritdoc />
     public virtual void Render(
         ICanvas canvas,
+        float dpi,
         in Size parentSize,
         CultureInfo cultureInfo)
     {
@@ -261,11 +268,11 @@ public abstract class Control : IControl
             var arrangedSize = new Size(
                 parentSize.Width - padding.Width - padding.Width - margin.Width - margin.Width,
                 parentSize.Height - padding.Height - padding.Height - margin.Height - margin.Height);
-            PreRender(canvas, arrangedSize, cultureInfo);
+            PreRender(canvas, dpi, arrangedSize, cultureInfo);
             if (Clip)
                 canvas.Clip(Arrangement);
             canvas.Translate(ArrangementInner);
-            DoRender(canvas, arrangedSize, cultureInfo);
+            DoRender(canvas, dpi, arrangedSize, cultureInfo);
         }
         finally
         {
@@ -277,9 +284,14 @@ public abstract class Control : IControl
     /// Called before <see cref="DoRender"/> is called to allow for additional canvas state to be set.
     /// </summary>
     /// <param name="canvas">The canvas to render to.</param>
+    /// <param name="dpi"></param>
     /// <param name="parentSize">The size of the parent control.</param>
     /// <param name="cultureInfo">The culture info to use for rendering.</param>
-    protected virtual void PreRender(ICanvas canvas, in Size parentSize, CultureInfo cultureInfo)
+    protected virtual void PreRender(
+        ICanvas canvas,
+        float dpi,
+        in Size parentSize,
+        CultureInfo cultureInfo)
     {
         /* empty */
     }
@@ -287,6 +299,7 @@ public abstract class Control : IControl
     /// <inheritdoc cref="Render"/>
     protected abstract void DoRender(
         ICanvas canvas,
+        float dpi,
         in Size parentSize,
         CultureInfo cultureInfo);
 }

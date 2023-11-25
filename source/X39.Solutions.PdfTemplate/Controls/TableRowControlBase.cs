@@ -15,6 +15,7 @@ public abstract class TableRowControlBase : AlignableContentControl
 
     /// <inheritdoc />
     protected override Size DoMeasure(
+        float dpi,
         in Size fullPageSize,
         in Size framedPageSize,
         in Size remainingSize,
@@ -26,7 +27,7 @@ public abstract class TableRowControlBase : AlignableContentControl
         var height = 0F;
         foreach (var (control, index) in Children.Cast<TableCellControl>().Indexed())
         {
-            var size = control.Measure(fullPageSize, remainingSize, remainingSize, cultureInfo);
+            var size = control.Measure(dpi, fullPageSize, remainingSize, remainingSize, cultureInfo);
             width              += size.Width;
             height             =  Math.Max(height, size.Height);
             if (Table.CellWidths.TryGetValue(index, out var tuple))
@@ -49,6 +50,7 @@ public abstract class TableRowControlBase : AlignableContentControl
 
     /// <inheritdoc />
     protected override Size DoArrange(
+        float dpi,
         in Size fullPageSize,
         in Size framedPageSize,
         in Size remainingSize,
@@ -67,7 +69,7 @@ public abstract class TableRowControlBase : AlignableContentControl
                 Width = cellWidth,
                 Height = MeasurementInner.Height,
             };
-            var size = control.Arrange(fullPageSize, remainingCellSize, remainingCellSize, cultureInfo);
+            var size = control.Arrange(dpi, fullPageSize, remainingCellSize, remainingCellSize, cultureInfo);
             width  += cellWidth;
             height =  Math.Max(height, size.Height);
         }
@@ -76,14 +78,14 @@ public abstract class TableRowControlBase : AlignableContentControl
     }
 
     /// <inheritdoc />
-    protected override void DoRender(ICanvas canvas, in Size parentSize, CultureInfo cultureInfo)
+    protected override void DoRender(ICanvas canvas, float dpi, in Size parentSize, CultureInfo cultureInfo)
     {
         if (Table is null)
             throw new InvalidOperationException("A TableRowControl must be added to a TableControl");
         canvas.PushState();
         foreach (var (control, index) in Children.OfType<TableCellControl>().Indexed())
         {
-            control.Render(canvas, parentSize, cultureInfo);
+            control.Render(canvas, dpi, parentSize, cultureInfo);
             var (width, _) = Table.CellWidths[index];
             canvas.Translate(width, 0);
         }

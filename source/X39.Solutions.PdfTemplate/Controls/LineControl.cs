@@ -39,6 +39,7 @@ public sealed class LineControl : AlignableControl
 
     /// <inheritdoc />
     protected override Size DoMeasure(
+        float pageSize,
         in Size fullPageSize,
         in Size framedPageSize,
         in Size remainingSize,
@@ -58,6 +59,7 @@ public sealed class LineControl : AlignableControl
 
     /// <inheritdoc />
     protected override Size DoArrange(
+        float dpi,
         in Size fullPageSize,
         in Size framedPageSize,
         in Size remainingSize,
@@ -79,6 +81,7 @@ public sealed class LineControl : AlignableControl
     /// <inheritdoc />
     protected override void DoRender(
         ICanvas canvas,
+        float dpi,
         in Size parentSize,
         CultureInfo cultureInfo)
     {

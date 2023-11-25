@@ -182,27 +182,29 @@ public class TextControl : AlignableControl
 
     /// <inheritdoc />
     protected override Size DoMeasure(
+        float dpi,
         in Size fullPageSize,
         in Size framedPageSize,
         in Size remainingSize,
         CultureInfo cultureInfo)
     {
-        return _textService.Measure(_textStyle, Text.AsSpan(), remainingSize.Width);
+        return _textService.Measure(_textStyle, dpi, Text.AsSpan(), remainingSize.Width);
     }
 
     /// <inheritdoc />
     protected override Size DoArrange(
+        float dpi,
         in Size fullPageSize,
         in Size framedPageSize,
         in Size remainingSize,
         CultureInfo cultureInfo)
     {
-        return _textService.Measure(_textStyle, Text.AsSpan(), remainingSize.Width);
+        return _textService.Measure(_textStyle, dpi, Text.AsSpan(), remainingSize.Width);
     }
 
     /// <inheritdoc />
-    protected override void DoRender(ICanvas canvas, in Size parentSize, CultureInfo cultureInfo)
+    protected override void DoRender(ICanvas canvas, float dpi, in Size parentSize, CultureInfo cultureInfo)
     {
-        _textService.Draw(canvas, _textStyle, Text.AsSpan(), ArrangementInner.Width);
+        _textService.Draw(canvas, _textStyle, dpi, Text.AsSpan(), ArrangementInner.Width);
     }
 }

@@ -40,9 +40,9 @@ public class TextControlTests : IDisposable
             Style      = EFontStyle.Italic,
             FontFamily = fontPath,
         };
-        control.Measure(pageBounds, pageBounds, pageBounds, CultureInfo.InvariantCulture);
-        control.Arrange(pageBounds, pageBounds, pageBounds, CultureInfo.InvariantCulture);
-        control.Render(mock, pageBounds, CultureInfo.InvariantCulture);
+        control.Measure(90, pageBounds, pageBounds, pageBounds, CultureInfo.InvariantCulture);
+        control.Arrange(90, pageBounds, pageBounds, pageBounds, CultureInfo.InvariantCulture);
+        control.Render(mock, 90, pageBounds, CultureInfo.InvariantCulture);
         mock.AssertState();
         mock.AssertAllClip((rectangle) => rectangle is {Width: > 0, Height: > 0});
     }
@@ -62,9 +62,9 @@ public class TextControlTests : IDisposable
             FontFamily = fontPath,
         };
         var textStyle = control.GetTextStyle();
-        control.Measure(pageBounds, pageBounds, pageBounds, CultureInfo.InvariantCulture);
-        control.Arrange(pageBounds, pageBounds, pageBounds, CultureInfo.InvariantCulture);
-        control.Render(mock, pageBounds, CultureInfo.InvariantCulture);
+        control.Measure(90, pageBounds, pageBounds, pageBounds, CultureInfo.InvariantCulture);
+        control.Arrange(90, pageBounds, pageBounds, pageBounds, CultureInfo.InvariantCulture);
+        control.Render(mock, 90, pageBounds, CultureInfo.InvariantCulture);
         mock.AssertState();
         mock.AssertDrawText(textStyle, text, 0, 12.9492188F);
     }

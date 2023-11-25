@@ -29,9 +29,9 @@ internal class TextService : ITextService
         }
     }
 
-    public Size Measure(TextStyle textStyle, ReadOnlySpan<char> text, float maxWidth)
+    public Size Measure(TextStyle textStyle, float dpi, ReadOnlySpan<char> text, float maxWidth)
     {
-        var skPaint = _paintCache.Get(textStyle);
+        var skPaint = _paintCache.Get(textStyle, dpi);
         var lines = 0;
         var resultWidth = 0F;
         var right = text;
@@ -84,9 +84,9 @@ internal class TextService : ITextService
         return new ReadOnlySpanPair<char>(text[..end], text[end..]);
     }
 
-    public void Draw(ICanvas canvas, TextStyle textStyle, ReadOnlySpan<char> text, float maxWidth)
+    public void Draw(ICanvas canvas, TextStyle textStyle, float dpi, ReadOnlySpan<char> text, float maxWidth)
     {
-        var skPaint = _paintCache.Get(textStyle);
+        var skPaint = _paintCache.Get(textStyle, dpi);
         var height = skPaint.FontMetrics.Bottom + -skPaint.FontMetrics.Top;
         var right = text;
         var left = text;
@@ -103,7 +103,7 @@ internal class TextService : ITextService
             var (divided, _) = DivideAndConquer(trimmedFullLine, skPaint, maxWidth, out _);
             left             = divided;
             right            = right[(left.Length + fullLine.Length - trimmedFullLine.Length)..];
-            canvas.DrawText(textStyle, left.ToString(), 0, y - skPaint.FontMetrics.Ascent);
+            canvas.DrawText(textStyle, dpi, left.ToString(), 0, y - skPaint.FontMetrics.Ascent);
             y += height * textStyle.LineHeight;
         }
     }

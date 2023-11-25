@@ -55,9 +55,13 @@ public class LineControlTests
             Clip                = false,
             Thickness           = new Length(thicknessValue, thicknessMode),
         };
-        Assert.Equal(measure, lineControl.Measure(pageBounds, pageBounds, pageBounds, CultureInfo.InvariantCulture));
-        Assert.Equal(arrange, lineControl.Arrange(pageBounds, pageBounds, pageBounds, CultureInfo.InvariantCulture));
-        lineControl.Render(mock, pageBounds, CultureInfo.InvariantCulture);
+        Assert.Equal(
+            measure,
+            lineControl.Measure(90, pageBounds, pageBounds, pageBounds, CultureInfo.InvariantCulture));
+        Assert.Equal(
+            arrange,
+            lineControl.Arrange(90, pageBounds, pageBounds, pageBounds, CultureInfo.InvariantCulture));
+        lineControl.Render(mock, 90, pageBounds, CultureInfo.InvariantCulture);
         mock.AssertState();
         mock.AssertDrawLine(
             Colors.Green,
@@ -94,9 +98,13 @@ public class LineControlTests
         var arrange = new Size(
             orientation == EOrientation.Horizontal ? 1000F : 21F,
             orientation == EOrientation.Horizontal ? 21F : 1000F);
-        Assert.Equal(measure, lineControl.Measure(pageBounds, pageBounds, pageBounds, CultureInfo.InvariantCulture));
-        Assert.Equal(arrange, lineControl.Arrange(pageBounds, pageBounds, pageBounds, CultureInfo.InvariantCulture));
-        lineControl.Render(mock, pageBounds, CultureInfo.InvariantCulture);
+        Assert.Equal(
+            measure,
+            lineControl.Measure(90, pageBounds, pageBounds, pageBounds, CultureInfo.InvariantCulture));
+        Assert.Equal(
+            arrange,
+            lineControl.Arrange(90, pageBounds, pageBounds, pageBounds, CultureInfo.InvariantCulture));
+        lineControl.Render(mock, 90, pageBounds, CultureInfo.InvariantCulture);
         mock.AssertState();
         mock.AssertDrawLine(
             Colors.Green,
@@ -135,9 +143,9 @@ public class LineControlTests
         var arrange = new Size(
             orientation == EOrientation.Horizontal ? 1000F : 21F,
             orientation == EOrientation.Horizontal ? 21F : 1000F);
-        Assert.Equal(measure, lineControl.Measure(pageBounds, pageBounds, pageBounds, CultureInfo.InvariantCulture));
-        Assert.Equal(arrange, lineControl.Arrange(pageBounds, pageBounds, pageBounds, CultureInfo.InvariantCulture));
-        lineControl.Render(mock, pageBounds, CultureInfo.InvariantCulture);
+        Assert.Equal(measure, lineControl.Measure(90, pageBounds, pageBounds, pageBounds, CultureInfo.InvariantCulture));
+        Assert.Equal(arrange, lineControl.Arrange(90, pageBounds, pageBounds, pageBounds, CultureInfo.InvariantCulture));
+        lineControl.Render(mock, 90, pageBounds, CultureInfo.InvariantCulture);
         mock.AssertState();
         mock.AssertDrawLine(
             Colors.Green,
@@ -176,9 +184,9 @@ public class LineControlTests
         var arrange = new Size(
             orientation == EOrientation.Horizontal ? 1000F : 41F,
             orientation == EOrientation.Horizontal ? 41F : 1000F);
-        Assert.Equal(measure, lineControl.Measure(pageBounds, pageBounds, pageBounds, CultureInfo.InvariantCulture));
-        Assert.Equal(arrange, lineControl.Arrange(pageBounds, pageBounds, pageBounds, CultureInfo.InvariantCulture));
-        lineControl.Render(mock, pageBounds, CultureInfo.InvariantCulture);
+        Assert.Equal(measure, lineControl.Measure(90, pageBounds, pageBounds, pageBounds, CultureInfo.InvariantCulture));
+        Assert.Equal(arrange, lineControl.Arrange(90, pageBounds, pageBounds, pageBounds, CultureInfo.InvariantCulture));
+        lineControl.Render(mock, 90, pageBounds, CultureInfo.InvariantCulture);
         mock.AssertState();
         mock.AssertDrawLine(
             Colors.Green,

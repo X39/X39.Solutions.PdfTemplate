@@ -104,9 +104,10 @@ public sealed class SkPaintCache : IDisposable
     /// Returns a <see cref="SKPaint"/> for the given <see cref="TextStyle"/>.
     /// </summary>
     /// <param name="textStyle">The <see cref="TextStyle"/> to get the <see cref="SKPaint"/> for.</param>
+    /// <param name="dpi">The DPI to use.</param>
     /// <returns>A <see cref="SKPaint"/> for the given <see cref="TextStyle"/>.</returns>
     /// <exception cref="InvalidEnumArgumentException">Thrown when the <see cref="EFontStyle"/> is not supported, indicating a programming error, not a user one.</exception>
-    public SKPaint Get(TextStyle textStyle)
+    public SKPaint Get(TextStyle textStyle, float dpi)
     {
         return _textPaintsLock.UpgradeableReadLocked(
             () =>
@@ -139,7 +140,7 @@ public sealed class SkPaintCache : IDisposable
                                 }),
                             TextScaleX = textStyle.Scale,
                             TextSkewX  = textStyle.Rotation,
-                            TextSize   = textStyle.FontSize,
+                            TextSize   = textStyle.FontSize * dpi / 72.272F,
                         };
                     });
             });

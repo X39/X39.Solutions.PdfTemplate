@@ -22,6 +22,7 @@ public sealed class TableCellControl : AlignableContentControl
 
     /// <inheritdoc />
     protected override Size DoMeasure(
+        float dpi,
         in Size fullPageSize,
         in Size framedPageSize,
         in Size remainingSize,
@@ -31,7 +32,7 @@ public sealed class TableCellControl : AlignableContentControl
         var height = 0F;
         foreach (var control in Children)
         {
-            var size = control.Measure(fullPageSize, remainingSize, remainingSize, cultureInfo);
+            var size = control.Measure(dpi, fullPageSize, remainingSize, remainingSize, cultureInfo);
             width  =  Math.Max(width, size.Width);
             height += size.Height;
         }
@@ -41,6 +42,7 @@ public sealed class TableCellControl : AlignableContentControl
 
     /// <inheritdoc />
     protected override Size DoArrange(
+        float dpi,
         in Size fullPageSize,
         in Size framedPageSize,
         in Size remainingSize,
@@ -50,7 +52,7 @@ public sealed class TableCellControl : AlignableContentControl
         var height = 0F;
         foreach (var control in Children)
         {
-            var size = control.Arrange(fullPageSize, remainingSize, remainingSize, cultureInfo);
+            var size = control.Arrange(dpi, fullPageSize, remainingSize, remainingSize, cultureInfo);
             width  =  Math.Max(width, size.Width);
             height += size.Height;
             _heights.Add(size.Height);
@@ -64,12 +66,12 @@ public sealed class TableCellControl : AlignableContentControl
     }
 
     /// <inheritdoc />
-    protected override void DoRender(ICanvas canvas, in Size parentSize, CultureInfo cultureInfo)
+    protected override void DoRender(ICanvas canvas, float dpi, in Size parentSize, CultureInfo cultureInfo)
     {
         canvas.PushState();
         foreach (var (control, height) in Children.Zip(_heights))
         {
-            control.Render(canvas, parentSize, cultureInfo);
+            control.Render(canvas, dpi, parentSize, cultureInfo);
             canvas.Translate(0, height);
         }
 

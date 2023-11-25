@@ -11,8 +11,14 @@ public readonly record struct TextStyle()
     public Color Foreground { get; init; } = Colors.Black;
 
     /// <summary>
-    /// The size of the text.
+    /// The size of the text in points.
     /// </summary>
+    /// <remarks>
+    /// 1 point = 1/72.272 inch
+    ///
+    /// This means that 1 inch = 72 points.
+    /// The default font size is 12 points or 1/6 inch.
+    /// </remarks>
     public float FontSize { get; init; } = 12F;
 
     /// <summary>

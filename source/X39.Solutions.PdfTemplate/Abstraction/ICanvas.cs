@@ -52,11 +52,12 @@ public interface ICanvas
     /// <summary>
     ///     Draws text on the canvas at the specified coordinates.
     /// </summary>
+    /// <param name="textStyle">The <see cref="TextStyle"/> to use when drawing the text.</param>
+    /// <param name="dpi"></param>
     /// <param name="text">The text to draw.</param>
     /// <param name="x">The x-coordinate of the origin of the text being drawn.</param>
     /// <param name="y">The y-coordinate of the origin of the text being drawn.</param>
-    /// <param name="textStyle">The <see cref="TextStyle"/> to use when drawing the text.</param>
-    void DrawText(TextStyle textStyle, string text, float x, float y);
+    void DrawText(TextStyle textStyle, float dpi, string text, float x, float y);
 
     /// <summary>
     ///     Draws a rectangle on the canvas at the coordinates specified

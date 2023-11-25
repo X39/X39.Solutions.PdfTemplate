@@ -28,9 +28,9 @@ public class TableControlTest
               """);
         var pageSize = new Size(200, 200);
         var mockCanvas = new CanvasMock();
-        control.Measure(pageSize, pageSize, pageSize, CultureInfo.InvariantCulture);
-        control.Arrange(pageSize, pageSize, pageSize, CultureInfo.InvariantCulture);
-        control.Render(mockCanvas, pageSize, CultureInfo.InvariantCulture);
+        control.Measure(90, pageSize, pageSize, pageSize, CultureInfo.InvariantCulture);
+        control.Arrange(90, pageSize, pageSize, pageSize, CultureInfo.InvariantCulture);
+        control.Render(mockCanvas, 90, pageSize, CultureInfo.InvariantCulture);
         mockCanvas.AssertState();
         mockCanvas.AssertAllClip((rectangle) => rectangle is {Width: > 0, Height: > 0});
         // Assert that the two <td> elements take 50% of the width each
@@ -55,9 +55,9 @@ public class TableControlTest
               """);
         var pageSize = new Size(200, 200);
         var mockCanvas = new CanvasMock();
-        control.Measure(pageSize, pageSize, pageSize, CultureInfo.InvariantCulture);
-        control.Arrange(pageSize, pageSize, pageSize, CultureInfo.InvariantCulture);
-        control.Render(mockCanvas, pageSize, CultureInfo.InvariantCulture);
+        control.Measure(90, pageSize, pageSize, pageSize, CultureInfo.InvariantCulture);
+        control.Arrange(90, pageSize, pageSize, pageSize, CultureInfo.InvariantCulture);
+        control.Render(mockCanvas, 90, pageSize, CultureInfo.InvariantCulture);
         mockCanvas.AssertState();
         mockCanvas.AssertAllClip((rectangle) => rectangle is {Width: > 0, Height: > 0});
         // Assert that the two <td> elements take 50% of the width each
@@ -82,9 +82,9 @@ public class TableControlTest
               """);
         var pageSize = new Size(200, 200);
         var mockCanvas = new CanvasMock();
-        control.Measure(pageSize, pageSize, pageSize, CultureInfo.InvariantCulture);
-        control.Arrange(pageSize, pageSize, pageSize, CultureInfo.InvariantCulture);
-        control.Render(mockCanvas, pageSize, CultureInfo.InvariantCulture);
+        control.Measure(90, pageSize, pageSize, pageSize, CultureInfo.InvariantCulture);
+        control.Arrange(90, pageSize, pageSize, pageSize, CultureInfo.InvariantCulture);
+        control.Render(mockCanvas, 90, pageSize, CultureInfo.InvariantCulture);
         mockCanvas.AssertState();
         mockCanvas.AssertAllClip((rectangle) => rectangle is {Width: > 0, Height: > 0});
         // Assert that the two <td> elements take 50% of the width each
@@ -119,9 +119,9 @@ public class TableControlTest
               """);
         var pageSize = new Size(200, 200);
         var mockCanvas = new CanvasMock();
-        control.Measure(pageSize, pageSize, pageSize, CultureInfo.InvariantCulture);
-        control.Arrange(pageSize, pageSize, pageSize, CultureInfo.InvariantCulture);
-        control.Render(mockCanvas, pageSize, CultureInfo.InvariantCulture);
+        control.Measure(90, pageSize, pageSize, pageSize, CultureInfo.InvariantCulture);
+        control.Arrange(90, pageSize, pageSize, pageSize, CultureInfo.InvariantCulture);
+        control.Render(mockCanvas, 90, pageSize, CultureInfo.InvariantCulture);
         mockCanvas.AssertState();
         // Assert that the two <td> elements take 50% of the width each
         mockCanvas.AssertClip(0, new Rectangle(0, 0, 200, 0)); // table
@@ -146,9 +146,9 @@ public class TableControlTest
               """);
         var pageSize = new Size(200, 200);
         var mockCanvas = new CanvasMock();
-        control.Measure(pageSize, pageSize, pageSize, CultureInfo.InvariantCulture);
-        control.Arrange(pageSize, pageSize, pageSize, CultureInfo.InvariantCulture);
-        control.Render(mockCanvas, pageSize, CultureInfo.InvariantCulture);
+        control.Measure(90, pageSize, pageSize, pageSize, CultureInfo.InvariantCulture);
+        control.Arrange(90, pageSize, pageSize, pageSize, CultureInfo.InvariantCulture);
+        control.Render(mockCanvas, 90, pageSize, CultureInfo.InvariantCulture);
         mockCanvas.AssertState();
         // Assert that the two <td> elements take 50% of the width each
         mockCanvas.AssertClip(0, new Rectangle(0, 0, 200, 0)); // table
@@ -169,9 +169,9 @@ public class TableControlTest
               """);
         var pageSize = new Size(200, 200);
         var mockCanvas = new CanvasMock();
-        control.Measure(pageSize, pageSize, pageSize, CultureInfo.InvariantCulture);
-        control.Arrange(pageSize, pageSize, pageSize, CultureInfo.InvariantCulture);
-        control.Render(mockCanvas, pageSize, CultureInfo.InvariantCulture);
+        control.Measure(90, pageSize, pageSize, pageSize, CultureInfo.InvariantCulture);
+        control.Arrange(90, pageSize, pageSize, pageSize, CultureInfo.InvariantCulture);
+        control.Render(mockCanvas, 90, pageSize, CultureInfo.InvariantCulture);
         mockCanvas.AssertState();
         // Assert that the two <td> elements take 50% of the width each
         mockCanvas.AssertClip(0, new Rectangle(0, 0, 200, 20)); // table

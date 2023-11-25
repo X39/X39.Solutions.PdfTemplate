@@ -34,6 +34,7 @@ public class BorderControl : AlignableContentControl
 
     /// <inheritdoc />
     protected override Size DoMeasure(
+        float dpi,
         in Size fullPageSize,
         in Size framedPageSize,
         in Size remainingSize,
@@ -43,7 +44,7 @@ public class BorderControl : AlignableContentControl
         var size = Size.Zero;
         foreach (var child in Children)
         {
-            var measure = child.Measure(fullPageSize, remainingSize - thickness, remainingSize - thickness, cultureInfo);
+            var measure = child.Measure(dpi, fullPageSize, remainingSize - thickness, remainingSize - thickness, cultureInfo);
             size = new Size(
                 Math.Max(size.Width, measure.Width),
                 size.Height + measure.Height);
@@ -58,6 +59,7 @@ public class BorderControl : AlignableContentControl
 
     /// <inheritdoc />
     protected override Size DoArrange(
+        float dpi,
         in Size fullPageSize,
         in Size framedPageSize,
         in Size remainingSize,
@@ -67,7 +69,7 @@ public class BorderControl : AlignableContentControl
         var size = Size.Zero;
         foreach (var child in Children)
         {
-            var measure = child.Arrange(fullPageSize, remainingSize - thickness, remainingSize - thickness, cultureInfo);
+            var measure = child.Arrange(dpi, fullPageSize, remainingSize - thickness, remainingSize - thickness, cultureInfo);
             size = new Size(
                 Math.Max(size.Width, measure.Width),
                 size.Height + measure.Height);
@@ -82,7 +84,7 @@ public class BorderControl : AlignableContentControl
     }
 
     /// <inheritdoc />
-    protected override void DoRender(ICanvas canvas, in Size parentSize, CultureInfo cultureInfo)
+    protected override void DoRender(ICanvas canvas, float dpi, in Size parentSize, CultureInfo cultureInfo)
     {
         using var state = canvas.CreateState();
         canvas.Translate(-ArrangementInner);
@@ -128,7 +130,7 @@ public class BorderControl : AlignableContentControl
         canvas.Translate(thickness);
         foreach (var (child, arrangedSize) in Children.Zip(_arrangedSizes))
         {
-            child.Render(canvas, parentSize, cultureInfo);
+            child.Render(canvas, dpi, parentSize, cultureInfo);
             canvas.Translate(0, arrangedSize.Height);
         }
     }

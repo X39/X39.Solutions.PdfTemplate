@@ -60,11 +60,11 @@ internal sealed class CanvasImpl : ICanvas
         });
     }
 
-    public void DrawText(TextStyle textStyle, string text, float x, float y)
+    public void DrawText(TextStyle textStyle, float dpi, string text, float x, float y)
     {
         _drawActions.Add((canvas) =>
         {
-            var paint = _paintCache.Get(textStyle);
+            var paint = _paintCache.Get(textStyle, dpi);
             canvas.DrawText(text, x, y, paint);
         });
     }

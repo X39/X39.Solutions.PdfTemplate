@@ -86,7 +86,7 @@ public partial class CanvasMock : ICanvas
         _stateStack.Peek().Translation += point;
     }
 
-    public void DrawText(TextStyle textStyle, string text, float x, float y)
+    public void DrawText(TextStyle textStyle, float dpi, string text, float x, float y)
     {
         _drawTextCalls.Add(
             new DrawTextCall(

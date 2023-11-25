@@ -211,7 +211,7 @@ public sealed class Generator : IDisposable, IAsyncDisposable, IAddControls, IAd
 
         foreach (var control in template.HeaderControls.Concat(template.BodyControls).Concat(template.FooterControls))
         {
-            control.Measure(pageSize, pageSize, pageSize, cultureInfo);
+            control.Measure(options.DotsPerInch, pageSize, pageSize, pageSize, cultureInfo);
         }
 
         #endregion
@@ -222,7 +222,7 @@ public sealed class Generator : IDisposable, IAsyncDisposable, IAddControls, IAd
         var headerPageSize = pageSize with {Height = pageSize.Height * 0.25F};
         foreach (var control in template.HeaderControls)
         {
-            var size = control.Arrange(pageSize, headerPageSize, headerPageSize, cultureInfo);
+            var size = control.Arrange(options.DotsPerInch, pageSize, headerPageSize, headerPageSize, cultureInfo);
             headerSizes.Add(size);
         }
 
@@ -234,7 +234,7 @@ public sealed class Generator : IDisposable, IAsyncDisposable, IAddControls, IAd
         var footerPageSize = pageSize with {Height = pageSize.Height * 0.25F};
         foreach (var control in template.FooterControls)
         {
-            var size = control.Arrange(pageSize, footerPageSize, footerPageSize, cultureInfo);
+            var size = control.Arrange(options.DotsPerInch,pageSize, footerPageSize, footerPageSize, cultureInfo);
             footerSizes.Add(size);
         }
 
@@ -247,7 +247,7 @@ public sealed class Generator : IDisposable, IAsyncDisposable, IAddControls, IAd
         var bodyPageSize = pageSize with {Height = pageSize.Height - headerPageSize.Height - footerPageSize.Height};
         foreach (var control in template.BodyControls)
         {
-            var size = control.Arrange(pageSize, bodyPageSize, bodyPageSize, cultureInfo);
+            var size = control.Arrange(options.DotsPerInch,pageSize, bodyPageSize, bodyPageSize, cultureInfo);
             bodySizes.Add(size);
         }
 
@@ -259,7 +259,7 @@ public sealed class Generator : IDisposable, IAsyncDisposable, IAddControls, IAd
         headerCanvasAbstraction.PushState();
         foreach (var (control, size) in template.HeaderControls.Zip(headerSizes))
         {
-            control.Render(headerCanvasAbstraction, headerPageSize, cultureInfo);
+            control.Render(headerCanvasAbstraction, options.DotsPerInch, headerPageSize, cultureInfo);
             headerCanvasAbstraction.Translate(0F, size.Height);
         }
 
@@ -269,7 +269,7 @@ public sealed class Generator : IDisposable, IAsyncDisposable, IAddControls, IAd
         bodyCanvasAbstraction.PushState();
         foreach (var (control, size) in template.BodyControls.Zip(bodySizes))
         {
-            control.Render(bodyCanvasAbstraction, bodyPageSize, cultureInfo);
+            control.Render(bodyCanvasAbstraction, options.DotsPerInch, bodyPageSize, cultureInfo);
             bodyCanvasAbstraction.Translate(0F, size.Height);
         }
 
@@ -279,7 +279,7 @@ public sealed class Generator : IDisposable, IAsyncDisposable, IAddControls, IAd
         footerCanvasAbstraction.PushState();
         foreach (var (control, size) in template.FooterControls.Zip(footerSizes))
         {
-            control.Render(footerCanvasAbstraction, footerPageSize, cultureInfo);
+            control.Render(footerCanvasAbstraction, options.DotsPerInch, footerPageSize, cultureInfo);
             footerCanvasAbstraction.Translate(0F, size.Height);
         }
 
