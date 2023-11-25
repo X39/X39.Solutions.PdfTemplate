@@ -1,3 +1,5 @@
+using X39.Solutions.PdfTemplate.Data;
+
 namespace X39.Solutions.PdfTemplate;
 
 /// <summary>
@@ -53,4 +55,14 @@ public record struct DocumentOptions()
     /// The product that is converting this document to PDF.
     /// </summary>
     public string Producer { get; set; } = "";
+    
+    /// <summary>
+    /// The margin of the document.
+    /// </summary>
+    /// <remarks>
+    /// Margin is removed from the page size, not added to it.
+    /// This implies that a margin of 100pt... or 10pt... will result in the same page size,
+    /// but the content will be moved by 100pt... or 10pt... respectively.
+    /// </remarks>
+    public Thickness Margin { get; init; } = new(0, 0, 0, 0);
 }

@@ -165,18 +165,20 @@ public sealed class Generator : IDisposable, IAsyncDisposable, IAddControls, IAd
         {
             SKCanvas? canvas = null;
             await GenerateAsync(
-                () =>
-                {
-                    var bitmap = new SKBitmap((int) Math.Ceiling(pageSize.Width), (int) Math.Ceiling(pageSize.Height));
-                    bitmaps.Add(bitmap);
-                    canvas = new SKCanvas(bitmap);
-                    canvas.Clear(SKColors.White);
-                    return canvas;
-                },
-                reader,
-                cultureInfo,
-                options,
-                cancellationToken)
+                    () =>
+                    {
+                        var bitmap = new SKBitmap(
+                            (int) Math.Ceiling(pageSize.Width),
+                            (int) Math.Ceiling(pageSize.Height));
+                        bitmaps.Add(bitmap);
+                        canvas = new SKCanvas(bitmap);
+                        canvas.Clear(SKColors.White);
+                        return canvas;
+                    },
+                    reader,
+                    cultureInfo,
+                    options,
+                    cancellationToken)
                 .ConfigureAwait(false);
             canvas?.Dispose();
             return bitmaps.AsReadOnly();
@@ -206,6 +208,16 @@ public sealed class Generator : IDisposable, IAsyncDisposable, IAddControls, IAd
         var pageSize = new Size(
             options.DotsPerMillimeter * options.PageWidthInMillimeters,
             options.DotsPerMillimeter * options.PageHeightInMillimeters);
+        var marginLeft = options.Margin.Left.ToPixels(pageSize.Width, options.DotsPerInch);
+        var marginTop = options.Margin.Top.ToPixels(pageSize.Height, options.DotsPerInch);
+        pageSize = new Size(
+            pageSize.Width
+            - marginLeft
+            - options.Margin.Right.ToPixels(pageSize.Width, options.DotsPerInch),
+            pageSize.Height
+            - marginTop
+            - options.Margin.Bottom.ToPixels(pageSize.Height, options.DotsPerInch)
+        );
 
         #region Measure
 
@@ -234,7 +246,7 @@ public sealed class Generator : IDisposable, IAsyncDisposable, IAddControls, IAd
         var footerPageSize = pageSize with {Height = pageSize.Height * 0.25F};
         foreach (var control in template.FooterControls)
         {
-            var size = control.Arrange(options.DotsPerInch,pageSize, footerPageSize, footerPageSize, cultureInfo);
+            var size = control.Arrange(options.DotsPerInch, pageSize, footerPageSize, footerPageSize, cultureInfo);
             footerSizes.Add(size);
         }
 
@@ -247,7 +259,7 @@ public sealed class Generator : IDisposable, IAsyncDisposable, IAddControls, IAd
         var bodyPageSize = pageSize with {Height = pageSize.Height - headerPageSize.Height - footerPageSize.Height};
         foreach (var control in template.BodyControls)
         {
-            var size = control.Arrange(options.DotsPerInch,pageSize, bodyPageSize, bodyPageSize, cultureInfo);
+            var size = control.Arrange(options.DotsPerInch, pageSize, bodyPageSize, bodyPageSize, cultureInfo);
             bodySizes.Add(size);
         }
 
@@ -294,6 +306,8 @@ public sealed class Generator : IDisposable, IAsyncDisposable, IAddControls, IAd
         for (var i = 0; i < pageCount; i++)
         {
             using var canvas = nextCanvas();
+            canvas.Save();
+            canvas.Translate(marginLeft, marginTop);
 
             canvas.Save();
             canvas.ClipRect(
@@ -316,6 +330,8 @@ public sealed class Generator : IDisposable, IAsyncDisposable, IAddControls, IAd
             footerCanvasAbstraction.Render(canvas);
             canvas.Restore();
             currentHeight += bodyPageSize.Height;
+            
+            canvas.Restore();
         }
 
         #endregion
