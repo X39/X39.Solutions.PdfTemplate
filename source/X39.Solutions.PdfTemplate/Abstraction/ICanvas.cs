@@ -17,11 +17,13 @@ public interface ICanvas
     /// the previous matrix, clipping, and drawing filters are restored.
     /// </summary>
     void PushState();
+
     /// <summary>
     /// Modify the current clip with the specified <see cref="Rectangle"/>.
     /// </summary>
     /// <param name="rectangle">The <see cref="Rectangle"/> to combine with the current clip.</param>
     void Clip(Rectangle rectangle);
+
     /// <summary>
     /// This call balances a previous call to <see cref="PushState"/>,
     /// and is used to remove all modifications to the matrix,
@@ -29,6 +31,7 @@ public interface ICanvas
     /// It is an error to <see cref="PopState"/> more times than was previously <see cref="PushState"/>.
     /// </summary>
     void PopState();
+
     /// <summary>
     /// Draw a line segment with the specified <see cref="Color"/>, thickness, and start and end points.
     /// </summary>
