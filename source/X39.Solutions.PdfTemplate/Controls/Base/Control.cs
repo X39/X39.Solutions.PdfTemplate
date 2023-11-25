@@ -168,8 +168,8 @@ public abstract class Control : IControl
         in Size remainingSize,
         CultureInfo cultureInfo)
     {
-        var padding = Padding.ToRectangle(fullPageSize);
-        var margin = Margin.ToRectangle(fullPageSize);
+        var padding = Padding.ToRectangle(fullPageSize, dpi);
+        var margin = Margin.ToRectangle(fullPageSize, dpi);
         var measureResult = DoMeasure(
             dpi,
             ToSize(fullPageSize, margin),
@@ -219,8 +219,8 @@ public abstract class Control : IControl
     {
         FramedSize    = framedPageSize;
         RemainingSize = framedPageSize;
-        var padding = Padding.ToRectangle(remainingSize);
-        var margin = Margin.ToRectangle(remainingSize);
+        var padding = Padding.ToRectangle(remainingSize, dpi);
+        var margin = Margin.ToRectangle(remainingSize, dpi);
         var measureResult = DoArrange(
             dpi,
             ToSize(fullPageSize, margin),
@@ -260,8 +260,8 @@ public abstract class Control : IControl
         in Size parentSize,
         CultureInfo cultureInfo)
     {
-        var padding = Padding.ToRectangle(parentSize);
-        var margin = Margin.ToRectangle(parentSize);
+        var padding = Padding.ToRectangle(parentSize, dpi);
+        var margin = Margin.ToRectangle(parentSize, dpi);
         canvas.PushState();
         try
         {

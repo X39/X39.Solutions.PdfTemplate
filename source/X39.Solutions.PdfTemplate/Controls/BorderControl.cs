@@ -40,7 +40,7 @@ public class BorderControl : AlignableContentControl
         in Size remainingSize,
         CultureInfo cultureInfo)
     {
-        var thickness = Thickness.ToRectangle(fullPageSize);
+        var thickness = Thickness.ToRectangle(fullPageSize, dpi);
         var size = Size.Zero;
         foreach (var child in Children)
         {
@@ -65,7 +65,7 @@ public class BorderControl : AlignableContentControl
         in Size remainingSize,
         CultureInfo cultureInfo)
     {
-        var thickness = Thickness.ToRectangle(fullPageSize);
+        var thickness = Thickness.ToRectangle(fullPageSize, dpi);
         var size = Size.Zero;
         foreach (var child in Children)
         {
@@ -89,7 +89,7 @@ public class BorderControl : AlignableContentControl
         using var state = canvas.CreateState();
         canvas.Translate(-ArrangementInner);
         canvas.Translate(Arrangement);
-        var thickness = Thickness.ToRectangle(parentSize);
+        var thickness = Thickness.ToRectangle(parentSize, dpi);
         if (Background != Colors.Transparent)
             canvas.DrawRect(Arrangement with {Left = 0, Top = 0}, Background);
         if (thickness.Left > 0)

@@ -66,7 +66,8 @@ public class LineControlTests
         mock.AssertDrawLine(
             Colors.Green,
             lineControl.Thickness.ToPixels(
-                orientation == EOrientation.Horizontal ? pageBounds.Height : pageBounds.Width),
+                orientation == EOrientation.Horizontal ? pageBounds.Height : pageBounds.Width,
+                90),
             expectedStartX,
             expectedStartY,
             expectedEndX,
@@ -111,7 +112,8 @@ public class LineControlTests
             lineControl.Thickness.ToPixels(
                 orientation == EOrientation.Horizontal
                     ? pageBounds.Height
-                    : pageBounds.Width),
+                    : pageBounds.Width,
+                90),
             orientation == EOrientation.Horizontal ? 10F : 10.5F,
             orientation == EOrientation.Horizontal ? 10.5F : 10F,
             orientation == EOrientation.Horizontal ? 990F : 10.5F,
@@ -152,7 +154,8 @@ public class LineControlTests
             lineControl.Thickness.ToPixels(
                 orientation == EOrientation.Horizontal
                     ? pageBounds.Height
-                    : pageBounds.Width),
+                    : pageBounds.Width,
+                90),
             orientation == EOrientation.Horizontal ? 10F : 10.5F,
             orientation == EOrientation.Horizontal ? 10.5F : 10F,
             orientation == EOrientation.Horizontal ? 990F : 10.5F,
@@ -193,7 +196,8 @@ public class LineControlTests
             lineControl.Thickness.ToPixels(
                 orientation == EOrientation.Horizontal
                     ? pageBounds.Height
-                    : pageBounds.Width),
+                    : pageBounds.Width,
+                90),
             orientation == EOrientation.Horizontal ? 20F : 20.5F,
             orientation == EOrientation.Horizontal ? 20.5F : 20F,
             orientation == EOrientation.Horizontal ? 980F : 20.5F,

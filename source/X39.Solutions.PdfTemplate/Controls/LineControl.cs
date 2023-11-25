@@ -39,7 +39,7 @@ public sealed class LineControl : AlignableControl
 
     /// <inheritdoc />
     protected override Size DoMeasure(
-        float pageSize,
+        float dpi,
         in Size fullPageSize,
         in Size framedPageSize,
         in Size remainingSize,
@@ -48,11 +48,11 @@ public sealed class LineControl : AlignableControl
         return Orientation switch
         {
             EOrientation.Horizontal => new Size(
-                Length.ToPixels(remainingSize.Width),
-                Thickness.ToPixels(remainingSize.Height)),
+                Length.ToPixels(remainingSize.Width, dpi),
+                Thickness.ToPixels(remainingSize.Height, dpi)),
             EOrientation.Vertical => new Size(
-                Thickness.ToPixels(remainingSize.Width),
-                Length.ToPixels(remainingSize.Height)),
+                Thickness.ToPixels(remainingSize.Width, dpi),
+                Length.ToPixels(remainingSize.Height, dpi)),
             _ => throw new InvalidEnumArgumentException(nameof(Orientation), (int) Orientation, typeof(EOrientation)),
         };
     }
@@ -68,11 +68,11 @@ public sealed class LineControl : AlignableControl
         return Orientation switch
         {
             EOrientation.Horizontal => new Size(
-                Length.ToPixels(remainingSize.Width),
-                Thickness.ToPixels(remainingSize.Height)),
+                Length.ToPixels(remainingSize.Width, dpi),
+                Thickness.ToPixels(remainingSize.Height, dpi)),
             EOrientation.Vertical => new Size(
-                Thickness.ToPixels(remainingSize.Width),
-                Length.ToPixels(remainingSize.Height)),
+                Thickness.ToPixels(remainingSize.Width, dpi),
+                Length.ToPixels(remainingSize.Height, dpi)),
             _ => throw new InvalidEnumArgumentException(nameof(Orientation), (int) Orientation, typeof(EOrientation)),
         };
     }
@@ -88,11 +88,13 @@ public sealed class LineControl : AlignableControl
         var length = Length.ToPixels(
             Orientation is EOrientation.Horizontal
                 ? parentSize.Width
-                : parentSize.Height);
+                : parentSize.Height,
+            dpi);
         var thickness = Thickness.ToPixels(
             Orientation is EOrientation.Horizontal
                 ? parentSize.Height
-                : parentSize.Width);
+                : parentSize.Width,
+            dpi);
         switch (Orientation)
         {
             case EOrientation.Horizontal:

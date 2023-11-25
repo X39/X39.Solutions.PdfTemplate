@@ -34,13 +34,14 @@ public readonly record struct Thickness(Length Left, Length Top, Length Right, L
     /// Translates the thickness to a pixels rectangle.
     /// </summary>
     /// <param name="bounds">The bounds of the rectangle</param>
+    /// <param name="dpi">The DPI to use for the calculation in case of <see cref="ELengthMode.Points"/> in pixels</param>
     /// <returns>The translated rectangle</returns>
-    public Rectangle ToRectangle(Rectangle bounds)
+    public Rectangle ToRectangle(Rectangle bounds, float dpi)
     {
-        var left = Left.ToPixels(bounds.Width);
-        var top = Top.ToPixels(bounds.Height);
-        var right = Right.ToPixels(bounds.Width);
-        var bottom = Bottom.ToPixels(bounds.Height);
+        var left = Left.ToPixels(bounds.Width, dpi);
+        var top = Top.ToPixels(bounds.Height, dpi);
+        var right = Right.ToPixels(bounds.Width, dpi);
+        var bottom = Bottom.ToPixels(bounds.Height, dpi);
         return new Rectangle(
             left,
             top,
@@ -52,13 +53,14 @@ public readonly record struct Thickness(Length Left, Length Top, Length Right, L
     /// Translates the thickness to a pixels rectangle.
     /// </summary>
     /// <param name="bounds">The bounds of the rectangle</param>
+    /// <param name="dpi">The DPI to use for the calculation in case of <see cref="ELengthMode.Points"/> in pixels</param>
     /// <returns>The translated rectangle</returns>
-    public Rectangle ToRectangle(Size bounds)
+    public Rectangle ToRectangle(Size bounds, float dpi)
     {
-        var left = Left.ToPixels(bounds.Width);
-        var top = Top.ToPixels(bounds.Height);
-        var width = Right.ToPixels(bounds.Width);
-        var height = Bottom.ToPixels(bounds.Height);
+        var left = Left.ToPixels(bounds.Width, dpi);
+        var top = Top.ToPixels(bounds.Height, dpi);
+        var width = Right.ToPixels(bounds.Width, dpi);
+        var height = Bottom.ToPixels(bounds.Height, dpi);
         return new Rectangle(
             left,
             top,

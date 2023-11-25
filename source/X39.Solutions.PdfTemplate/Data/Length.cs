@@ -56,14 +56,16 @@ public readonly record struct Length : ISpanParsable<Length>
     /// Translates the <see cref="Length"/> into a <see cref="float"/> based on the given bounds and <see cref="LengthMode"/>.
     /// </summary>
     /// <param name="bounds">The bounds to use for the calculation in case of <see cref="ELengthMode.Percent"/> in pixels</param>
+    /// <param name="dpi">The DPI to use for the calculation in case of <see cref="ELengthMode.Points"/> in pixels</param>
     /// <returns>The pixel value of the <see cref="Length"/></returns>
     /// <exception cref="ArgumentOutOfRangeException">Thrown when <see cref="LengthMode"/> is not a valid <see cref="ELengthMode"/></exception>
-    public float ToPixels(float bounds)
+    public float ToPixels(float bounds, float dpi)
     {
         return LengthMode switch
         {
             ELengthMode.Pixel => Value,
             ELengthMode.Percent => Value * bounds,
+            ELengthMode.Points => Value * dpi / 72.272F,
             _ => throw new InvalidEnumArgumentException(nameof(LengthMode), (int)LengthMode, typeof(ELengthMode)),
         };
     }
@@ -91,6 +93,7 @@ public readonly record struct Length : ISpanParsable<Length>
             ""   => ELengthMode.Pixel,
             "px" => ELengthMode.Pixel,
             "%"  => ELengthMode.Percent,
+            "pt" => ELengthMode.Points,
             _    => throw new NotSupportedException($"The unit '{unit}' is not supported.")
         };
         if (sizeMode is ELengthMode.Percent)
@@ -115,6 +118,7 @@ public readonly record struct Length : ISpanParsable<Length>
             ""   => ELengthMode.Pixel,
             "px" => ELengthMode.Pixel,
             "%"  => ELengthMode.Percent,
+            "pt" => ELengthMode.Points,
             _    => default(ELengthMode?),
         };
         if (sizeMode is null)
@@ -141,6 +145,7 @@ public readonly record struct Length : ISpanParsable<Length>
         {
             ELengthMode.Pixel   => "px",
             ELengthMode.Percent => "%",
+            ELengthMode.Points  => "pt",
             _                   => throw new NotSupportedException($"The size mode '{sizeMode}' is not supported."),
         };
         return string.Concat(sizeValue.ToString(provider), sizeUnit);

@@ -14,4 +14,12 @@ public enum ELengthMode
     /// The size is in percent of the available space.
     /// </summary>
     Percent,
+    
+    /// <summary>
+    /// The size is in points.
+    /// </summary>
+    /// <remarks>
+    /// 1 point = 1/72.272 inch
+    /// </remarks>
+    Points,
 }
