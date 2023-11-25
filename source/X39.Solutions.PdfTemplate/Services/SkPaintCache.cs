@@ -12,13 +12,15 @@ public sealed class SkPaintCache : IDisposable
 {
     // ReSharper disable NotAccessedPositionalProperty.Local -- Disabled as this is a key-only record
     private readonly record struct StrokePaintKey(Color Color, float Thickness);
+
+    private readonly record struct TextPaintKey(TextStyle TextStyle, float dpi);
     // ReSharper restore NotAccessedPositionalProperty.Local
 
     private readonly Dictionary<StrokePaintKey, SKPaint> _strokePaints     = new();
     private readonly ReaderWriterLockSlim                _strokePaintsLock = new();
-    private readonly Dictionary<TextStyle, SKPaint>      _textPaints       = new();
+    private readonly Dictionary<TextPaintKey, SKPaint>   _textPaints       = new();
     private readonly ReaderWriterLockSlim                _textPaintsLock   = new();
-    private readonly Dictionary<Color, SKPaint>      _fillPaintKey     = new();
+    private readonly Dictionary<Color, SKPaint>          _fillPaintKey     = new();
     private readonly ReaderWriterLockSlim                _fillPaintKeyLock = new();
 
     /// <inheritdoc />
@@ -64,7 +66,7 @@ public sealed class SkPaintCache : IDisposable
                         {
                             Color       = color,
                             StrokeWidth = thickness,
-                            IsStroke = true,
+                            IsStroke    = true,
                         };
                     });
             });
@@ -93,7 +95,7 @@ public sealed class SkPaintCache : IDisposable
                             return skPaint2;
                         return _fillPaintKey[key] = new SKPaint
                         {
-                            Color       = color,
+                            Color    = color,
                             IsStroke = false,
                         };
                     });
@@ -109,17 +111,18 @@ public sealed class SkPaintCache : IDisposable
     /// <exception cref="InvalidEnumArgumentException">Thrown when the <see cref="EFontStyle"/> is not supported, indicating a programming error, not a user one.</exception>
     public SKPaint Get(TextStyle textStyle, float dpi)
     {
+        var key = new TextPaintKey(textStyle, dpi);
         return _textPaintsLock.UpgradeableReadLocked(
             () =>
             {
-                if (_textPaints.TryGetValue(textStyle, out var paint))
+                if (_textPaints.TryGetValue(key, out var paint))
                     return paint;
                 return _textPaintsLock.WriteLocked(
                     () =>
                     {
-                        if (_textPaints.TryGetValue(textStyle, out var paint2))
+                        if (_textPaints.TryGetValue(key, out var paint2))
                             return paint2;
-                        return _textPaints[textStyle] = new SKPaint
+                        return _textPaints[key] = new SKPaint
                         {
                             Color       = textStyle.Foreground,
                             StrokeWidth = textStyle.StrokeThickness,
