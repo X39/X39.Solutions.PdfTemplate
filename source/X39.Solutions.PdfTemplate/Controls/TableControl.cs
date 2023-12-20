@@ -83,6 +83,7 @@ public sealed class TableControl : AlignableContentControl
 
         var outWidths = CalculateWidths(
             desiredTotalWidth,
+            dpi,
             CellWidths.Values
                 .Select((q) => (q.columnLength, q.desiredWitdth))
                 .ToArray());
@@ -99,30 +100,26 @@ public sealed class TableControl : AlignableContentControl
 
     private static IReadOnlyCollection<float> CalculateWidths(
         float totalWidth,
+        float dpi,
         IReadOnlyCollection<(ColumnLength length, float desiredWidth)> columns)
     {
-        var totalPixelWidth = columns
-            .Where((q) => q.length.Unit == EColumnUnit.Pixel)
-            .Select((q) => q.length.Value)
-            .DefaultIfEmpty()
-            .Sum();
-        var totalPercentWidth = columns
-            .Where((q) => q.length.Unit == EColumnUnit.Percent)
-            .Select((q) => q.length.Value * totalWidth)
+        var totalFixedWidth = columns
+            .Where((q) => q.length.Unit == EColumnUnit.Lenght && q.length.Length?.Unit != ELengthUnit.Auto)
+            .Select((q) => q.length.Length?.ToPixels(totalWidth, dpi))
+            .NotNull()
             .DefaultIfEmpty()
             .Sum();
 
         var remainingWidth = totalWidth;
-        remainingWidth -= totalPixelWidth;
-        remainingWidth -= totalPercentWidth;
+        remainingWidth -= totalFixedWidth;
 
         var totalParts = columns
-            .Where((q) => q.length.Unit == EColumnUnit.Part)
+            .Where((q) => q.length.Unit == EColumnUnit.Parts)
             .Select((q) => q.length.Value)
             .DefaultIfEmpty()
             .Sum();
         var totalAutoWidth = columns
-            .Where((q) => q.length.Unit == EColumnUnit.Auto)
+            .Where((q) => q.length is {Unit: EColumnUnit.Lenght, Length.Unit: ELengthUnit.Auto})
             .Select((q) => q.desiredWidth)
             .Sum();
 
@@ -138,10 +135,12 @@ public sealed class TableControl : AlignableContentControl
             {
                 outWidths[index] = length.Unit switch
                 {
-                    EColumnUnit.Auto    => desiredWidth * autoCoef,
-                    EColumnUnit.Pixel   => length.Value,
-                    EColumnUnit.Part    => partWidth * length.Value,
-                    EColumnUnit.Percent => totalWidth * length.Value,
+                    EColumnUnit.Parts => partWidth * length.Value ?? 0F,
+                    EColumnUnit.Lenght => length.Length?.Unit switch
+                    {
+                        ELengthUnit.Auto => desiredWidth * autoCoef,
+                        _                => length.Length?.ToPixels(totalWidth, dpi) ?? 0F,
+                    },
                     _ => throw new InvalidEnumArgumentException(
                         nameof(length.Unit),
                         (int) length.Unit,
@@ -155,13 +154,13 @@ public sealed class TableControl : AlignableContentControl
         {
             var max = totalWidth / columns.Count;
             var larger = columns
-                .Where(x => x.length.Unit == EColumnUnit.Auto)
+                .Where(x => x.length is {Unit: EColumnUnit.Lenght, Length.Unit: ELengthUnit.Auto})
                 .Where(x => x.desiredWidth > max)
                 .DefaultIfEmpty()
                 .Sum(x => x.desiredWidth);
             var remainingWidthWithoutLarger = remainingWidth - larger;
             var remainingCount = columns
-                .Where(x => x.length.Unit == EColumnUnit.Auto)
+                .Where(x => x.length is {Unit: EColumnUnit.Lenght, Length.Unit: ELengthUnit.Auto})
                 .Count(x => x.desiredWidth <= max);
             var newWidth = remainingWidthWithoutLarger / remainingCount;
             var outWidths = new float[columns.Count];
@@ -169,12 +168,14 @@ public sealed class TableControl : AlignableContentControl
             {
                 outWidths[index] = length.Unit switch
                 {
-                    EColumnUnit.Auto => desiredWidth > max || autoCoef < 1.0F
-                        ? desiredWidth * autoCoef
-                        : newWidth,
-                    EColumnUnit.Pixel   => length.Value,
-                    EColumnUnit.Part    => 0F, // We don't have any parts in this branch
-                    EColumnUnit.Percent => totalWidth * length.Value,
+                    EColumnUnit.Parts => 0F, // We don't have any parts in this branch
+                    EColumnUnit.Lenght => length.Length?.Unit switch
+                    {
+                        ELengthUnit.Auto => desiredWidth > max || autoCoef < 1.0F
+                            ? desiredWidth * autoCoef
+                            : newWidth,
+                        _ => length.Length?.ToPixels(totalWidth, dpi) ?? 0F,
+                    },
                     _ => throw new InvalidEnumArgumentException(
                         nameof(length.Unit),
                         (int) length.Unit,
@@ -196,6 +197,7 @@ public sealed class TableControl : AlignableContentControl
     {
         var outWidths = CalculateWidths(
             framedPageSize.Width,
+            dpi,
             CellWidths.Values
                 .Select((q) => (q.columnLength, q.desiredWitdth))
                 .ToArray());

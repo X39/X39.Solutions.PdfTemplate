@@ -204,7 +204,8 @@ public sealed class Generator : IDisposable, IAsyncDisposable, IAddControls, IAd
             rootNode = await templateReader.ReadAsync(reader, cancellationToken)
                 .ConfigureAwait(false);
 
-        var template = Template.Create(rootNode, _controlStorage, cultureInfo);
+        await using var template = await Template.CreateAsync(rootNode, _controlStorage, cultureInfo, cancellationToken)
+            .ConfigureAwait(false);
         var pageSize = new Size(
             options.DotsPerMillimeter * options.PageWidthInMillimeters,
             options.DotsPerMillimeter * options.PageHeightInMillimeters);
@@ -330,7 +331,7 @@ public sealed class Generator : IDisposable, IAsyncDisposable, IAddControls, IAd
             footerCanvasAbstraction.Render(canvas);
             canvas.Restore();
             currentHeight += bodyPageSize.Height;
-            
+
             canvas.Restore();
         }
 

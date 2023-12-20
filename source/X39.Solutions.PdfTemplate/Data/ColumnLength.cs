@@ -13,19 +13,28 @@ public readonly record struct ColumnLength : ISpanParsable<ColumnLength>
     /// <summary>
     /// Creates a new <see cref="ColumnLength"/> which will fit the available space.
     /// </summary>
-    public ColumnLength() : this(1.0F, EColumnUnit.Auto)
+    public ColumnLength() : this(new Length(default, ELengthUnit.Auto))
     {
     }
 
     /// <summary>
-    /// Creates a new <see cref="ColumnLength"/> with the given value and <see cref="EColumnUnit"/>
+    /// Creates a new <see cref="ColumnLength"/> with the given parts value.
     /// </summary>
     /// <param name="value">The value of the size</param>
-    /// <param name="unit">The size mode, indicating how the value should be interpreted</param>
-    public ColumnLength(float value, EColumnUnit unit)
+    public ColumnLength(float value)
     {
         Value = value;
-        Unit  = unit;
+        Unit  = EColumnUnit.Parts;
+    }
+
+    /// <summary>
+    /// Creates a new <see cref="ColumnLength"/> with the given length
+    /// </summary>
+    /// <param name="length">The value of the size</param>
+    public ColumnLength(Length length)
+    {
+        Length = length;
+        Unit  = EColumnUnit.Lenght;
     }
 
     /// <summary>
@@ -36,7 +45,18 @@ public readonly record struct ColumnLength : ISpanParsable<ColumnLength>
     /// <summary>
     /// The value of the size.
     /// </summary>
-    public float Value { get; init; }
+    /// <remarks>
+    /// Either this or <see cref="Length"/> must be set.
+    /// </remarks>
+    public float? Value { get; init; }
+    
+    /// <summary>
+    /// The value of the size.
+    /// </summary>
+    /// <remarks>
+    /// Either this or <see cref="Value"/> must be set.
+    /// </remarks>
+    public Length? Length { get; init; }
 
     /// <inheritdoc />
     public static ColumnLength Parse(string s, IFormatProvider? provider) => Parse(s.AsSpan(), provider);
@@ -56,7 +76,6 @@ public readonly record struct ColumnLength : ISpanParsable<ColumnLength>
             return false;
         }
 
-        EColumnUnit lengthMode;
         var endOfNumber = 0;
         var dotFound = false;
         // Find end of number
@@ -90,123 +109,33 @@ public readonly record struct ColumnLength : ISpanParsable<ColumnLength>
 
         switch (unit)
         {
-            case "%":
-                lengthMode = EColumnUnit.Percent;
-                break;
-            case "px":
-            case "Px":
-            case "pX":
-            case "PX":
-                lengthMode = EColumnUnit.Pixel;
-                break;
-            case "auto":
-            case "autO":
-            case "auTo":
-            case "auTO":
-            case "aUto":
-            case "aUtO":
-            case "aUTo":
-            case "aUTO":
-            case "Auto":
-            case "AutO":
-            case "AuTo":
-            case "AuTO":
-            case "AUto":
-            case "AUtO":
-            case "AUTo":
-            case "AUTO":
-                lengthMode = EColumnUnit.Auto;
-                break;
+            case "*":
+                if (number.IsEmpty)
+                {
+                    result = default;
+                    return false;
+                }
+
+                var value = float.Parse(number, CultureInfo.InvariantCulture);
+                result = new ColumnLength(value);
+                return true;
             default:
-                result = default;
-                return false;
+                if (!Data.Length.TryParse(s, provider, out var length))
+                {
+                    result = default;
+                    return false;
+                }
+                result = new ColumnLength(length);
+                return true;
         }
-
-        if (number.IsEmpty && lengthMode is not EColumnUnit.Auto and EColumnUnit.Part)
-        {
-            result = default;
-            return false;
-        }
-
-        var value = number.IsEmpty ? 1F : float.Parse(number, provider);
-        result = new ColumnLength(value, lengthMode);
-        return true;
     }
 
     /// <inheritdoc />
     public static ColumnLength Parse(ReadOnlySpan<char> s, IFormatProvider? provider)
     {
-        s = s.Trim();
-        if (s.IsEmpty)
-            throw new ArgumentException("The string must not be empty.", nameof(s));
-
-        EColumnUnit lengthMode;
-        var endOfNumber = 0;
-        var dotFound = false;
-        // Find end of number
-        for (var i = 0; i < s.Length; i++)
-        {
-            if (s[i].IsDigit())
-                continue;
-            if (s[i] == '.')
-            {
-                if (dotFound)
-                    throw new FormatException("The string contains more than one dot.");
-                dotFound = true;
-                continue;
-            }
-
-            endOfNumber = i;
-            break;
-        }
-
-        var number = s[..endOfNumber];
-        var unit = s[endOfNumber..].Trim();
-        if (unit.IsEmpty)
-            throw new FormatException("The string does not contain a unit.");
-
-        switch (unit)
-        {
-            case "%":
-                lengthMode = EColumnUnit.Percent;
-                break;
-            case "*":
-                lengthMode = EColumnUnit.Part;
-                break;
-            case "px":
-            case "Px":
-            case "pX":
-            case "PX":
-                lengthMode = EColumnUnit.Pixel;
-                break;
-            case "auto":
-            case "autO":
-            case "auTo":
-            case "auTO":
-            case "aUto":
-            case "aUtO":
-            case "aUTo":
-            case "aUTO":
-            case "Auto":
-            case "AutO":
-            case "AuTo":
-            case "AuTO":
-            case "AUto":
-            case "AUtO":
-            case "AUTo":
-            case "AUTO":
-                lengthMode = EColumnUnit.Auto;
-                break;
-            default:
-                throw new NotSupportedException($"The unit '{unit}' is not supported.");
-        }
-
-        if (number.IsEmpty && lengthMode is not EColumnUnit.Auto && lengthMode is not EColumnUnit.Part)
-            throw new FormatException("The string does not contain a number.");
-        var value = number.IsEmpty ? 1F : float.Parse(number, provider);
-        if (lengthMode is EColumnUnit.Percent)
-            value /= 100.0F;
-        return new ColumnLength(value, lengthMode);
+        if (!TryParse(s, provider, out var result))
+            throw new FormatException($"The given string '{s.ToString()}' is not a valid {nameof(ColumnLength)}");
+        return result;
     }
 
     /// <summary>
@@ -222,16 +151,11 @@ public readonly record struct ColumnLength : ISpanParsable<ColumnLength>
     /// <returns></returns>
     public string ToString(IFormatProvider? provider)
     {
-        var unit = Unit switch
+        return Unit switch
         {
-            EColumnUnit.Auto => "auto",
-            EColumnUnit.Part => "*",
-            EColumnUnit.Percent => "%",
-            EColumnUnit.Pixel => "px",
-            _ => throw new InvalidEnumArgumentException(nameof(Unit), (int) Unit, typeof(EColumnUnit)),
+            EColumnUnit.Parts  => string.Format(provider, "{0}*", Value),
+            EColumnUnit.Lenght => Length?.ToString(provider) ?? throw new InvalidOperationException("Length is null"),
+            _                  => throw new InvalidEnumArgumentException(nameof(Unit), (int) Unit, typeof(EColumnUnit)),
         };
-        return Unit is EColumnUnit.Auto
-            ? unit
-            : $"{Value.ToString(provider)}{unit}";
     }
 }

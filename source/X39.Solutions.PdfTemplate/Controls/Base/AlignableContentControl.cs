@@ -5,10 +5,11 @@ namespace X39.Solutions.PdfTemplate.Controls.Base;
 /// <summary>
 /// Base class for alignable controls that can contain other controls.
 /// </summary>
-public abstract class AlignableContentControl : AlignableControl, IContentControl
+[PublicAPI]
+public abstract class AlignableContentControl : AlignableControl, IContentControl, IAsyncDisposable
 {
     private readonly List<IControl> _children = new();
-    
+
     /// <summary>
     /// The children of this content control.
     /// </summary>
@@ -43,4 +44,30 @@ public abstract class AlignableContentControl : AlignableControl, IContentContro
 
     /// <inheritdoc />
     public abstract bool CanAdd(Type type);
+
+    /// <summary>
+    /// Dispose pattern method, that can be overridden by derived classes.
+    /// </summary>
+    /// <remarks>
+    /// Always call the base implementation!
+    /// </remarks>
+    protected virtual async ValueTask DisposeAsyncCore()
+    {
+        foreach (var child in _children)
+        {
+            // ReSharper disable once SuspiciousTypeConversion.Global
+            if (child is IAsyncDisposable asyncDisposable)
+                await asyncDisposable.DisposeAsync().ConfigureAwait(false);
+            // ReSharper disable once SuspiciousTypeConversion.Global
+            else if (child is IDisposable disposable)
+                disposable.Dispose();
+        }
+    }
+
+    /// <inheritdoc />
+    public async ValueTask DisposeAsync()
+    {
+        await DisposeAsyncCore();
+        GC.SuppressFinalize(this);
+    }
 }

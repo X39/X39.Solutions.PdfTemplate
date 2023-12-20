@@ -6,22 +6,12 @@
 public enum EColumnUnit
 {
     /// <summary>
-    /// The size is automatically calculated.
-    /// </summary>
-    Auto,
-
-    /// <summary>
-    /// The size is in pixels.
-    /// </summary>
-    Pixel,
-
-    /// <summary>
     /// The size is in parts of the available space.
     /// </summary>
-    Part,
+    Parts,
 
     /// <summary>
-    /// The size is in percent of the available space.
+    /// The size is specified in <see cref="Length"/>.
     /// </summary>
-    Percent,
+    Lenght,
 }

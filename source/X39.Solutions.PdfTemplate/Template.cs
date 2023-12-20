@@ -3,9 +3,9 @@ using X39.Solutions.PdfTemplate.Xml;
 
 namespace X39.Solutions.PdfTemplate;
 
-internal class Template
+internal sealed class Template : IAsyncDisposable
 {
-    public Template(
+    private Template(
         IReadOnlyCollection<IControl> headerControls,
         IReadOnlyCollection<IControl> bodyControls,
         IReadOnlyCollection<IControl> footerControls)
@@ -20,25 +20,58 @@ internal class Template
     public IReadOnlyCollection<IControl> FooterControls { get; }
 
 
-    public static Template Create(XmlNodeInformation rootNode, ControlStorage cache, CultureInfo cultureInfo)
+    public static async Task<Template> CreateAsync(
+        XmlNodeInformation rootNode,
+        ControlStorage cache,
+        CultureInfo cultureInfo,
+        CancellationToken cancellationToken)
     {
         var headerControls = new List<IControl>();
         var bodyControls = new List<IControl>();
         var footerControls = new List<IControl>();
         if (rootNode["header", rootNode.NodeNamespace] is { } headerNode)
-            headerControls.AddRange(headerNode.Children.Select((node) => CreateControl(node, cache, cultureInfo)));
+        {
+            foreach (var node in headerNode.Children)
+            {
+                var control = await CreateControlAsync(node, cache, cultureInfo, cancellationToken)
+                    .ConfigureAwait(false);
+                headerControls.Add(control);
+            }
+        }
+
         if (rootNode["body", rootNode.NodeNamespace] is { } bodyNode)
-            bodyControls.AddRange(bodyNode.Children.Select((node) => CreateControl(node, cache, cultureInfo)));
+        {
+            foreach (var node in bodyNode.Children)
+            {
+                var control = await CreateControlAsync(node, cache, cultureInfo, cancellationToken)
+                    .ConfigureAwait(false);
+                bodyControls.Add(control);
+            }
+        }
+
         if (rootNode["footer", rootNode.NodeNamespace] is { } footerNode)
-            footerControls.AddRange(footerNode.Children.Select((node) => CreateControl(node, cache, cultureInfo)));
+        {
+            foreach (var node in footerNode.Children)
+            {
+                var control = await CreateControlAsync(node, cache, cultureInfo, cancellationToken)
+                    .ConfigureAwait(false);
+                footerControls.Add(control);
+            }
+        }
+
         return new Template(headerControls.AsReadOnly(), bodyControls.AsReadOnly(), footerControls.AsReadOnly());
     }
 
-    private static IControl CreateControl(XmlNodeInformation node, ControlStorage storage, CultureInfo cultureInfo)
+    private static async Task<IControl> CreateControlAsync(
+        XmlNodeInformation node,
+        ControlStorage storage,
+        CultureInfo cultureInfo,
+        CancellationToken cancellationToken)
     {
+        IControl? control = null;
         try
         {
-            var control = storage.Create(
+            control = storage.Create(
                 node.NodeNamespace,
                 node.NodeName,
                 node.Attributes,
@@ -57,7 +90,8 @@ internal class Template
                     IControl? childControl = null;
                     try
                     {
-                        childControl = CreateControl(child, storage, cultureInfo);
+                        childControl = await CreateControlAsync(child, storage, cultureInfo, cancellationToken)
+                            .ConfigureAwait(false);
                         var childType = childControl.GetType();
                         if (!contentControl.CanAdd(childType))
                             throw new ContentControlDoesNotSupportChild(
@@ -70,18 +104,70 @@ internal class Template
                     catch when (childControl is not null)
                     {
                         // ReSharper disable once SuspiciousTypeConversion.Global
-                        if (childControl is IDisposable disposable)
+                        if (childControl is IAsyncDisposable asyncDisposable)
+                            await asyncDisposable.DisposeAsync()
+                                .ConfigureAwait(false);
+                        // ReSharper disable once SuspiciousTypeConversion.Global
+                        else if (childControl is IDisposable disposable)
                             disposable.Dispose();
                         throw;
                     }
                 }
             }
 
+            // ReSharper disable once SuspiciousTypeConversion.Global
+            if (control is IInitializeAsync initializeAsync)
+                await initializeAsync.InitializeAsync(cancellationToken)
+                    .ConfigureAwait(false);
+
             return control;
         }
         catch (Exception ex)
         {
+            // ReSharper disable once SuspiciousTypeConversion.Global
+            if (control is IAsyncDisposable asyncDisposable)
+                await asyncDisposable.DisposeAsync()
+                    .ConfigureAwait(false);
+            // ReSharper disable once SuspiciousTypeConversion.Global
+            else if (control is IDisposable disposable)
+                disposable.Dispose();
             throw new FailedToCreateControlException(ex, node);
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        foreach (var headerControl in HeaderControls)
+        {
+            // ReSharper disable once SuspiciousTypeConversion.Global
+            if (headerControl is IAsyncDisposable asyncDisposable)
+                await asyncDisposable.DisposeAsync()
+                    .ConfigureAwait(false);
+            // ReSharper disable once SuspiciousTypeConversion.Global
+            else if (headerControl is IDisposable disposable)
+                disposable.Dispose();
+        }
+
+        foreach (var bodyControl in BodyControls)
+        {
+            // ReSharper disable once SuspiciousTypeConversion.Global
+            if (bodyControl is IAsyncDisposable asyncDisposable)
+                await asyncDisposable.DisposeAsync()
+                    .ConfigureAwait(false);
+            // ReSharper disable once SuspiciousTypeConversion.Global
+            else if (bodyControl is IDisposable disposable)
+                disposable.Dispose();
+        }
+
+        foreach (var footerControl in FooterControls)
+        {
+            // ReSharper disable once SuspiciousTypeConversion.Global
+            if (footerControl is IAsyncDisposable asyncDisposable)
+                await asyncDisposable.DisposeAsync()
+                    .ConfigureAwait(false);
+            // ReSharper disable once SuspiciousTypeConversion.Global
+            else if (footerControl is IDisposable disposable)
+                disposable.Dispose();
         }
     }
 }

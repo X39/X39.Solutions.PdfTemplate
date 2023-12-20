@@ -41,6 +41,7 @@ public class TableControlTest
         mockCanvas.AssertClip(4, new Rectangle(100, 0, 100, 100)); // td
         mockCanvas.AssertClip(5, new Rectangle(100, 0, 100, 100)); // line
     }
+
     [Fact]
     public async Task TableWith2X200PXLinesWillScaleToFullPageSize()
     {
@@ -68,6 +69,7 @@ public class TableControlTest
         mockCanvas.AssertClip(4, new Rectangle(100, 0, 100, 100)); // td
         mockCanvas.AssertClip(5, new Rectangle(100, 0, 2000, 100)); // line
     }
+
     [Fact]
     public async Task TableWith2X50PXLinesWillScaleToFullPageSize()
     {
@@ -95,6 +97,7 @@ public class TableControlTest
         mockCanvas.AssertClip(4, new Rectangle(100, 0, 100, 100)); // td
         mockCanvas.AssertClip(5, new Rectangle(100, 0, 50, 100)); // line
     }
+
     [Theory]
     [InlineData(1)]
     [InlineData(2)]
@@ -132,6 +135,7 @@ public class TableControlTest
             mockCanvas.AssertClip(2 + i, new Rectangle(width * i, 0, width, 0)); // td
         }
     }
+
     [Fact]
     public async Task TableWith2EmptyColsWillScaleToFullPageSizeEachColHalf()
     {
@@ -156,6 +160,7 @@ public class TableControlTest
         mockCanvas.AssertClip(2, new Rectangle(0, 0, 100, 0)); // td
         mockCanvas.AssertClip(3, new Rectangle(100, 0, 100, 0)); // td
     }
+
     [Fact]
     public async Task RightAlignedContentIsNotClippedAway()
     {
@@ -194,10 +199,11 @@ public class TableControlTest
         var root = await xmlTemplateReader.ReadAsync(xmlReader);
         var serviceCollection = new ServiceCollection();
         serviceCollection.AddPdfTemplateServices();
-        using var serviceProvider = serviceCollection.BuildServiceProvider();
+        await using var serviceProvider = serviceCollection.BuildServiceProvider();
         using var scope = serviceProvider.CreateScope();
         var controlStorage = new ControlStorage(serviceProvider.GetRequiredService<ControlExpressionCache>());
         controlStorage.AddDefaultControls();
-        return Template.Create(root, controlStorage, CultureInfo.InvariantCulture).BodyControls.OfType<T>().First();
+        var t = await Template.CreateAsync(root, controlStorage, CultureInfo.InvariantCulture, default);
+        return t.BodyControls.Cast<T>().First();
     }
 }

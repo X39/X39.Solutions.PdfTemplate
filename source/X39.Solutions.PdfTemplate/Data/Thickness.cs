@@ -34,14 +34,22 @@ public readonly record struct Thickness(Length Left, Length Top, Length Right, L
     /// Translates the thickness to a pixels rectangle.
     /// </summary>
     /// <param name="bounds">The bounds of the rectangle</param>
-    /// <param name="dpi">The DPI to use for the calculation in case of <see cref="ELengthMode.Points"/> in pixels</param>
+    /// <param name="dpi">The DPI to use for the calculation in case of <see cref="ELengthUnit.Points"/> in pixels</param>
     /// <returns>The translated rectangle</returns>
     public Rectangle ToRectangle(Rectangle bounds, float dpi)
     {
-        var left = Left.ToPixels(bounds.Width, dpi);
-        var top = Top.ToPixels(bounds.Height, dpi);
-        var right = Right.ToPixels(bounds.Width, dpi);
-        var bottom = Bottom.ToPixels(bounds.Height, dpi);
+        var left = Left.Unit is ELengthUnit.Auto
+            ? 0F
+            : Left.ToPixels(bounds.Width, dpi);
+        var top = Top.Unit is ELengthUnit.Auto
+            ? 0F
+            : Top.ToPixels(bounds.Height, dpi);
+        var right = Right.Unit is ELengthUnit.Auto
+            ? 0F
+            : Right.ToPixels(bounds.Width, dpi);
+        var bottom = Bottom.Unit is ELengthUnit.Auto
+            ? 0F
+            : Bottom.ToPixels(bounds.Height, dpi);
         return new Rectangle(
             left,
             top,
@@ -53,19 +61,27 @@ public readonly record struct Thickness(Length Left, Length Top, Length Right, L
     /// Translates the thickness to a pixels rectangle.
     /// </summary>
     /// <param name="bounds">The bounds of the rectangle</param>
-    /// <param name="dpi">The DPI to use for the calculation in case of <see cref="ELengthMode.Points"/> in pixels</param>
+    /// <param name="dpi">The DPI to use for the calculation in case of <see cref="ELengthUnit.Points"/> in pixels</param>
     /// <returns>The translated rectangle</returns>
     public Rectangle ToRectangle(Size bounds, float dpi)
     {
-        var left = Left.ToPixels(bounds.Width, dpi);
-        var top = Top.ToPixels(bounds.Height, dpi);
-        var width = Right.ToPixels(bounds.Width, dpi);
-        var height = Bottom.ToPixels(bounds.Height, dpi);
+        var left = Left.Unit is ELengthUnit.Auto
+            ? 0F
+            : Left.ToPixels(bounds.Width, dpi);
+        var top = Top.Unit is ELengthUnit.Auto
+            ? 0F
+            : Top.ToPixels(bounds.Height, dpi);
+        var right = Right.Unit is ELengthUnit.Auto
+            ? 0F
+            : Right.ToPixels(bounds.Width, dpi);
+        var bottom = Bottom.Unit is ELengthUnit.Auto
+            ? 0F
+            : Bottom.ToPixels(bounds.Height, dpi);
         return new Rectangle(
             left,
             top,
-            width,
-            height);
+            right,
+            bottom);
     }
 
     /// <inheritdoc />
@@ -117,15 +133,16 @@ public readonly record struct Thickness(Length Left, Length Top, Length Right, L
                 break;
             case 4:
                 left   = Length.Parse(s[..s.IndexOf(' ')], provider);
-                s = s[(s.IndexOf(' ') + 1)..];
+                s      = s[(s.IndexOf(' ') + 1)..];
                 top    = Length.Parse(s[..s.IndexOf(' ')], provider);
-                s = s[(s.IndexOf(' ') + 1)..];
+                s      = s[(s.IndexOf(' ') + 1)..];
                 right  = Length.Parse(s[..s.IndexOf(' ')], provider);
                 bottom = Length.Parse(s[(s.IndexOf(' ') + 1)..], provider);
                 break;
             default:
                 throw new FormatException($"The thickness '{s}' is not in the correct format.");
         }
+
         return new Thickness(left, top, right, bottom);
     }
 

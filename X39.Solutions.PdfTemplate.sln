@@ -28,6 +28,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "fonts", "fonts", "{AC1F6F58
 		test\fonts\Nunito_Sans\NunitoSans-VariableFont_YTLC,opsz,wdth,wght.ttf = test\fonts\Nunito_Sans\NunitoSans-VariableFont_YTLC,opsz,wdth,wght.ttf
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "images", "images", "{41BE3CC0-0C65-4D1A-AD6C-90B01D132C45}"
+	ProjectSection(SolutionItems) = preProject
+		test\images\X.jpg = test\images\X.jpg
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -47,6 +52,7 @@ Global
 		{C62AB41B-AC9D-4946-84D7-A22A63B28CF0} = {E290E22A-D697-4B30-A067-AF972686C3B5}
 		{54D29B97-100B-4494-BA96-DF9CBA107F8B} = {578183F3-B424-4D0B-9B6B-1F22FBDB80C8}
 		{B7C9C376-E1AA-46D0-90C6-D6BEAEB658EC} = {A16F2F3F-BF45-4A18-8E4A-31B800226E47}
-		{AC1F6F58-BADB-4BA3-80E6-A4F938455800} = {A16F2F3F-BF45-4A18-8E4A-31B800226E47}
+		{AC1F6F58-BADB-4BA3-80E6-A4F938455800} = {578183F3-B424-4D0B-9B6B-1F22FBDB80C8}
+		{41BE3CC0-0C65-4D1A-AD6C-90B01D132C45} = {578183F3-B424-4D0B-9B6B-1F22FBDB80C8}
 	EndGlobalSection
 EndGlobal
