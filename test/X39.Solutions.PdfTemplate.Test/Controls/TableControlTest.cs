@@ -17,16 +17,15 @@ public class TableControlTest
     [Fact]
     public async Task TableWith2X100PXLinesWillScaleToFullPageSize()
     {
-        var control = await CreateControl<TableControl>(
-            $$"""
-              <table>
-                  <tr>
-                      <td><line thickness="100px" length="100px"/></td>
-                      <td><line thickness="100px" length="100px"/></td>
-                  </tr>
-              </table>
-              """);
-        var pageSize = new Size(200, 200);
+        var control = await $$"""
+                              <table>
+                                  <tr>
+                                      <td><line thickness="100px" length="100px"/></td>
+                                      <td><line thickness="100px" length="100px"/></td>
+                                  </tr>
+                              </table>
+                              """.ToControl<TableControl>();
+        var pageSize   = new Size(200, 200);
         var mockCanvas = new CanvasMock();
         control.Measure(90, pageSize, pageSize, pageSize, CultureInfo.InvariantCulture);
         control.Arrange(90, pageSize, pageSize, pageSize, CultureInfo.InvariantCulture);
@@ -34,10 +33,10 @@ public class TableControlTest
         mockCanvas.AssertState();
         mockCanvas.AssertAllClip((rectangle) => rectangle is {Width: > 0, Height: > 0});
         // Assert that the two <td> elements take 50% of the width each
-        mockCanvas.AssertClip(0, new Rectangle(0, 0, 200, 100)); // table
-        mockCanvas.AssertClip(1, new Rectangle(0, 0, 200, 100)); // tr
-        mockCanvas.AssertClip(2, new Rectangle(0, 0, 100, 100)); // td
-        mockCanvas.AssertClip(3, new Rectangle(0, 0, 100, 100)); // line
+        mockCanvas.AssertClip(0, new Rectangle(0,   0, 200, 100)); // table
+        mockCanvas.AssertClip(1, new Rectangle(0,   0, 200, 100)); // tr
+        mockCanvas.AssertClip(2, new Rectangle(0,   0, 100, 100)); // td
+        mockCanvas.AssertClip(3, new Rectangle(0,   0, 100, 100)); // line
         mockCanvas.AssertClip(4, new Rectangle(100, 0, 100, 100)); // td
         mockCanvas.AssertClip(5, new Rectangle(100, 0, 100, 100)); // line
     }
@@ -45,16 +44,15 @@ public class TableControlTest
     [Fact]
     public async Task TableWith2X200PXLinesWillScaleToFullPageSize()
     {
-        var control = await CreateControl<TableControl>(
-            $$"""
-              <table>
-                  <tr>
-                      <td><line thickness="100px" length="2000px"/></td>
-                      <td><line thickness="100px" length="2000px"/></td>
-                  </tr>
-              </table>
-              """);
-        var pageSize = new Size(200, 200);
+        var control = await $$"""
+                              <table>
+                                  <tr>
+                                      <td><line thickness="100px" length="2000px"/></td>
+                                      <td><line thickness="100px" length="2000px"/></td>
+                                  </tr>
+                              </table>
+                              """.ToControl<TableControl>();
+        var pageSize   = new Size(200, 200);
         var mockCanvas = new CanvasMock();
         control.Measure(90, pageSize, pageSize, pageSize, CultureInfo.InvariantCulture);
         control.Arrange(90, pageSize, pageSize, pageSize, CultureInfo.InvariantCulture);
@@ -62,27 +60,26 @@ public class TableControlTest
         mockCanvas.AssertState();
         mockCanvas.AssertAllClip((rectangle) => rectangle is {Width: > 0, Height: > 0});
         // Assert that the two <td> elements take 50% of the width each
-        mockCanvas.AssertClip(0, new Rectangle(0, 0, 200, 100)); // table
-        mockCanvas.AssertClip(1, new Rectangle(0, 0, 200, 100)); // tr
-        mockCanvas.AssertClip(2, new Rectangle(0, 0, 100, 100)); // td
-        mockCanvas.AssertClip(3, new Rectangle(0, 0, 2000, 100)); // line
-        mockCanvas.AssertClip(4, new Rectangle(100, 0, 100, 100)); // td
+        mockCanvas.AssertClip(0, new Rectangle(0,   0, 200,  100)); // table
+        mockCanvas.AssertClip(1, new Rectangle(0,   0, 200,  100)); // tr
+        mockCanvas.AssertClip(2, new Rectangle(0,   0, 100,  100)); // td
+        mockCanvas.AssertClip(3, new Rectangle(0,   0, 2000, 100)); // line
+        mockCanvas.AssertClip(4, new Rectangle(100, 0, 100,  100)); // td
         mockCanvas.AssertClip(5, new Rectangle(100, 0, 2000, 100)); // line
     }
 
     [Fact]
     public async Task TableWith2X50PXLinesWillScaleToFullPageSize()
     {
-        var control = await CreateControl<TableControl>(
-            $$"""
-              <table>
-                  <tr>
-                      <td><line thickness="100px" length="50px"/></td>
-                      <td><line thickness="100px" length="50px"/></td>
-                  </tr>
-              </table>
-              """);
-        var pageSize = new Size(200, 200);
+        var control = await $$"""
+                              <table>
+                                  <tr>
+                                      <td><line thickness="100px" length="50px"/></td>
+                                      <td><line thickness="100px" length="50px"/></td>
+                                  </tr>
+                              </table>
+                              """.ToControl<TableControl>();
+        var pageSize   = new Size(200, 200);
         var mockCanvas = new CanvasMock();
         control.Measure(90, pageSize, pageSize, pageSize, CultureInfo.InvariantCulture);
         control.Arrange(90, pageSize, pageSize, pageSize, CultureInfo.InvariantCulture);
@@ -90,12 +87,12 @@ public class TableControlTest
         mockCanvas.AssertState();
         mockCanvas.AssertAllClip((rectangle) => rectangle is {Width: > 0, Height: > 0});
         // Assert that the two <td> elements take 50% of the width each
-        mockCanvas.AssertClip(0, new Rectangle(0, 0, 200, 100)); // table
-        mockCanvas.AssertClip(1, new Rectangle(0, 0, 200, 100)); // tr
-        mockCanvas.AssertClip(2, new Rectangle(0, 0, 100, 100)); // td
-        mockCanvas.AssertClip(3, new Rectangle(0, 0, 50, 100)); // line
+        mockCanvas.AssertClip(0, new Rectangle(0,   0, 200, 100)); // table
+        mockCanvas.AssertClip(1, new Rectangle(0,   0, 200, 100)); // tr
+        mockCanvas.AssertClip(2, new Rectangle(0,   0, 100, 100)); // td
+        mockCanvas.AssertClip(3, new Rectangle(0,   0, 50,  100)); // line
         mockCanvas.AssertClip(4, new Rectangle(100, 0, 100, 100)); // td
-        mockCanvas.AssertClip(5, new Rectangle(100, 0, 50, 100)); // line
+        mockCanvas.AssertClip(5, new Rectangle(100, 0, 50,  100)); // line
     }
 
     [Theory]
@@ -110,17 +107,16 @@ public class TableControlTest
     [InlineData(10)]
     public async Task TableWithEmptyColsWillScaleToFullPageSizeInSum(int amount)
     {
-        var control = await CreateControl<TableControl>(
-            $$"""
-              <table>
-                  <tr>
-                    @for i from 0 to {{amount}} {
-                        <td></td>
-                      }
-                  </tr>
-              </table>
-              """);
-        var pageSize = new Size(200, 200);
+        var control = await $$"""
+                              <table>
+                                  <tr>
+                                    @for i from 0 to {{amount}} {
+                                        <td></td>
+                                      }
+                                  </tr>
+                              </table>
+                              """.ToControl<TableControl>();
+        var pageSize   = new Size(200, 200);
         var mockCanvas = new CanvasMock();
         control.Measure(90, pageSize, pageSize, pageSize, CultureInfo.InvariantCulture);
         control.Arrange(90, pageSize, pageSize, pageSize, CultureInfo.InvariantCulture);
@@ -139,71 +135,47 @@ public class TableControlTest
     [Fact]
     public async Task TableWith2EmptyColsWillScaleToFullPageSizeEachColHalf()
     {
-        var control = await CreateControl<TableControl>(
-            $$"""
-              <table>
-                  <tr>
-                      <td></td>
-                      <td></td>
-                  </tr>
-              </table>
-              """);
-        var pageSize = new Size(200, 200);
+        var control = await $$"""
+                              <table>
+                                  <tr>
+                                      <td></td>
+                                      <td></td>
+                                  </tr>
+                              </table>
+                              """.ToControl<TableControl>();
+        var pageSize   = new Size(200, 200);
         var mockCanvas = new CanvasMock();
         control.Measure(90, pageSize, pageSize, pageSize, CultureInfo.InvariantCulture);
         control.Arrange(90, pageSize, pageSize, pageSize, CultureInfo.InvariantCulture);
         control.Render(mockCanvas, 90, pageSize, CultureInfo.InvariantCulture);
         mockCanvas.AssertState();
         // Assert that the two <td> elements take 50% of the width each
-        mockCanvas.AssertClip(0, new Rectangle(0, 0, 200, 0)); // table
-        mockCanvas.AssertClip(1, new Rectangle(0, 0, 200, 0)); // tr
-        mockCanvas.AssertClip(2, new Rectangle(0, 0, 100, 0)); // td
+        mockCanvas.AssertClip(0, new Rectangle(0,   0, 200, 0)); // table
+        mockCanvas.AssertClip(1, new Rectangle(0,   0, 200, 0)); // tr
+        mockCanvas.AssertClip(2, new Rectangle(0,   0, 100, 0)); // td
         mockCanvas.AssertClip(3, new Rectangle(100, 0, 100, 0)); // td
     }
 
     [Fact]
     public async Task RightAlignedContentIsNotClippedAway()
     {
-        var control = await CreateControl<TableControl>(
-            $$"""
-                <table>
-                    <tr>
-                     	<td><line horizontalAlignment="right" length="20px" thickness="20px"/></td>
-                    </tr>
-                </table>
-              """);
-        var pageSize = new Size(200, 200);
+        var control = await $$"""
+                                <table>
+                                    <tr>
+                                     	<td><line horizontalAlignment="right" length="20px" thickness="20px"/></td>
+                                    </tr>
+                                </table>
+                              """.ToControl<TableControl>();
+        var pageSize   = new Size(200, 200);
         var mockCanvas = new CanvasMock();
         control.Measure(90, pageSize, pageSize, pageSize, CultureInfo.InvariantCulture);
         control.Arrange(90, pageSize, pageSize, pageSize, CultureInfo.InvariantCulture);
         control.Render(mockCanvas, 90, pageSize, CultureInfo.InvariantCulture);
         mockCanvas.AssertState();
         // Assert that the two <td> elements take 50% of the width each
-        mockCanvas.AssertClip(0, new Rectangle(0, 0, 200, 20)); // table
-        mockCanvas.AssertClip(1, new Rectangle(0, 0, 200, 20)); // tr
-        mockCanvas.AssertClip(2, new Rectangle(0, 0, 200, 20)); // td
-        mockCanvas.AssertClip(3, new Rectangle(180, 0, 20, 20)); // line
-    }
-
-    private async Task<T> CreateControl<T>([LanguageInjection(InjectedLanguage.XML)] string template) where T : IControl
-    {
-        template = string.Concat(
-            $"<?xml version=\"1.0\" encoding=\"utf-8\"?><template xmlns=\"{Constants.ControlsNamespace}\"><body>",
-            template,
-            "</body></template>");
-        using var xmlStream = new MemoryStream(Encoding.UTF8.GetBytes(template));
-        using var xmlReader = XmlReader.Create(xmlStream);
-        ITemplateData templateData = new TemplateData();
-        var transformers = new TransformerList().AddDefaultTransformers();
-        using var xmlTemplateReader = new XmlTemplateReader(CultureInfo.InvariantCulture, templateData, transformers);
-        var root = await xmlTemplateReader.ReadAsync(xmlReader);
-        var serviceCollection = new ServiceCollection();
-        serviceCollection.AddPdfTemplateServices();
-        await using var serviceProvider = serviceCollection.BuildServiceProvider();
-        using var scope = serviceProvider.CreateScope();
-        var controlStorage = new ControlStorage(serviceProvider.GetRequiredService<ControlExpressionCache>());
-        controlStorage.AddDefaultControls();
-        var t = await Template.CreateAsync(root, controlStorage, CultureInfo.InvariantCulture, default);
-        return t.BodyControls.Cast<T>().First();
+        mockCanvas.AssertClip(0, new Rectangle(0,   0, 200, 20)); // table
+        mockCanvas.AssertClip(1, new Rectangle(0,   0, 200, 20)); // tr
+        mockCanvas.AssertClip(2, new Rectangle(0,   0, 200, 20)); // td
+        mockCanvas.AssertClip(3, new Rectangle(180, 0, 20,  20)); // line
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Numerics;
 
@@ -8,6 +9,8 @@ namespace X39.Solutions.PdfTemplate.Data;
 /// Wrapper for <see cref="ushort"/> to represent a font weight.
 /// </summary>
 /// <param name="Value">The value of the font weight.</param>
+[TypeConverter(typeof(FontWeightConverter))]
+[PublicAPI]
 public readonly record struct FontWeight(ushort Value) : INumber<FontWeight>
 {
     /// <summary>
@@ -328,4 +331,10 @@ public readonly record struct FontWeight(ushort Value) : INumber<FontWeight>
 
     /// <inheritdoc />
     public static FontWeight Zero => default;
+
+    /// <inheritdoc />
+    public override string ToString()
+    {
+        return Value.ToString(CultureInfo.InvariantCulture);
+    }
 }
