@@ -16,12 +16,12 @@ public abstract class SampleBase : IAsyncDisposable
         _serviceProvider = serviceCollection.BuildServiceProvider();
     }
 
-    public Generator CreateGenerator()
+    public Generator CreateGenerator(params IFunction[] functions)
     {
         var generator = new Generator(
             _serviceProvider.GetRequiredService<SkPaintCache>(),
             _serviceProvider.GetRequiredService<ControlExpressionCache>(),
-            Enumerable.Empty<IFunction>());
+            functions);
         generator.AddDefaults();
         return generator;
     }

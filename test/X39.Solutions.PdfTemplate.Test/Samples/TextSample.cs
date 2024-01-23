@@ -30,6 +30,36 @@ public class TextSample : SampleBase
             xmlReader,
             CultureInfo.InvariantCulture);
     }
+    
+    [Fact]
+    public async Task NamedFontWeights()
+    {
+        using var generator = CreateGenerator();
+        using var xmlStream = new MemoryStream(
+            Encoding.UTF8.GetBytes(
+                $$"""
+                  <?xml version="1.0" encoding="utf-8"?>
+                  <template xmlns="{{Constants.ControlsNamespace}}">
+                      <body>
+                         <text weight="thin">Thin</text>
+                            <text weight="extraLight">Extra Light</text>
+                            <text weight="light">Light</text>
+                            <text weight="normal">Normal</text>
+                            <text weight="medium">Medium</text>
+                            <text weight="semiBold">Semi Bold</text>
+                            <text weight="bold">Bold</text>
+                            <text weight="extraBold">Extra Bold</text>
+                            <text weight="black">Black</text>
+                      </body>
+                  </template>
+                  """));
+        using var disposable = CreateStream(out var pdfStream);
+        using var xmlReader = XmlReader.Create(xmlStream);
+        await generator.GeneratePdfAsync(
+            pdfStream,
+            xmlReader,
+            CultureInfo.InvariantCulture);
+    }
 
     [Fact]
     public async Task ForLoop100LinesA()
@@ -203,4 +233,6 @@ public class TextSample : SampleBase
             xmlReader,
             CultureInfo.InvariantCulture);
     }
+    
+    
 }

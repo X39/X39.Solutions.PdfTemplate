@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.Text;
 using System.Xml;
+using X39.Solutions.PdfTemplate.Test.ExpressionTests;
 
 namespace X39.Solutions.PdfTemplate.Test.Samples;
 
@@ -34,13 +35,16 @@ public class TableSample : SampleBase
                          </table>
                       </body>
                   </template>
-                  """));
+                  """
+            )
+        );
         using var disposable = CreateStream(out var pdfStream);
-        using var xmlReader = XmlReader.Create(xmlStream);
+        using var xmlReader  = XmlReader.Create(xmlStream);
         await generator.GeneratePdfAsync(
             pdfStream,
             xmlReader,
-            CultureInfo.InvariantCulture);
+            CultureInfo.InvariantCulture
+        );
     }
 
     [Fact]
@@ -71,13 +75,16 @@ public class TableSample : SampleBase
                          </table>
                       </body>
                   </template>
-                  """));
+                  """
+            )
+        );
         using var disposable = CreateStream(out var pdfStream);
-        using var xmlReader = XmlReader.Create(xmlStream);
+        using var xmlReader  = XmlReader.Create(xmlStream);
         await generator.GeneratePdfAsync(
             pdfStream,
             xmlReader,
-            CultureInfo.InvariantCulture);
+            CultureInfo.InvariantCulture
+        );
     }
 
     [Fact]
@@ -114,12 +121,72 @@ public class TableSample : SampleBase
                           <text margin="0 5% 0 0">More text in the footer</text>
                       </footer>
                   </template>
-                  """));
+                  """
+            )
+        );
         using var disposable = CreateStream(out var pdfStream);
-        using var xmlReader = XmlReader.Create(xmlStream);
+        using var xmlReader  = XmlReader.Create(xmlStream);
         await generator.GeneratePdfAsync(
             pdfStream,
             xmlReader,
-            CultureInfo.InvariantCulture);
+            CultureInfo.InvariantCulture
+        );
+    }
+
+    [Fact]
+    public async Task SomeSampleForInventoryKeeping()
+    {
+        var random = new Random();
+        using var generator = CreateGenerator(
+            new DummyValueFunction(
+                "rnd",
+                (para) =>
+                {
+                    if (para.Length != 2)
+                        throw new ArgumentException("Invalid arguments.", nameof(para));
+                    if (para[0] is not int para1 || para[1] is not int para2)
+                        throw new ArgumentException("Invalid arguments.", nameof(para));
+                    return random.Next(para1, para2);
+                },
+            new[] {typeof(int), typeof(int)}));
+        using var xmlStream = new MemoryStream(
+            Encoding.UTF8.GetBytes(
+                $$"""
+                  <?xml version="1.0" encoding="utf-8"?>
+                  <template xmlns="{{Constants.ControlsNamespace}}">
+                      <body>
+                        <table>
+                            <th>
+                                <th.style>
+                                    <text fontsize="20" weight="bold"/>
+                                </th.style>
+                                <td width="1*"><text>Storage</text></td>
+                                <td width="auto"><text>Item</text></td>
+                                <td width="auto"><text>Expected</text></td>
+                                <td width="auto"><text>Difference</text></td>
+                                <td width="auto"><text>Actual</text></td>
+                            </th>
+                            @for i from 0 to 100 {
+                                <tr>
+                                    <td><text>Box @i</text></td>
+                                    <td><text>Item @rnd(1000, 100000)</text></td>
+                                    <td><text>@rnd(1, 100)</text></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                            }
+                        </table>
+                      </body>
+                  </template>
+                  """
+            )
+        );
+        using var disposable = CreateStream(out var pdfStream);
+        using var xmlReader  = XmlReader.Create(xmlStream);
+        await generator.GeneratePdfAsync(
+            pdfStream,
+            xmlReader,
+            CultureInfo.InvariantCulture
+        );
     }
 }
