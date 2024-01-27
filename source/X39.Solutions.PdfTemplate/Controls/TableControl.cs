@@ -252,9 +252,10 @@ public sealed class TableControl : AlignableContentControl
 
         foreach (var control in Children.OfType<TableRowControl>())
         {
-            if (height + control.Arrangement.Height > parentSize.Height)
+            var remainingPageHeight = canvas.GetRemainingPageHeight(parentSize.Height);
+            if (control.Arrangement.Height > remainingPageHeight)
             {
-                var delta = parentSize.Height - height;
+                var delta = remainingPageHeight;
                 canvas.Translate(0, delta);
                 height = 0F;
                 foreach (var headerControl in headers)

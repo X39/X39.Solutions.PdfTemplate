@@ -9,6 +9,15 @@ namespace X39.Solutions.PdfTemplate.Abstraction;
 public interface ICanvas
 {
     /// <summary>
+    /// Represents the current translation of the canvas.
+    /// </summary>
+    /// <remarks>
+    /// The translation is a <see cref="Point"/> value that represents the current position of the canvas.
+    /// It specifies the distance to move all subsequent drawing operations on the canvas.
+    /// </remarks>
+    public Point Translation { get; }
+    
+    /// <summary>
     /// This call saves the current matrix, clip, and draw filter,
     /// and pushes a copy onto a private stack.
     /// Subsequent calls to translate, scale, rotate, skew, concatenate or clipping path or drawing filter

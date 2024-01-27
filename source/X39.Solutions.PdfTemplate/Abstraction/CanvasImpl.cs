@@ -9,6 +9,11 @@ internal sealed class CanvasImpl : ICanvas
     private readonly SkPaintCache           _paintCache;
     private readonly List<Action<SKCanvas>> _drawActions = new();
 
+    // We want to allow ~20 levels of nesting without a reallocation.
+    private const    int          DefaultStackCapacity = 20 + 1;
+    private readonly Stack<Point> _stateStack          = new(DefaultStackCapacity);
+    public           Point        Translation => _stateStack.Count is not 0 ? _stateStack.Peek() : new Point();
+
     public CanvasImpl(SkPaintCache paintCache)
     {
         _paintCache = paintCache;
@@ -24,6 +29,7 @@ internal sealed class CanvasImpl : ICanvas
 
     public void PushState()
     {
+        _stateStack.Push(Translation);
         _drawActions.Add((canvas) => canvas.Save());
     }
 
@@ -43,11 +49,15 @@ internal sealed class CanvasImpl : ICanvas
 
     public void Translate(Point point)
     {
+        var translation = Translation + point;
+        _stateStack.Pop();
+        _stateStack.Push(translation);
         _drawActions.Add((canvas) => canvas.Translate(point));
     }
 
     public void PopState()
     {
+        _stateStack.Pop();
         _drawActions.Add((canvas) => canvas.Restore());
     }
 

@@ -39,7 +39,7 @@ public partial class CanvasMock : ICanvas
     }
 
 
-    private Point Translation => _stateStack.Any() ? _stateStack.Peek().Translation : new Point();
+    public Point Translation => _stateStack.Any() ? _stateStack.Peek().Translation : new Point();
 
     private readonly Stack<State>       _stateStack    = new(new State().MakeEnumerable());
     private readonly List<DrawLineCall> _drawLineCalls = new();
