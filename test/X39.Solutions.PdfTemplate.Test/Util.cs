@@ -10,6 +10,12 @@ namespace X39.Solutions.PdfTemplate.Test;
 
 public static class Util
 {
+    public static void ApplyForEach<TKey, TValue>(this IDictionary<TKey, TValue> self, Func<TKey, TValue, TValue> action)
+    {
+        foreach (var key in self.Keys)
+            self[key] = action(key, self[key]);
+    }
+    
     public static async Task<T> ToControl<T>([LanguageInjection(InjectedLanguage.XML)] this string template)
         where T : IControl
     {
@@ -30,6 +36,7 @@ public static class Util
         using var scope = serviceProvider.CreateScope();
         var controlStorage = new ControlStorage(serviceProvider.GetRequiredService<ControlExpressionCache>());
         controlStorage.AddDefaultControls();
+        controlStorage.AddControl<MockControl>();
         var t = await Template.CreateAsync(root, controlStorage, CultureInfo.InvariantCulture, default);
         return t.BodyControls.Cast<T>().First();
     }

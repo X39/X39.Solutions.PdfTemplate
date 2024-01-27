@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using X39.Solutions.PdfTemplate.Services;
+using X39.Solutions.PdfTemplate.Test.Mock;
 using X39.Util;
 
 namespace X39.Solutions.PdfTemplate.Test.Samples;
@@ -23,6 +24,7 @@ public abstract class SampleBase : IAsyncDisposable
             _serviceProvider.GetRequiredService<ControlExpressionCache>(),
             functions);
         generator.AddDefaults();
+        generator.AddControl<MockControl>();
         return generator;
     }
 
