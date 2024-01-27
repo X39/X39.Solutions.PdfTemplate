@@ -262,8 +262,7 @@ public abstract class Control : IControl
     {
         var padding = Padding.ToRectangle(parentSize, dpi);
         var margin = Margin.ToRectangle(parentSize, dpi);
-        canvas.PushState();
-        try
+        using (canvas.CreateState())
         {
             var arrangedSize = new Size(
                 parentSize.Width - padding.Width - padding.Width - margin.Width - margin.Width,
@@ -273,10 +272,6 @@ public abstract class Control : IControl
                 canvas.Clip(Arrangement);
             canvas.Translate(ArrangementInner);
             DoRender(canvas, dpi, arrangedSize, cultureInfo);
-        }
-        finally
-        {
-            canvas.PopState();
         }
     }
 

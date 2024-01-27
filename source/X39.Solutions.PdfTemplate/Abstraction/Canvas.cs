@@ -3,6 +3,7 @@
 /// <summary>
 /// Canvas extension methods.
 /// </summary>
+[PublicAPI]
 public static class Canvas
 {
     /// <summary>

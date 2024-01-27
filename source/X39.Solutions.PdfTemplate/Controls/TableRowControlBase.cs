@@ -101,15 +101,15 @@ public abstract class TableRowControlBase : AlignableContentControl
     protected override void DoRender(ICanvas canvas, float dpi, in Size parentSize, CultureInfo cultureInfo)
     {
         if (Table is null) throw new InvalidOperationException("A TableRowControl must be added to a TableControl");
-        canvas.PushState();
-        foreach (var (control, index) in Children.OfType<TableCellControl>().Indexed())
+        using (canvas.CreateState())
         {
-            control.Render(canvas, dpi, parentSize, cultureInfo);
-            var (width, _) = Table.CellWidths[index];
-            canvas.Translate(width, 0);
+            foreach (var (control, index) in Children.OfType<TableCellControl>().Indexed())
+            {
+                control.Render(canvas, dpi, parentSize, cultureInfo);
+                var (width, _) = Table.CellWidths[index];
+                canvas.Translate(width, 0);
+            }
         }
-
-        canvas.PopState();
     }
 
     /// <inheritdoc />

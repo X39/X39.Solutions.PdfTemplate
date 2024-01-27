@@ -269,34 +269,34 @@ public sealed class Generator : IDisposable, IAsyncDisposable, IAddControls, IAd
         #region Render
 
         var headerCanvasAbstraction = new CanvasImpl(_skPaintCache);
-        headerCanvasAbstraction.PushState();
-        foreach (var (control, size) in template.HeaderControls.Zip(headerSizes))
+        using (headerCanvasAbstraction.CreateState())
         {
-            control.Render(headerCanvasAbstraction, options.DotsPerInch, headerPageSize, cultureInfo);
-            headerCanvasAbstraction.Translate(0F, size.Height);
+            foreach (var (control, size) in template.HeaderControls.Zip(headerSizes))
+            {
+                control.Render(headerCanvasAbstraction, options.DotsPerInch, headerPageSize, cultureInfo);
+                headerCanvasAbstraction.Translate(0F, size.Height);
+            }
         }
-
-        headerCanvasAbstraction.PopState();
 
         var bodyCanvasAbstraction = new CanvasImpl(_skPaintCache);
-        bodyCanvasAbstraction.PushState();
-        foreach (var (control, size) in template.BodyControls.Zip(bodySizes))
+        using (bodyCanvasAbstraction.CreateState())
         {
-            control.Render(bodyCanvasAbstraction, options.DotsPerInch, bodyPageSize, cultureInfo);
-            bodyCanvasAbstraction.Translate(0F, size.Height);
+            foreach (var (control, size) in template.BodyControls.Zip(bodySizes))
+            {
+                control.Render(bodyCanvasAbstraction, options.DotsPerInch, bodyPageSize, cultureInfo);
+                bodyCanvasAbstraction.Translate(0F, size.Height);
+            }
         }
-
-        bodyCanvasAbstraction.PopState();
 
         var footerCanvasAbstraction = new CanvasImpl(_skPaintCache);
-        footerCanvasAbstraction.PushState();
-        foreach (var (control, size) in template.FooterControls.Zip(footerSizes))
+        using (footerCanvasAbstraction.CreateState())
         {
-            control.Render(footerCanvasAbstraction, options.DotsPerInch, footerPageSize, cultureInfo);
-            footerCanvasAbstraction.Translate(0F, size.Height);
+            foreach (var (control, size) in template.FooterControls.Zip(footerSizes))
+            {
+                control.Render(footerCanvasAbstraction, options.DotsPerInch, footerPageSize, cultureInfo);
+                footerCanvasAbstraction.Translate(0F, size.Height);
+            }
         }
-
-        footerCanvasAbstraction.PopState();
 
         var desiredHeight = headerSizes.Sum((q) => q.Height) + bodySizes.Sum((q) => q.Height) +
                             footerSizes.Sum((q) => q.Height);
