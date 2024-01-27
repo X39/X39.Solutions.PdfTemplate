@@ -101,6 +101,9 @@ public class TableSample : SampleBase
                           <line thickness="1px" length="100%"/>
                       </header>
                       <body>
+                         <text>This is some random text placed above the table 3 times</text>
+                         <text>This is some random text placed above the table 3 times</text>
+                         <text>This is some random text placed above the table 3 times</text>
                          <table>
                              <th>
                                  <td><text>Header 1</text></td>
@@ -115,6 +118,9 @@ public class TableSample : SampleBase
                                  </tr>
                              }
                          </table>
+                         <text>This is some random text placed below the table 3 times</text>
+                         <text>This is some random text placed below the table 3 times</text>
+                         <text>This is some random text placed below the table 3 times</text>
                       </body>
                       <footer>
                           <line thickness="1px" length="100%"/>
