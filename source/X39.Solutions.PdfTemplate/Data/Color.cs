@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.Globalization;
 using SkiaSharp;
 
 namespace X39.Solutions.PdfTemplate.Data;
@@ -143,140 +144,84 @@ public readonly record struct Color(byte Red, byte Green, byte Blue, byte Alpha 
     /// <inheritdoc />
     public static Color Parse(ReadOnlySpan<char> s, IFormatProvider? provider)
     {
-        if (s.Length > 0 && s[0] is '#')
-            s = s[1..];
-        if (uint.TryParse(s, provider, out var value))
-            return new Color(value);
-        var str = s.ToString().ToLowerInvariant();
-        return str switch
-        {
-            "black"                => Colors.Black,
-            "white"                => Colors.White,
-            "red"                  => Colors.Red,
-            "green"                => Colors.Green,
-            "blue"                 => Colors.Blue,
-            "yellow"               => Colors.Yellow,
-            "cyan"                 => Colors.Cyan,
-            "magenta"              => Colors.Magenta,
-            "transparent"          => Colors.Transparent,
-            "lightgray"            => Colors.LightGray,
-            "darkgray"             => Colors.DarkGray,
-            "gray"                 => Colors.Gray,
-            "orange"               => Colors.Orange,
-            "brown"                => Colors.Brown,
-            "pink"                 => Colors.Pink,
-            "purple"               => Colors.Purple,
-            "transparentblack"     => Colors.TransparentBlack,
-            "transparentwhite"     => Colors.TransparentWhite,
-            "cornflowerblue"       => Colors.CornflowerBlue,
-            "lightskyblue"         => Colors.LightSkyBlue,
-            "lightsteelblue"       => Colors.LightSteelBlue,
-            "royalblue"            => Colors.RoyalBlue,
-            "midnightblue"         => Colors.MidnightBlue,
-            "darkblue"             => Colors.DarkBlue,
-            "mediumblue"           => Colors.MediumBlue,
-            "blueviolet"           => Colors.BlueViolet,
-            "indigo"               => Colors.Indigo,
-            "darkslateblue"        => Colors.DarkSlateBlue,
-            "slateblue"            => Colors.SlateBlue,
-            "mediumslateblue"      => Colors.MediumSlateBlue,
-            "mediumpurple"         => Colors.MediumPurple,
-            "darkorchid"           => Colors.DarkOrchid,
-            "darkviolet"           => Colors.DarkViolet,
-            "darkmagenta"          => Colors.DarkMagenta,
-            "mediumorchid"         => Colors.MediumOrchid,
-            "thistle"              => Colors.Thistle,
-            "plum"                 => Colors.Plum,
-            "violet"               => Colors.Violet,
-            "orchid"               => Colors.Orchid,
-            "mediumvioletred"      => Colors.MediumVioletRed,
-            "palevioletred"        => Colors.PaleVioletRed,
-            "deeppink"             => Colors.DeepPink,
-            "hotpink"              => Colors.HotPink,
-            "lightpink"            => Colors.LightPink,
-            "antiquewhite"         => Colors.AntiqueWhite,
-            "beige"                => Colors.Beige,
-            "bisque"               => Colors.Bisque,
-            "blanchedalmond"       => Colors.BlanchedAlmond,
-            "wheat"                => Colors.Wheat,
-            "cornsilk"             => Colors.Cornsilk,
-            "lemonchiffon"         => Colors.LemonChiffon,
-            "lightgoldenrodyellow" => Colors.LightGoldenrodYellow,
-            "lightyellow"          => Colors.LightYellow,
-            "saddlebrown"          => Colors.SaddleBrown,
-            "sienna"               => Colors.Sienna,
-            "chocolate"            => Colors.Chocolate,
-            "peru"                 => Colors.Peru,
-            "sandybrown"           => Colors.SandyBrown,
-            "burlywood"            => Colors.BurlyWood,
-            "tan"                  => Colors.Tan,
-            "rosybrown"            => Colors.RosyBrown,
-            "moccasin"             => Colors.Moccasin,
-            "navajowhite"          => Colors.NavajoWhite,
-            "peachpuff"            => Colors.PeachPuff,
-            "mistyrose"            => Colors.MistyRose,
-            "lavenderblush"        => Colors.LavenderBlush,
-            "linen"                => Colors.Linen,
-            "oldlace"              => Colors.OldLace,
-            "papayawhip"           => Colors.PapayaWhip,
-            "seashell"             => Colors.SeaShell,
-            "mintcream"            => Colors.MintCream,
-            "slategray"            => Colors.SlateGray,
-            "lightslategray"       => Colors.LightSlateGray,
-            "lavender"             => Colors.Lavender,
-            "floralwhite"          => Colors.FloralWhite,
-            "aliceblue"            => Colors.AliceBlue,
-            "ghostwhite"           => Colors.GhostWhite,
-            "honeydew"             => Colors.Honeydew,
-            "ivory"                => Colors.Ivory,
-            "azure"                => Colors.Azure,
-            "snow"                 => Colors.Snow,
-            "dimgray"              => Colors.DimGray,
-            "silver"               => Colors.Silver,
-            "gainsboro"            => Colors.Gainsboro,
-            "whitesmoke"           => Colors.WhiteSmoke,
-            _ => throw new FormatException($"The string '{s}' is not a valid color.")
-        };
+        if (TryParse(s, provider, out var result))
+            return result;
+        throw new FormatException($"The string '{s}' is not a valid color.");
     }
 
     /// <inheritdoc />
-    public static bool TryParse(ReadOnlySpan<char> s, IFormatProvider? provider, out Color result)
+    public static unsafe bool TryParse(ReadOnlySpan<char> s, IFormatProvider? provider, out Color result)
     {
         if (s.Length > 0 && s[0] is '#')
             s = s[1..];
-        if (uint.TryParse(s, provider, out var value))
-        {
-            result = new Color(value);
-            return true;
-        }
 
-        var str = s.ToString().ToLowerInvariant();
-        var tmp = str switch
+        switch (s.Length)
         {
-            "black"       => Colors.Black,
-            "white"       => Colors.White,
-            "red"         => Colors.Red,
-            "green"       => Colors.Green,
-            "blue"        => Colors.Blue,
-            "yellow"      => Colors.Yellow,
-            "cyan"        => Colors.Cyan,
-            "magenta"     => Colors.Magenta,
-            "transparent" => Colors.Transparent,
-            "lightgray"   => Colors.LightGray,
-            "darkgray"    => Colors.DarkGray,
-            "gray"        => Colors.Gray,
-            "orange"      => Colors.Orange,
-            "brown"       => Colors.Brown,
-            "pink"        => Colors.Pink,
-            "purple"      => Colors.Purple,
-            _             => default(Color?),
-        };
-        if (tmp is not null)
-        {
-            result = tmp.Value;
-            return true;
+            case 3:
+            {
+                var r = s[0];
+                var g = s[1];
+                var b = s[2];
+                var tmp = stackalloc char[]
+                {
+                    r, r,
+                    g, g,
+                    b, b,
+                    'F', 'F',
+                };
+                if (uint.TryParse(new string(tmp, 0, 8), NumberStyles.HexNumber, provider, out var value))
+                {
+                    result = new Color(value);
+                    return true;
+                }
+                break;
+            }
+            case 4:
+            {
+                var r = s[0];
+                var g = s[1];
+                var b = s[2];
+                var a = s[3];
+                var tmp = stackalloc char[]
+                {
+                    r, r,
+                    g, g,
+                    b, b,
+                    a, a,
+                };
+                if (uint.TryParse(new string(tmp, 0, 8), NumberStyles.HexNumber, provider, out var value))
+                {
+                    result = new Color(value);
+                    return true;
+                }
+                break;
+            }
+            case 6:
+            {
+                var tmp = stackalloc char[]
+                {
+                    s[0], s[1],
+                    s[2], s[3],
+                    s[4], s[5],
+                    'F', 'F',
+                };
+                if (uint.TryParse(new string(tmp, 0, 8), NumberStyles.HexNumber, provider, out var value))
+                {
+                    result = new Color(value);
+                    return true;
+                }
+                break;
+            }
+            case 8:
+            {
+                if (uint.TryParse(s, NumberStyles.HexNumber, provider, out var value))
+                {
+                    result = new Color(value);
+                    return true;
+                }
+                break;
+            }
         }
-
         result = default;
         return false;
     }
