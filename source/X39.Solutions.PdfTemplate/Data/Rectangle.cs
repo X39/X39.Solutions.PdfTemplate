@@ -25,7 +25,7 @@ public readonly record struct Rectangle(float Left, float Top, float Width, floa
         IMinMaxValue<Rectangle>,
         
         IAdditionOperators<Rectangle, Point, Rectangle>,
-        ISubtractionOperators<Rectangle, System.Drawing.Point, Rectangle>
+        ISubtractionOperators<Rectangle, Point, Rectangle>
 {
     /// <summary>
     /// The bottom position of the rectangle
@@ -128,17 +128,47 @@ public readonly record struct Rectangle(float Left, float Top, float Width, floa
     }
 
     /// <summary>
-    /// Subtract a <see cref="System.Drawing.Point"/> from a <see cref="Rectangle"/>
+    /// Subtract a <see cref="Point"/> from a <see cref="Rectangle"/>
     /// </summary>
     /// <param name="left">The rectangle to subtract from</param>
     /// <param name="right">The point to subtract</param>
     /// <returns>A new rectangle with the subtracted point</returns>
-    public static Rectangle operator -(Rectangle left, System.Drawing.Point right)
+    public static Rectangle operator -(Rectangle left, Point right)
     {
         return left with
         {
             Left = left.Left - right.X,
             Top = left.Top - right.Y,
+        };
+    }
+
+    /// <summary>
+    /// Add a <see cref="Size"/> to a <see cref="Rectangle"/>
+    /// </summary>
+    /// <param name="left">The rectangle to add to</param>
+    /// <param name="right">The size to add</param>
+    /// <returns>A new rectangle with the added size</returns>
+    public static Rectangle operator +(Rectangle left, Size right)
+    {
+        return left with
+        {
+            Width = left.Width + right.Width,
+            Height = left.Height + right.Height,
+        };
+    }
+
+    /// <summary>
+    /// Subtract a <see cref="Size"/> from a <see cref="Rectangle"/>
+    /// </summary>
+    /// <param name="left">The rectangle to subtract from</param>
+    /// <param name="right">The size to subtract</param>
+    /// <returns>A new rectangle with the subtracted size</returns>
+    public static Rectangle operator -(Rectangle left, Size right)
+    {
+        return left with
+        {
+            Width = left.Width - right.Width,
+            Height = left.Height - right.Height,
         };
     }
 }
