@@ -136,7 +136,7 @@ public sealed class TableControl : AlignableContentControl
                 outWidths[index] = length.Unit switch
                 {
                     EColumnUnit.Parts => partWidth * length.Value ?? 0F,
-                    EColumnUnit.Lenght => length.Length?.Unit switch
+                    EColumnUnit.Length => length.Length?.Unit switch
                     {
                         ELengthUnit.Auto => desiredWidth * autoCoef,
                         _                => length.Length?.ToPixels(totalWidth, dpi) ?? 0F,

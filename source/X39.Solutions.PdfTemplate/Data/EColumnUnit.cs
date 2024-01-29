@@ -11,7 +11,7 @@ public enum EColumnUnit
     Parts,
 
     /// <summary>
-    /// The size is specified in <see cref="Length"/>.
+    /// The size is specified in <see cref="Data.Length"/>.
     /// </summary>
-    Lenght,
+    Length,
 }

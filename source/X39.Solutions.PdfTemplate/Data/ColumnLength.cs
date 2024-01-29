@@ -34,7 +34,7 @@ public readonly record struct ColumnLength : ISpanParsable<ColumnLength>
     public ColumnLength(Length length)
     {
         Length = length;
-        Unit  = EColumnUnit.Lenght;
+        Unit   = EColumnUnit.Length;
     }
 
     /// <summary>
@@ -154,7 +154,7 @@ public readonly record struct ColumnLength : ISpanParsable<ColumnLength>
         return Unit switch
         {
             EColumnUnit.Parts  => string.Format(provider, "{0}*", Value),
-            EColumnUnit.Lenght => Length?.ToString(provider) ?? throw new InvalidOperationException("Length is null"),
+            EColumnUnit.Length => Length?.ToString(provider) ?? throw new InvalidOperationException("Length is null"),
             _                  => throw new InvalidEnumArgumentException(nameof(Unit), (int) Unit, typeof(EColumnUnit)),
         };
     }
