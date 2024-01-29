@@ -13,9 +13,7 @@ public readonly record struct ColumnLength : ISpanParsable<ColumnLength>
     /// <summary>
     /// Creates a new <see cref="ColumnLength"/> which will fit the available space.
     /// </summary>
-    public ColumnLength() : this(new Length(default, ELengthUnit.Auto))
-    {
-    }
+    public ColumnLength() : this(new Length(default, ELengthUnit.Auto)) { }
 
     /// <summary>
     /// Creates a new <see cref="ColumnLength"/> with the given parts value.
@@ -49,7 +47,7 @@ public readonly record struct ColumnLength : ISpanParsable<ColumnLength>
     /// Either this or <see cref="Length"/> must be set.
     /// </remarks>
     public float? Value { get; init; }
-    
+
     /// <summary>
     /// The value of the size.
     /// </summary>
@@ -65,7 +63,6 @@ public readonly record struct ColumnLength : ISpanParsable<ColumnLength>
     public static bool TryParse(string? s, IFormatProvider? provider, out ColumnLength result) =>
         TryParse(s.AsSpan(), provider, out result);
 
-
     /// <inheritdoc />
     public static bool TryParse(ReadOnlySpan<char> s, IFormatProvider? provider, out ColumnLength result)
     {
@@ -77,12 +74,11 @@ public readonly record struct ColumnLength : ISpanParsable<ColumnLength>
         }
 
         var endOfNumber = 0;
-        var dotFound = false;
+        var dotFound    = false;
         // Find end of number
         for (var i = 0; i < s.Length; i++)
         {
-            if (s[i].IsDigit())
-                continue;
+            if (s[i].IsDigit()) continue;
             if (s[i] == '.')
             {
                 if (dotFound)
@@ -100,7 +96,7 @@ public readonly record struct ColumnLength : ISpanParsable<ColumnLength>
         }
 
         var number = s[..endOfNumber];
-        var unit = s[endOfNumber..].Trim();
+        var unit   = s[endOfNumber..].Trim();
         if (unit.IsEmpty)
         {
             result = default;
@@ -125,6 +121,7 @@ public readonly record struct ColumnLength : ISpanParsable<ColumnLength>
                     result = default;
                     return false;
                 }
+
                 result = new ColumnLength(length);
                 return true;
         }
@@ -156,6 +153,78 @@ public readonly record struct ColumnLength : ISpanParsable<ColumnLength>
             EColumnUnit.Parts  => string.Format(provider, "{0}*", Value),
             EColumnUnit.Length => Length?.ToString(provider) ?? throw new InvalidOperationException("Length is null"),
             _                  => throw new InvalidEnumArgumentException(nameof(Unit), (int) Unit, typeof(EColumnUnit)),
+        };
+    }
+
+    /// <summary>
+    /// Divides the <see cref="ColumnLength"/> by the given <paramref name="right"/> value.
+    /// </summary>
+    public static ColumnLength operator /(ColumnLength left, float right)
+    {
+        return left switch
+        {
+            { Unit: EColumnUnit.Parts } => left with { Value = left.Value / right },
+            { Unit: EColumnUnit.Length, Length: not null } => left with { Length = left.Length.Value / right, },
+            _ => throw new InvalidEnumArgumentException(nameof(left.Unit), (int) left.Unit, typeof(EColumnUnit)),
+        };
+    }
+
+    /// <summary>
+    /// Multiplies the <see cref="ColumnLength"/> by the given <paramref name="right"/> value.
+    /// </summary>
+    public static ColumnLength operator *(ColumnLength left, float right)
+    {
+        return left switch
+        {
+            { Unit: EColumnUnit.Parts } => left with { Value = left.Value * right },
+            { Unit: EColumnUnit.Length, Length: not null } => left with { Length = left.Length.Value * right, },
+            _ => throw new InvalidEnumArgumentException(nameof(left.Unit), (int) left.Unit, typeof(EColumnUnit)),
+        };
+    }
+    
+    /// <summary>
+    /// Compares whether the <paramref name="left"/> <see cref="ColumnLength"/> is less than the <paramref name="right"/> <see cref="ColumnLength"/>.
+    /// </summary>
+    public static bool operator <(ColumnLength left, ColumnLength right)
+    {
+        return right switch
+        {
+            { Unit: EColumnUnit.Parts, Value: not null } => left switch
+            {
+                { Unit: EColumnUnit.Parts, Value: not null } => left.Value.Value < right.Value.Value,
+                { Unit: EColumnUnit.Length, Length: not null } => true,
+                _ => throw new InvalidEnumArgumentException(nameof(left.Unit), (int) left.Unit, typeof(EColumnUnit)),
+            },
+            { Unit: EColumnUnit.Length, Length: not null } => left switch
+            {
+                { Unit: EColumnUnit.Parts, Value  : not null } => false,
+                { Unit: EColumnUnit.Length, Length: not null } => left.Length.Value < right.Length.Value,
+                _ => throw new InvalidEnumArgumentException(nameof(left.Unit), (int) left.Unit, typeof(EColumnUnit)),
+            },
+            _ => throw new InvalidEnumArgumentException(nameof(right.Unit), (int) right.Unit, typeof(EColumnUnit)),
+        };
+    }
+    
+    /// <summary>
+    /// Compares whether the <paramref name="left"/> <see cref="ColumnLength"/> is greater than the <paramref name="right"/> <see cref="ColumnLength"/>. 
+    /// </summary>
+    public static bool operator >(ColumnLength left, ColumnLength right)
+    {
+        return right switch
+        {
+            { Unit: EColumnUnit.Parts, Value: not null } => left switch
+            {
+                { Unit: EColumnUnit.Parts, Value: not null } => left.Value.Value > right.Value.Value,
+                { Unit: EColumnUnit.Length, Length: not null } => false,
+                _ => throw new InvalidEnumArgumentException(nameof(left.Unit), (int) left.Unit, typeof(EColumnUnit)),
+            },
+            { Unit: EColumnUnit.Length, Length: not null } => left switch
+            {
+                { Unit: EColumnUnit.Parts, Value  : not null } => true,
+                { Unit: EColumnUnit.Length, Length: not null } => left.Length.Value > right.Length.Value,
+                _ => throw new InvalidEnumArgumentException(nameof(left.Unit), (int) left.Unit, typeof(EColumnUnit)),
+            },
+            _ => throw new InvalidEnumArgumentException(nameof(right.Unit), (int) right.Unit, typeof(EColumnUnit)),
         };
     }
 }
