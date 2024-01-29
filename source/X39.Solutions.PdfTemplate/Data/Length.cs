@@ -200,4 +200,36 @@ public readonly record struct Length : ISpanParsable<Length>
             ? sizeUnit
             : string.Concat(sizeValue.ToString(CultureInfo.InvariantCulture), sizeUnit);
     }
+    
+    /// <summary>
+    /// Divides the <see cref="Length"/> by the given <paramref name="right"/> value.
+    /// </summary>
+    public static Length operator /(Length left, float right)
+    {
+        return left.Unit is ELengthUnit.Auto ? left : left with { Value = left.Value / right };
+    }
+    
+    /// <summary>
+    /// Multiplies the <see cref="Length"/> by the given <paramref name="right"/> value.
+    /// </summary>
+    public static Length operator *(Length left, float right)
+    {
+        return left.Unit is ELengthUnit.Auto ? left : left with { Value = left.Value * right };
+    }
+
+    /// <summary>
+    /// Compares whether the <paramref name="left"/> <see cref="Length"/> is smaller than the <paramref name="right"/> <see cref="Length"/>.
+    /// </summary>
+    public static bool operator <(Length left, Length right)
+    {
+        return left.ToPixels(100, 100) < right.ToPixels(100, 100);
+    }
+
+    /// <summary>
+    /// Compares whether the <paramref name="left"/> <see cref="Length"/> is greater than the <paramref name="right"/> <see cref="Length"/>.
+    /// </summary>
+    public static bool operator >(Length left, Length right)
+    {
+        return left.ToPixels(100, 100) > right.ToPixels(100, 100);
+    }
 }
