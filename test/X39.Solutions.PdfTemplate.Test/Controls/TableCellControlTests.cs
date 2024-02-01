@@ -16,7 +16,7 @@ public class TableCellControlTests
                               </td>
                               """.ToControl<TableCellControl>();
         var pageSize   = new Size(200, 200);
-        var mockCanvas = new CanvasMock();
+        var mockCanvas = new DeferredCanvasMock();
         var measure    = control.Measure(90, pageSize, pageSize, pageSize, CultureInfo.InvariantCulture);
         Assert.Equal(new Size(100, 100), measure);
         var arrange = control.Arrange(90, pageSize, pageSize, pageSize, CultureInfo.InvariantCulture);
@@ -36,7 +36,7 @@ public class TableCellControlTests
                               </td>
                               """.ToControl<TableCellControl>();
         var pageSize   = new Size(200, 200);
-        var mockCanvas = new CanvasMock();
+        var mockCanvas = new DeferredCanvasMock();
         var measure    = control.Measure(90, pageSize, pageSize, pageSize, CultureInfo.InvariantCulture);
         Assert.Equal(new Size(120, 120), measure);
         var arrange = control.Arrange(90, pageSize, pageSize, pageSize, CultureInfo.InvariantCulture);
@@ -56,7 +56,7 @@ public class TableCellControlTests
                               </td>
                               """.ToControl<TableCellControl>();
         var pageSize   = new Size(200, 200);
-        var mockCanvas = new CanvasMock();
+        var mockCanvas = new DeferredCanvasMock();
         var measure    = control.Measure(90, pageSize, pageSize, pageSize, CultureInfo.InvariantCulture);
         Assert.Equal(new Size(140, 140), measure);
         var arrange = control.Arrange(90, pageSize, pageSize, pageSize, CultureInfo.InvariantCulture);
@@ -77,7 +77,7 @@ public class TableCellControlTests
                               </td>
                               """.ToControl<TableCellControl>();
         var pageSize   = new Size(200, 200);
-        var mockCanvas = new CanvasMock();
+        var mockCanvas = new DeferredCanvasMock();
         var measure    = control.Measure(90, pageSize, pageSize, pageSize, CultureInfo.InvariantCulture);
         Assert.Equal(new Size(100, 200), measure);
         var arrange = control.Arrange(90, pageSize, pageSize, pageSize, CultureInfo.InvariantCulture);
@@ -97,7 +97,7 @@ public class TableCellControlTests
                               </td>
                               """.ToControl<TableCellControl>();
         var pageSize   = new Size(200, 200);
-        var mockCanvas = new CanvasMock();
+        var mockCanvas = new DeferredCanvasMock();
         var measure    = control.Measure(90, pageSize, pageSize, pageSize, CultureInfo.InvariantCulture);
         Assert.Equal(new Size(100, 100), measure);
         var arrange = control.Arrange(90, pageSize, pageSize, pageSize, CultureInfo.InvariantCulture);
@@ -117,7 +117,7 @@ public class TableCellControlTests
                               </td>
                               """.ToControl<TableCellControl>();
         var pageSize   = new Size(200, 200);
-        var mockCanvas = new CanvasMock();
+        var mockCanvas = new DeferredCanvasMock();
         var measure    = control.Measure(90, pageSize, pageSize, pageSize, CultureInfo.InvariantCulture);
         Assert.Equal(new Size(100, 100), measure);
         var arrange = control.Arrange(90, pageSize, pageSize, pageSize, CultureInfo.InvariantCulture);
@@ -137,7 +137,7 @@ public class TableCellControlTests
                               </td>
                               """.ToControl<TableCellControl>();
         var pageSize   = new Size(200, 200);
-        var mockCanvas = new CanvasMock();
+        var mockCanvas = new DeferredCanvasMock();
         var measure    = control.Measure(90, pageSize, pageSize, pageSize, CultureInfo.InvariantCulture);
         Assert.Equal(new Size(100, 100), measure);
         var arrange = control.Arrange(90, pageSize, pageSize, pageSize, CultureInfo.InvariantCulture);
@@ -158,7 +158,7 @@ public class TableCellControlTests
                               </td>
                               """.ToControl<TableCellControl>();
         var pageSize   = new Size(200, 200);
-        var mockCanvas = new CanvasMock();
+        var mockCanvas = new DeferredCanvasMock();
         var measure    = control.Measure(90, pageSize, pageSize, pageSize, CultureInfo.InvariantCulture);
         Assert.Equal(new Size(50, 100), measure);
         var arrange = control.Arrange(90, pageSize, pageSize, pageSize, CultureInfo.InvariantCulture);
@@ -179,7 +179,7 @@ public class TableCellControlTests
                               </td>
                               """.ToControl<TableCellControl>();
         var pageSize   = new Size(200, 200);
-        var mockCanvas = new CanvasMock();
+        var mockCanvas = new DeferredCanvasMock();
         var measure    = control.Measure(90, pageSize, pageSize, pageSize, CultureInfo.InvariantCulture);
         Assert.Equal(new Size(50, 100), measure);
         var arrange = control.Arrange(90, pageSize, pageSize, pageSize, CultureInfo.InvariantCulture);
@@ -200,7 +200,7 @@ public class TableCellControlTests
                               </td>
                               """.ToControl<TableCellControl>();
         var pageSize   = new Size(200, 200);
-        var mockCanvas = new CanvasMock();
+        var mockCanvas = new DeferredCanvasMock();
         var measure    = control.Measure(90, pageSize, pageSize, pageSize, CultureInfo.InvariantCulture);
         Assert.Equal(new Size(50, 100), measure);
         var arrange = control.Arrange(90, pageSize, pageSize, pageSize, CultureInfo.InvariantCulture);

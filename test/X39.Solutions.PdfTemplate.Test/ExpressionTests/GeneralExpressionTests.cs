@@ -59,7 +59,6 @@ public class GeneralExpressionTests
     [Fact]
     public async Task ChainedFunctionCalls()
     {
-        const string ns = Constants.ControlsNamespace;
         var template = $$"""
                          <?xml version="1.0" encoding="utf-8"?>
                          <text>@foo() - @bar() - @baz()</text>
@@ -78,7 +77,6 @@ public class GeneralExpressionTests
     [Fact]
     public async Task NestedFunctionCalls()
     {
-        const string ns = Constants.ControlsNamespace;
         var template = $$"""
                          <?xml version="1.0" encoding="utf-8"?>
                          <text>@foo(bar(baz()))</text>
@@ -100,7 +98,6 @@ public class GeneralExpressionTests
     [Fact]
     public async Task ChainedNestedFunctionCalls()
     {
-        const string ns = Constants.ControlsNamespace;
         var template = $$"""
                          <?xml version="1.0" encoding="utf-8"?>
                          <text>@foo(bar(baz())) - @foo(bar(baz())) - @foo(bar(baz()))</text>

@@ -97,7 +97,7 @@ public abstract class TableRowControlBase : AlignableContentControl
     }
 
     /// <inheritdoc />
-    protected override Size DoRender(ICanvas canvas, float dpi, in Size parentSize, CultureInfo cultureInfo)
+    protected override Size DoRender(IDeferredCanvas canvas, float dpi, in Size parentSize, CultureInfo cultureInfo)
     {
         var additionalWidth  = 0F;
         var additionalHeight = 0F;

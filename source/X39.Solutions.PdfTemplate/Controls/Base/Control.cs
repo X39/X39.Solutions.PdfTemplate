@@ -254,7 +254,7 @@ public abstract class Control : IControl
 
     /// <inheritdoc />
     public virtual Size Render(
-        ICanvas     canvas,
+        IDeferredCanvas     canvas,
         float       dpi,
         in Size     parentSize,
         CultureInfo cultureInfo
@@ -290,14 +290,14 @@ public abstract class Control : IControl
     /// <param name="cultureInfo">The culture info to use for rendering.</param>
     /// <returns>Additional size used by the control. Note that this is only used for Clip and is discarded otherwise.</returns>
     protected virtual Size PreRender(
-        ICanvas     canvas,
-        float       dpi,
-        in Size     parentSize,
+        IDeferredCanvas canvas,
+        float dpi,
+        in Size parentSize,
         CultureInfo cultureInfo)
     {
         return Size.Zero;
     }
 
     /// <inheritdoc cref="Render"/>
-    protected abstract Size DoRender(ICanvas canvas, float dpi, in Size parentSize, CultureInfo cultureInfo);
+    protected abstract Size DoRender(IDeferredCanvas canvas, float dpi, in Size parentSize, CultureInfo cultureInfo);
 }

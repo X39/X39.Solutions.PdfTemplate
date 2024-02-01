@@ -1,5 +1,4 @@
 ﻿using System.Globalization;
-using System.Text.Json.Serialization.Metadata;
 using X39.Solutions.PdfTemplate.Controls;
 using X39.Solutions.PdfTemplate.Data;
 using X39.Solutions.PdfTemplate.Test.Mock;
@@ -37,11 +36,11 @@ public class TableRowControlTests
         const float cell0Width = 100;
 
         var pageSize   = new Size(pageHeight, pageWidth);
-        var mockCanvas = new CanvasMock();
+        var mockCanvas = new DeferredCanvasMock();
         var measure    = control.Measure(dpi, pageSize, pageSize, pageSize, CultureInfo.InvariantCulture);
         Assert.Equal(new Size(expectedControlMeasureWidth, expectedControlMeasureHeight), measure);
         Assert.Equal(cell0Width,                                                          table.CellWidths[0].Item1);
-        table.CellWidths.ApplyForEach((key, tuple) => (cellSpacing, tuple.Item2));
+        table.CellWidths.ApplyForEach((_, tuple) => (cellSpacing, tuple.Item2));
         var arrange = control.Arrange(dpi, pageSize, pageSize, pageSize, CultureInfo.InvariantCulture);
         Assert.Equal(new Size(expectedControlArrangeWidth, expectedControlArrangeHeight), arrange);
         control.Render(mockCanvas, dpi, pageSize, CultureInfo.InvariantCulture);
@@ -83,12 +82,12 @@ public class TableRowControlTests
         const float cell1Width = 100;
 
         var pageSize   = new Size(pageHeight, pageWidth);
-        var mockCanvas = new CanvasMock();
+        var mockCanvas = new DeferredCanvasMock();
         var measure    = control.Measure(dpi, pageSize, pageSize, pageSize, CultureInfo.InvariantCulture);
         Assert.Equal(new Size(expectedControlMeasureWidth, expectedControlMeasureHeight), measure);
         Assert.Equal(cell0Width,                                         table.CellWidths[0].Item1);
         Assert.Equal(cell1Width,                                         table.CellWidths[1].Item1);
-        table.CellWidths.ApplyForEach((key, tuple) => (cellSpacing, tuple.Item2));
+        table.CellWidths.ApplyForEach((_, tuple) => (cellSpacing, tuple.Item2));
         var arrange = control.Arrange(dpi, pageSize, pageSize, pageSize, CultureInfo.InvariantCulture);
         Assert.Equal(new Size(expectedControlArrangeWidth, expectedControlArrangeHeight), arrange);
         control.Render(mockCanvas, dpi, pageSize, CultureInfo.InvariantCulture);
@@ -138,14 +137,14 @@ public class TableRowControlTests
         const float cell3Width = 100;
 
         var pageSize   = new Size(pageHeight, pageWidth);
-        var mockCanvas = new CanvasMock();
+        var mockCanvas = new DeferredCanvasMock();
         var measure    = control.Measure(dpi, pageSize, pageSize, pageSize, CultureInfo.InvariantCulture);
         Assert.Equal(new Size(expectedControlMeasureWidth, expectedControlMeasureHeight), measure);
         Assert.Equal(cell0Width,                                                          table.CellWidths[0].Item1);
         Assert.Equal(cell1Width,                                                          table.CellWidths[1].Item1);
         Assert.Equal(cell2Width,                                                          table.CellWidths[2].Item1);
         Assert.Equal(cell3Width,                                                          table.CellWidths[3].Item1);
-        table.CellWidths.ApplyForEach((key, tuple) => (cellSpacing, tuple.Item2));
+        table.CellWidths.ApplyForEach((_, tuple) => (cellSpacing, tuple.Item2));
         var arrange = control.Arrange(dpi, pageSize, pageSize, pageSize, CultureInfo.InvariantCulture);
         Assert.Equal(new Size(expectedControlArrangeWidth, expectedControlArrangeHeight), arrange);
         control.Render(mockCanvas, dpi, pageSize, CultureInfo.InvariantCulture);

@@ -86,6 +86,6 @@ public class MockControl : IControl
         return new Size(width, height);
     }
 
-    public Size Render(ICanvas canvas, float dpi, in Size parentSize, CultureInfo cultureInfo) { 
+    public Size Render(IDeferredCanvas canvas, float dpi, in Size parentSize, CultureInfo cultureInfo) { 
         return Size.Zero;}
 }

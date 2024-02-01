@@ -67,5 +67,5 @@ public interface IControl
     /// <param name="parentSize">The size of the parent control.</param>
     /// <param name="cultureInfo">The culture info to use for the drawing.</param>
     /// <returns>Additional size used by the control.</returns>
-    Size Render(ICanvas canvas, float dpi, in Size parentSize, CultureInfo cultureInfo);
+    Size Render(IDeferredCanvas canvas, float dpi, in Size parentSize, CultureInfo cultureInfo);
 }

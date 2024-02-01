@@ -266,45 +266,48 @@ public sealed class Generator : IDisposable, IAsyncDisposable, IAddControls, IAd
 
         #region Render
 
-        var headerCanvasAbstraction = new CanvasImpl(_skPaintCache);
+        var headerCanvasAbstraction = new DeferredCanvasImpl();
         using (headerCanvasAbstraction.CreateState())
         {
             foreach (var (control, size) in template.HeaderControls.Zip(headerSizes))
             {
-                control.Render(headerCanvasAbstraction, options.DotsPerInch, headerPageSize, cultureInfo);
+                _ = control.Render(headerCanvasAbstraction, options.DotsPerInch, headerPageSize, cultureInfo);
                 headerCanvasAbstraction.Translate(0F, size.Height);
             }
         }
 
-        var bodyCanvasAbstraction = new CanvasImpl(_skPaintCache);
+        var bodyCanvasAbstraction = new DeferredCanvasImpl();
+        var desiredBodyHeight = bodySizes.Sum((q) => q.Height);
         using (bodyCanvasAbstraction.CreateState())
         {
             foreach (var (control, size) in template.BodyControls.Zip(bodySizes))
             {
-                control.Render(bodyCanvasAbstraction, options.DotsPerInch, bodyPageSize, cultureInfo);
-                bodyCanvasAbstraction.Translate(0F, size.Height);
+                var (_, additionalHeight) = control.Render(bodyCanvasAbstraction, options.DotsPerInch, bodyPageSize, cultureInfo);
+                desiredBodyHeight += additionalHeight;
+                bodyCanvasAbstraction.Translate(0F, size.Height + additionalHeight);
             }
         }
+        var pageCount = (ushort) Math.Ceiling(desiredBodyHeight / bodyPageSize.Height);
 
-        var footerCanvasAbstraction = new CanvasImpl(_skPaintCache);
+        var footerCanvasAbstraction = new DeferredCanvasImpl();
         using (footerCanvasAbstraction.CreateState())
         {
             foreach (var (control, size) in template.FooterControls.Zip(footerSizes))
             {
-                control.Render(footerCanvasAbstraction, options.DotsPerInch, footerPageSize, cultureInfo);
+                _ = control.Render(footerCanvasAbstraction, options.DotsPerInch, footerPageSize, cultureInfo);
                 footerCanvasAbstraction.Translate(0F, size.Height);
             }
         }
-
-        var desiredHeight = headerSizes.Sum((q) => q.Height) + bodySizes.Sum((q) => q.Height) +
-                            footerSizes.Sum((q) => q.Height);
-        var pageCount = (int) Math.Ceiling(desiredHeight / pageSize.Height);
 
         var currentHeight = 0F;
 
         for (var i = 0; i < pageCount; i++)
         {
             using var canvas = nextCanvas();
+            var immediateCanvas = new ImmediateCanvasImpl(canvas, _skPaintCache)
+            {
+                PageNumber = (ushort) (i + 1), TotalPages = pageCount,
+            };
             canvas.Save();
             canvas.Translate(marginLeft, marginTop);
 
@@ -312,14 +315,14 @@ public sealed class Generator : IDisposable, IAsyncDisposable, IAddControls, IAd
             canvas.ClipRect(
                 new SKRect { Left = 0, Right = headerPageSize.Width, Top = 0, Bottom = headerPageSize.Height }
             );
-            headerCanvasAbstraction.Render(canvas);
+            headerCanvasAbstraction.Render(immediateCanvas);
             canvas.Restore();
 
             canvas.Save();
             canvas.Translate(0, headerPageSize.Height);
             canvas.ClipRect(new SKRect { Left = 0, Right = bodyPageSize.Width, Top = 0, Bottom = bodyPageSize.Height });
             canvas.Translate(0, -currentHeight);
-            bodyCanvasAbstraction.Render(canvas);
+            bodyCanvasAbstraction.Render(immediateCanvas);
             canvas.Restore();
 
             canvas.Save();
@@ -328,7 +331,7 @@ public sealed class Generator : IDisposable, IAsyncDisposable, IAddControls, IAd
             canvas.ClipRect(
                 new SKRect { Left = 0, Right = footerPageSize.Width, Top = 0, Bottom = footerPageSize.Height }
             );
-            footerCanvasAbstraction.Render(canvas);
+            footerCanvasAbstraction.Render(immediateCanvas);
             canvas.Restore();
             currentHeight += bodyPageSize.Height;
 

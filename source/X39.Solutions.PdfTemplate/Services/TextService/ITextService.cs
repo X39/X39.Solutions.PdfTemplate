@@ -34,5 +34,5 @@ public interface ITextService
     /// <param name="dpi"></param>
     /// <param name="text">The text to render.</param>
     /// <param name="maxWidth">The maximum width of a single line.</param>
-    void Draw(ICanvas canvas, TextStyle textStyle, float dpi, ReadOnlySpan<char> text, float maxWidth);
+    void Draw(IDrawableCanvas canvas, TextStyle textStyle, float dpi, ReadOnlySpan<char> text, float maxWidth);
 }

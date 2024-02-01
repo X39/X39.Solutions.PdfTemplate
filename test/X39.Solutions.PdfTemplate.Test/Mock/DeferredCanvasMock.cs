@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using SkiaSharp;
 using X39.Solutions.PdfTemplate.Abstraction;
@@ -7,8 +8,9 @@ using X39.Util;
 
 namespace X39.Solutions.PdfTemplate.Test.Mock;
 
-public partial class CanvasMock : ICanvas
+public partial class DeferredCanvasMock : IDeferredCanvas, IImmediateCanvas
 {
+    [SuppressMessage("ReSharper", "NotAccessedPositionalProperty.Local", Justification = "This is a preparation for future use. Having unused properties is expected hence.")]
     private record struct DrawTextCall(
         TextStyle TextStyle,
         string Text,
@@ -39,7 +41,8 @@ public partial class CanvasMock : ICanvas
     }
 
 
-    public Point Translation => _stateStack.Any() ? _stateStack.Peek().Translation : new Point();
+    public Point Translation                            => _stateStack.Any() ? _stateStack.Peek().Translation : new Point();
+    public void  Defer(Action<IImmediateCanvas> action) { action(this); }
 
     private readonly Stack<State>       _stateStack    = new(new State().MakeEnumerable());
     private readonly List<DrawLineCall> _drawLineCalls = new();
@@ -106,9 +109,14 @@ public partial class CanvasMock : ICanvas
     public void DrawBitmap(SKBitmap bitmap, Rectangle rectangle)
     {
     }
+
+    public void   AddBreakPageHeight(float additionalPageHeight) {  }
+    public ushort EstimatedPageCount                             { get; set; }
+    public ushort PageNumber                                     { get; set; }
+    public ushort TotalPages                                     { get; set; }
 }
 
-public partial class CanvasMock
+public partial class DeferredCanvasMock
 {
     [StackTraceHidden]
     public void AssertState()

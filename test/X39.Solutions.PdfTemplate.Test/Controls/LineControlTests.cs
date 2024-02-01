@@ -42,7 +42,7 @@ public class LineControlTests
         var pageBounds = new Size(pageArr[0], pageArr[1]);
         var measure = new Size(measureArr[0], measureArr[1]);
         var arrange = new Size(arrangeArr[0], arrangeArr[1]);
-        var mock = new CanvasMock();
+        var mock = new DeferredCanvasMock();
         var lineControl = new LineControl
         {
             Color               = Colors.Green,
@@ -79,7 +79,7 @@ public class LineControlTests
     [InlineData(EOrientation.Vertical)]
     public void PaddingIsApplied(EOrientation orientation)
     {
-        var mock = new CanvasMock();
+        var mock = new DeferredCanvasMock();
         var lineControl = new LineControl
         {
             Color               = Colors.Green,
@@ -125,7 +125,7 @@ public class LineControlTests
     [InlineData(EOrientation.Vertical)]
     public void MarginIsApplied(EOrientation orientation)
     {
-        var mock = new CanvasMock();
+        var mock = new DeferredCanvasMock();
         var lineControl = new LineControl
         {
             Color               = Colors.Green,
@@ -167,7 +167,7 @@ public class LineControlTests
     [InlineData(EOrientation.Vertical)]
     public void MarginAndPaddingBothAreApplied(EOrientation orientation)
     {
-        var mock = new CanvasMock();
+        var mock = new DeferredCanvasMock();
         var lineControl = new LineControl
         {
             Color               = Colors.Green,

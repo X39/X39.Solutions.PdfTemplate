@@ -14,7 +14,7 @@ public static class Canvas
     /// When the balancing call is done by disposing the return value,
     /// the previous matrix, clipping, and drawing filters are restored.
     /// </summary>
-    public static IDisposable CreateState(this ICanvas canvas)
+    public static IDisposable CreateState(this IDeferredCanvas canvas)
     {
         canvas.PushState();
         return new Disposable(canvas.PopState);
@@ -26,7 +26,7 @@ public static class Canvas
     /// <param name="canvas">The canvas on which the page is drawn.</param>
     /// <param name="heightPerPage">The height of each page.</param>
     /// <returns>The remaining height on the page.</returns>
-    public static float GetRemainingPageHeight(this ICanvas canvas, float heightPerPage)
+    public static float GetRemainingPageHeight(this IDeferredCanvas canvas, float heightPerPage)
     {
         var usedHeight = canvas.GetUsedPageHeight(heightPerPage);
         return heightPerPage - usedHeight;
@@ -38,7 +38,7 @@ public static class Canvas
     /// <param name="canvas">The canvas on which the page is drawn.</param>
     /// <param name="heightPerPage">The height of each page.</param>
     /// <returns>The amount of height used on the page.</returns>
-    public static float GetUsedPageHeight(this ICanvas canvas, float heightPerPage)
+    public static float GetUsedPageHeight(this IDeferredCanvas canvas, float heightPerPage)
     {
         var y = canvas.Translation.Y;
         var multiplier = (int) (y / heightPerPage);

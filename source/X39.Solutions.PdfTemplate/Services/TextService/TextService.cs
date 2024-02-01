@@ -84,7 +84,7 @@ internal class TextService : ITextService
         return new ReadOnlySpanPair<char>(text[..end], text[end..]);
     }
 
-    public void Draw(ICanvas canvas, TextStyle textStyle, float dpi, ReadOnlySpan<char> text, float maxWidth)
+    public void Draw(IDrawableCanvas canvas, TextStyle textStyle, float dpi, ReadOnlySpan<char> text, float maxWidth)
     {
         var skPaint = _paintCache.Get(textStyle, dpi);
         var height = skPaint.FontMetrics.Bottom + -skPaint.FontMetrics.Top;

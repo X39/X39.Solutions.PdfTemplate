@@ -97,7 +97,7 @@ public class BorderControl : AlignableContentControl
     }
 
     /// <inheritdoc />
-    protected override Size DoRender(ICanvas canvas, float dpi, in Size parentSize, CultureInfo cultureInfo)
+    protected override Size DoRender(IDeferredCanvas canvas, float dpi, in Size parentSize, CultureInfo cultureInfo)
     {
         using var state = canvas.CreateState();
         var additionalWidth = 0F;

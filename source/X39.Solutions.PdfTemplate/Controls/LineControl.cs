@@ -78,7 +78,7 @@ public sealed class LineControl : AlignableControl
 
 
     /// <inheritdoc />
-    protected override Size DoRender(ICanvas canvas, float dpi, in Size parentSize, CultureInfo cultureInfo)
+    protected override Size DoRender(IDeferredCanvas canvas, float dpi, in Size parentSize, CultureInfo cultureInfo)
     {
         var length = Length.ToPixels(
             Orientation is EOrientation.Horizontal
