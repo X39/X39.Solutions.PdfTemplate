@@ -88,6 +88,15 @@ public sealed class XmlTemplateReader : IDisposable
         int nodeIndex,
         CancellationToken cancellationToken)
     {
+        foreach (var (key, value) in node.Attributes)
+        {
+            if (!value.StartsWith('@'))
+                continue;
+            // Evaluate potential expressions
+            var result = await _templateData.EvaluateAsync(_cultureInfo, value[1..], cancellationToken)
+                                            .ConfigureAwait(false);
+            node.SetAttribute(key, result?.ToString() ?? string.Empty);
+        }
         if (node is {IsTextNode: true, Text: { } text} && (text.Contains('@') || text.Contains('{')))
         {
 #if !DEBUG
@@ -316,7 +325,10 @@ public sealed class XmlTemplateReader : IDisposable
                 for (; nodeIndex < nodeTree.Children.Count - distanceToEnd; nodeIndex++)
                 {
                     var lNode = nodeTree[nodeIndex];
-                    using var adjustedScope = _templateData.Scope(lNode.Scope ?? new Dictionary<string, object?>());
+                    using var adjustedScope = _templateData.Scope(
+                        string.Concat(lNode.Namespace, "+", lNode.Name),
+                        lNode.Scope ?? new Dictionary<string, object?>()
+                    );
                     nodeIndex = await TransformNodeAsync(nodeTree, lNode, nodeIndex, cancellationToken)
                         .ConfigureAwait(false);
                 }
@@ -364,7 +376,7 @@ public sealed class XmlTemplateReader : IDisposable
         }
     }
 
-    private XmlNode ReadXmlNode(XmlReader reader)
+    private static XmlNode ReadXmlNode(XmlReader reader)
     {
         reader.MoveToContent();
         if (reader.NodeType is not XmlNodeType.Element)
@@ -494,7 +506,7 @@ public sealed class XmlTemplateReader : IDisposable
         var style = CurrentStyle;
         foreach (var nodeChild in xmlNode.Children)
         {
-            if (nodeChild.Children.Any())
+            if (nodeChild.Children.Count != 0)
                 throw new XmlStyleInformationCannotNestException(
                     nodeChild.Line,
                     nodeChild.Column,
