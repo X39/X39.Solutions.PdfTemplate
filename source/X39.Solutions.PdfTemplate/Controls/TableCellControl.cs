@@ -17,6 +17,19 @@ public sealed class TableCellControl : AlignableContentControl
     [Parameter]
     public ColumnLength Width { get; set; } = new();
 
+    /// <summary>
+    /// Gets or sets the number of columns that the table cell spans.
+    /// </summary>
+    /// <remarks>
+    /// The <see cref="ColumnSpan"/> property indicates the number of columns that the table cell spans.
+    /// A table cell with a <see cref="ColumnSpan"/> of 1 occupies a single column.
+    /// A table cell with a larger <see cref="ColumnSpan"/> value spans multiple columns and takes up the width
+    /// of those columns.
+    /// A table cell with a <see cref="ColumnSpan"/> of 0 spans will be ignored.
+    /// </remarks>
+    [Parameter]
+    public ushort ColumnSpan { get; set; } = 1;
+
     private readonly List<float> _heights = new();
 
     /// <inheritdoc />
@@ -57,11 +70,11 @@ public sealed class TableCellControl : AlignableContentControl
             _heights.Add(size.Height);
         }
 
-        var w = Math.Min(width, remainingSize.Width);
-        var h = Math.Min(height, remainingSize.Height);
-        return new Size(
-            HorizontalAlignment is EHorizontalAlignment.Stretch ? Math.Max(w, remainingSize.Width) : w,
-            VerticalAlignment is EVerticalAlignment.Stretch ? Math.Max(h, remainingSize.Height) : h);
+        if (HorizontalAlignment == EHorizontalAlignment.Stretch)
+            width = Math.Max(width, remainingSize.Width);
+        if (VerticalAlignment == EVerticalAlignment.Stretch)
+            height = Math.Max(height, remainingSize.Height);
+        return new Size(Math.Min(width, framedPageSize.Width), height);
     }
 
     /// <inheritdoc />

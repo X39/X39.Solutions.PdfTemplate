@@ -1,7 +1,6 @@
 ﻿using X39.Solutions.PdfTemplate.Abstraction;
 using X39.Solutions.PdfTemplate.Controls.Base;
 using X39.Solutions.PdfTemplate.Data;
-using X39.Util.Collections;
 
 namespace X39.Solutions.PdfTemplate.Controls;
 
@@ -18,32 +17,80 @@ public abstract class TableRowControlBase : AlignableContentControl
         in Size     fullPageSize,
         in Size     framedPageSize,
         in Size     remainingSize,
-        CultureInfo cultureInfo)
+        CultureInfo cultureInfo
+    ) => MeasureWithCellWidthOverriding(dpi, fullPageSize, framedPageSize, remainingSize, cultureInfo);
+
+    private Size MeasureWithCellWidthOverriding(
+        float       dpi,
+        Size        fullPageSize,
+        Size        framedPageSize,
+        Size        remainingSize,
+        CultureInfo cultureInfo
+    )
     {
-        if (Table is null) throw new InvalidOperationException("A TableRowControl must be added to a TableControl");
-        var width  = 0F;
-        var height = 0F;
-        foreach (var (control, index) in Children.Cast<TableCellControl>().Indexed())
+        if (Table?.CellWidths is not { } cellWidths)
+            throw new InvalidOperationException(
+                "A TableRowControl must be added to a TableControl with a valid CellWidths dictionary"
+            );
+        ushort cellIndex  = 0;
+        var    maxHeight  = 0F;
+        var    totalWidth = 0F;
+        foreach (var child in Children.OfType<TableCellControl>().Where((cell) => cell.ColumnSpan > 0))
         {
-            var size = control.Measure(dpi, fullPageSize, remainingSize, remainingSize, cultureInfo);
-            width  += size.Width;
-            height =  Math.Max(height, size.Height);
-            if (Table.CellWidths.TryGetValue(index, out var tuple))
+            var size                 = child.Measure(dpi, fullPageSize, framedPageSize, remainingSize, cultureInfo);
+            var adjustedCellWidth    = child.Width / child.ColumnSpan;
+            var adjustedDesiredWidth = size.Width / child.ColumnSpan;
+            for (var localCellIndex = cellIndex; localCellIndex < cellIndex + child.ColumnSpan; localCellIndex++)
             {
-                var (cellWidth, columnLength) = tuple;
-                var desiredWidth = Math.Max(size.Width, cellWidth);
-                // ReSharper disable once CompareOfFloatsByEqualityOperator
-                if (desiredWidth != cellWidth) // We explicitly want to check for equality here.
-                    Table.CellWidths[index] = (desiredWidth, columnLength);
+                if (!cellWidths.TryGetValue(localCellIndex, out var tuple))
+                    tuple = (size.Width, child.Width);
+                cellWidths[localCellIndex] = (Math.Max(tuple.desiredWitdth, adjustedDesiredWidth),
+                                              tuple.columnLength < adjustedCellWidth
+                                                  ? adjustedCellWidth
+                                                  : tuple.columnLength);
             }
-            else
-            {
-                var desiredWidth = size.Width;
-                Table.CellWidths[index] = (desiredWidth, control.Width);
-            }
+
+            cellIndex  += child.ColumnSpan;
+            totalWidth += size.Width;
+            maxHeight  =  Math.Max(maxHeight, size.Height);
         }
 
-        return new Size(width, height);
+        return new Size(totalWidth, maxHeight);
+    }
+
+    internal Size MeasureWithCellWidth(
+        float       dpi,
+        Size        fullPageSize,
+        Size        framedPageSize,
+        Size        remainingSize,
+        CultureInfo cultureInfo
+    )
+    {
+        if (Table?.CellWidths is not { } cellWidths)
+            throw new InvalidOperationException(
+                "A TableRowControl must be added to a TableControl with a valid CellWidths dictionary"
+            );
+        ushort cellIndex  = 0;
+        var    maxHeight  = 0F;
+        var    totalWidth = 0F;
+        foreach (var child in Children.OfType<TableCellControl>().Where((cell) => cell.ColumnSpan > 0))
+        {
+            var availableWidth = 0F;
+            for (var localCellIndex = cellIndex; localCellIndex < cellIndex + child.ColumnSpan; localCellIndex++)
+            {
+                var (width, _) = cellWidths[localCellIndex];
+                availableWidth += width;
+            }
+            var size                 = child.Measure(dpi, fullPageSize, framedPageSize, remainingSize with
+            {
+                Width = availableWidth
+            }, cultureInfo);
+            cellIndex  += child.ColumnSpan;
+            totalWidth += size.Width;
+            maxHeight  =  Math.Max(maxHeight, size.Height);
+        }
+
+        return new Size(totalWidth, maxHeight);
     }
 
     /// <inheritdoc />
@@ -52,48 +99,44 @@ public abstract class TableRowControlBase : AlignableContentControl
         in Size     fullPageSize,
         in Size     framedPageSize,
         in Size     remainingSize,
-        CultureInfo cultureInfo)
+        CultureInfo cultureInfo
+    )
     {
-        if (Table is null) throw new InvalidOperationException("A TableRowControl must be added to a TableControl");
-        var width     = 0F;
-        var height    = 0F;
-        var maxHeight = 0F;
-        foreach (var (control, index) in Children.Indexed())
-        {
-            _                  = Table.CellWidths.TryGetValue(index, out var tuple);
-            var (cellWidth, _) = tuple;
-            var (_, cellHeight) = control.Measure(
-                dpi,
-                fullPageSize,
-                framedPageSize with
-                {
-                    Width = cellWidth,
-                },
-                remainingSize with
-                {
-                    Width = cellWidth,
-                },
-                cultureInfo
+        if (Table?.CellWidths is not { } cellWidths)
+            throw new InvalidOperationException(
+                "A TableRowControl must be added to a TableControl with a valid CellWidths dictionary"
             );
-            maxHeight = Math.Max(maxHeight, cellHeight);
-        }
-
-        foreach (var (control, index) in Children.Indexed())
+        var   maxHeight = MeasurementInner.Height;
+        float previousMaxHeight;
+        var   count = 0;
+        do
         {
-            _                  = Table.CellWidths.TryGetValue(index, out var tuple);
-            var (cellWidth, _) = tuple;
-
-            var remainingCellSize = remainingSize with
+            previousMaxHeight = maxHeight;
+            ushort cellIndex  = 0;
+            foreach (var child in Children.OfType<TableCellControl>().Where((cell) => cell.ColumnSpan > 0))
             {
-                Width = cellWidth,
-                Height = maxHeight,
-            };
-            var size = control.Arrange(dpi, fullPageSize, remainingCellSize, remainingCellSize, cultureInfo);
-            width  += cellWidth;
-            height =  Math.Max(height, size.Height);
-        }
+                var widthAvailable = 0F;
+                for (var localCellIndex = cellIndex; localCellIndex < cellIndex + child.ColumnSpan; localCellIndex++)
+                {
+                    _              =  cellWidths.TryGetValue(localCellIndex, out var tuple);
+                    widthAvailable += tuple.desiredWitdth;
+                }
 
-        return new Size(width, height);
+                cellIndex += child.ColumnSpan;
+
+                var size = child.Arrange(
+                    dpi,
+                    fullPageSize,
+                    new Size(Width: widthAvailable, Height: maxHeight),
+                    new Size(Width: widthAvailable, Height: maxHeight),
+                    cultureInfo
+                );
+                maxHeight = Math.Max(maxHeight, size.Height);
+            }
+            // ReSharper disable once CompareOfFloatsByEqualityOperator
+        } while (previousMaxHeight != maxHeight && ++count < 2);
+
+        return remainingSize with { Height = maxHeight };
     }
 
     /// <inheritdoc />
@@ -105,13 +148,24 @@ public abstract class TableRowControlBase : AlignableContentControl
             throw new InvalidOperationException("A TableRowControl must be added to a TableControl");
         using (canvas.CreateState())
         {
-            foreach (var (control, index) in Children.OfType<TableCellControl>().Indexed())
+            ushort localCellIndex = 0;
+            foreach (var control in Children.OfType<TableCellControl>().Where((cell) => cell.ColumnSpan > 0))
             {
-                control.Render(canvas, dpi, parentSize, cultureInfo);
-                var (width, _) = Table.CellWidths[index];
-                canvas.Translate(width, 0);
+                var widthAvailable = 0F;
+                for (var i = localCellIndex; i < localCellIndex + control.ColumnSpan; i++)
+                {
+                    _              =  Table.CellWidths.TryGetValue(i, out var tuple);
+                    widthAvailable += tuple.desiredWitdth;
+                }
+
+                localCellIndex      += control.ColumnSpan;
+                var (width, height) =  control.Render(canvas, dpi, parentSize, cultureInfo);
+                additionalWidth     += width;
+                additionalHeight    += height;
+                canvas.Translate(widthAvailable, 0);
             }
         }
+
         return new Size(additionalWidth, additionalHeight);
     }
 
