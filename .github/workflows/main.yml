@@ -12,7 +12,7 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 7.0.x
+        dotnet-version: 8.0.x
     - name: Setup NuGet.exe for use with actions
       uses: NuGet/setup-nuget@v1.0.5
       with:
@@ -22,7 +22,7 @@ jobs:
     - name: Build
       run: dotnet build --no-restore
     - name: Test
-      run: dotnet test --framework net7.0 --no-build --verbosity normal
+      run: dotnet test --framework net8.0 --no-build --verbosity normal
     - name: Pack
       # CHANGE PACKAGE VERSION - The retarded way
       # Change the /p:VERSION=X.X.X part to change the actual package version.
