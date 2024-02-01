@@ -20,6 +20,7 @@ public abstract class XmlTemplateReaderException : XmlException
     }
 
     /// <inheritdoc />
+    [Obsolete("Obsolete")]
     protected XmlTemplateReaderException(SerializationInfo info, StreamingContext context) : base(info, context)
     {
     }

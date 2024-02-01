@@ -74,7 +74,7 @@ public class ForEachTransformerTests
         using var xmlStream = new MemoryStream(Encoding.UTF8.GetBytes(template));
         using var xmlReader = XmlReader.Create(xmlStream);
         var nodeInformation = await templateReader.ReadAsync(xmlReader);
-        Assert.Equal(0, nodeInformation.Children.Count);
+        Assert.Empty(nodeInformation.Children);
     }
 
     [Fact]

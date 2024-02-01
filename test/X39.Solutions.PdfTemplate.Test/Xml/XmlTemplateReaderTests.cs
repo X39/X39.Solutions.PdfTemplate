@@ -39,7 +39,7 @@ public class XmlTemplateReaderTests
         Assert.Equal(2, node.Children.Count);
         Assert.Equal("nested", node.Children.ElementAt(0).NodeName);
         Assert.Equal(ns, node.Children.ElementAt(0).NodeNamespace);
-        Assert.Equal(1, node.Children.ElementAt(0).Children.Count);
+        Assert.Single(node.Children.ElementAt(0).Children);
         Assert.Equal("line", node.Children.ElementAt(0).Children.ElementAt(0).NodeName);
         Assert.Equal(ns, node.Children.ElementAt(0).Children.ElementAt(0).NodeNamespace);
         Assert.Equal("line", node.Children.ElementAt(1).NodeName);

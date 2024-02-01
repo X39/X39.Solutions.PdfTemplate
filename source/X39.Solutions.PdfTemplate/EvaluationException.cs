@@ -13,6 +13,7 @@ public abstract class EvaluationException : Exception
     }
 
     /// <inheritdoc />
+    [Obsolete("Obsolete")]
     protected EvaluationException(SerializationInfo info, StreamingContext context) : base(info, context)
     {
     }

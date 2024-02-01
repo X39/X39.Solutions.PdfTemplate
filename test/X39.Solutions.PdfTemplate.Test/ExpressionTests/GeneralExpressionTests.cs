@@ -28,7 +28,7 @@ public class GeneralExpressionTests
         using var xmlStream = new MemoryStream(Encoding.UTF8.GetBytes(template));
         using var xmlReader = XmlReader.Create(xmlStream);
         var nodeInformation = await templateReader.ReadAsync(xmlReader);
-        Assert.Equal(1, nodeInformation.Children.Count);
+        Assert.Single(nodeInformation.Children);
         Assert.Equal(textExpected, nodeInformation.Children.ElementAt(0).TextContent);
     }
 
@@ -52,7 +52,7 @@ public class GeneralExpressionTests
         using var xmlStream = new MemoryStream(Encoding.UTF8.GetBytes(template));
         using var xmlReader = XmlReader.Create(xmlStream);
         var nodeInformation = await templateReader.ReadAsync(xmlReader);
-        Assert.Equal(1, nodeInformation.Children.Count);
+        Assert.Single(nodeInformation.Children);
         Assert.Equal("foo: bar baz! @nono- no-error", nodeInformation.Children.ElementAt(0).TextContent);
     }
 

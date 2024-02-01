@@ -18,6 +18,7 @@ public abstract class XmlTemplateTransformationException : XmlTemplateReaderExce
     }
 
     /// <inheritdoc />
+    [Obsolete("Obsolete")]
     protected XmlTemplateTransformationException(SerializationInfo info, StreamingContext context) : base(info, context)
     {
     }

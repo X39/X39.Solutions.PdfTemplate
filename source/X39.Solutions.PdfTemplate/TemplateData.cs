@@ -55,7 +55,7 @@ internal sealed class TemplateData : ITemplateData
         return (T?) _transformerData.GetValueOrDefault((typeof(T), name));
     }
 
-    public void SetTransformerData<T>(string name, T data)
+    public void SetTransformerData<T>(string name, T? data)
     {
         _transformerData[(typeof(T), name)] = data;
     }
