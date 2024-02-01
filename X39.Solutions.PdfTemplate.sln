@@ -8,6 +8,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "files", "files", "{A16F2F3F
 		.gitignore = .gitignore
 		LICENSE = LICENSE
 		README.md = README.md
+		CONTRIBUTORS.md = CONTRIBUTORS.md
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{578183F3-B424-4D0B-9B6B-1F22FBDB80C8}"
