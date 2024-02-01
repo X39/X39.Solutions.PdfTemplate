@@ -29,6 +29,7 @@ public static class GeneratorDefaults
         self.AddControl<Controls.TableHeaderControl>();
         self.AddControl<Controls.TableRowControl>();
         self.AddControl<Controls.BorderControl>();
+        self.AddControl<Controls.PageNumberControl>();
         return self;
     }
 
