@@ -2,7 +2,6 @@
 using System.Linq.Expressions;
 using System.Reflection;
 using X39.Solutions.PdfTemplate.Attributes;
-using X39.Util.Collections;
 using X39.Util.Threading;
 
 namespace X39.Solutions.PdfTemplate;
@@ -340,7 +339,7 @@ public sealed class ControlExpressionCache : IDisposable
         );
 
         Dictionary<string, bool> used = new(parameterDictionary.Count);
-        foreach (var ((_, parameter, setter), index) in array.Indexed())
+        foreach (var (_, parameter, setter) in array)
         {
             if (parameterDictionary.TryGetValue(parameter, out var value))
             {

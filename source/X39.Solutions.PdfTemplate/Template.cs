@@ -78,7 +78,7 @@ internal sealed class Template : IAsyncDisposable
                 cultureInfo);
             if (control is not IContentControl contentControl)
             {
-                if (node.Children.Any())
+                if (node.Children.Count != 0)
                     throw new InvalidOperationException(
                         $"The control {node.NodeNamespace}:{node.NodeName} does not support child controls.");
             }
