@@ -29,8 +29,8 @@ public sealed class ImageControl : AlignableControl, IInitializeAsync, IDisposab
     /// </summary>
     /// <remarks>
     /// This always has to be resolved, using a <see cref="IResourceResolver"/>.
-    /// The default implementation of <see cref="IResourceResolver"/> is <see cref="DefaultResourceResolver"/>.
-    /// It will only accept base64 encoded images for security reasons!
+    /// The default implementation of <see cref="IResourceResolver"/> is <see cref="DefaultResourceResolver"/>,
+    /// accepting only accept base64 encoded images for security reasons!
     /// Make sure to provide your own <see cref="IResourceResolver"/> if you
     /// want to use other sources, like a file path.
     /// </remarks>
