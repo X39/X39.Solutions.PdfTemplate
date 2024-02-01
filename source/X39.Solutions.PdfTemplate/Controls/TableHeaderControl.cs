@@ -6,6 +6,4 @@ namespace X39.Solutions.PdfTemplate.Controls;
 /// A control which will draw a table header.
 /// </summary>
 [Control(Constants.ControlsNamespace, "th")]
-public sealed class TableHeaderControl : TableRowControlBase
-{
-}
+public sealed class TableHeaderControl : TableRowControlBase;

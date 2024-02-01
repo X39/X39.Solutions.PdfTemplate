@@ -13,7 +13,7 @@ public sealed class SkPaintCache : IDisposable
     // ReSharper disable NotAccessedPositionalProperty.Local -- Disabled as this is a key-only record
     private readonly record struct StrokePaintKey(Color Color, float Thickness);
 
-    private readonly record struct TextPaintKey(TextStyle TextStyle, float dpi);
+    private readonly record struct TextPaintKey(TextStyle TextStyle, float Dpi);
     // ReSharper restore NotAccessedPositionalProperty.Local
 
     private readonly Dictionary<StrokePaintKey, SKPaint> _strokePaints     = new();

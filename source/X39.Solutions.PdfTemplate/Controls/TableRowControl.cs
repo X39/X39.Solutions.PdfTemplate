@@ -6,6 +6,4 @@ namespace X39.Solutions.PdfTemplate.Controls;
 /// A control which will draw a table row.
 /// </summary>
 [Control(Constants.ControlsNamespace, "tr")]
-public sealed class TableRowControl : TableRowControlBase
-{
-}
+public sealed class TableRowControl : TableRowControlBase;

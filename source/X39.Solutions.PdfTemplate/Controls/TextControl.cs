@@ -9,7 +9,6 @@ namespace X39.Solutions.PdfTemplate.Controls;
 [Control(Constants.ControlsNamespace)]
 public sealed class TextControl : TextBaseControl
 {
-
     /// <summary>
     /// Creates a new instance of <see cref="TextControl"/>
     /// </summary>

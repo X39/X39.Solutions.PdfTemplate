@@ -80,8 +80,7 @@ public sealed class Generator : IDisposable, IAsyncDisposable, IAddControls, IAd
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="data"/> is <see langword="null"/>.</exception>
     public void AddData(string key, object data)
     {
-        if (data is null)
-            throw new ArgumentNullException(nameof(data));
+        ArgumentNullException.ThrowIfNull(data);
         _data.Add(key, data);
     }
 
@@ -311,13 +310,14 @@ public sealed class Generator : IDisposable, IAsyncDisposable, IAddControls, IAd
 
             canvas.Save();
             canvas.ClipRect(
-                new SKRect {Left = 0, Right = headerPageSize.Width, Top = 0, Bottom = headerPageSize.Height});
+                new SKRect { Left = 0, Right = headerPageSize.Width, Top = 0, Bottom = headerPageSize.Height }
+            );
             headerCanvasAbstraction.Render(canvas);
             canvas.Restore();
 
             canvas.Save();
             canvas.Translate(0, headerPageSize.Height);
-            canvas.ClipRect(new SKRect {Left = 0, Right = bodyPageSize.Width, Top = 0, Bottom = bodyPageSize.Height});
+            canvas.ClipRect(new SKRect { Left = 0, Right = bodyPageSize.Width, Top = 0, Bottom = bodyPageSize.Height });
             canvas.Translate(0, -currentHeight);
             bodyCanvasAbstraction.Render(canvas);
             canvas.Restore();
@@ -326,7 +326,8 @@ public sealed class Generator : IDisposable, IAsyncDisposable, IAddControls, IAd
             canvas.Translate(0, headerPageSize.Height);
             canvas.Translate(0, bodyPageSize.Height);
             canvas.ClipRect(
-                new SKRect {Left = 0, Right = footerPageSize.Width, Top = 0, Bottom = footerPageSize.Height});
+                new SKRect { Left = 0, Right = footerPageSize.Width, Top = 0, Bottom = footerPageSize.Height }
+            );
             footerCanvasAbstraction.Render(canvas);
             canvas.Restore();
             currentHeight += bodyPageSize.Height;
