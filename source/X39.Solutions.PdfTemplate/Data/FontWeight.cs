@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
 using System.Numerics;
 
 namespace X39.Solutions.PdfTemplate.Data;

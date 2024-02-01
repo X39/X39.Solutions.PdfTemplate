@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel;
-using System.Globalization;
 using System.Linq.Expressions;
 using System.Reflection;
 using X39.Solutions.PdfTemplate.Attributes;

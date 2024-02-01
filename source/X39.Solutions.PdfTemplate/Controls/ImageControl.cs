@@ -1,5 +1,4 @@
-﻿using System.Globalization;
-using SkiaSharp;
+﻿using SkiaSharp;
 using X39.Solutions.PdfTemplate.Abstraction;
 using X39.Solutions.PdfTemplate.Attributes;
 using X39.Solutions.PdfTemplate.Controls.Base;

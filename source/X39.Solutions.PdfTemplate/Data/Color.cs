@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel;
-using System.Globalization;
 using SkiaSharp;
 
 namespace X39.Solutions.PdfTemplate.Data;

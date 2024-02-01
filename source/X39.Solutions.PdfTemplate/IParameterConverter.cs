@@ -1,4 +1,3 @@
-using System.Globalization;
 using X39.Solutions.PdfTemplate.Attributes;
 
 namespace X39.Solutions.PdfTemplate;

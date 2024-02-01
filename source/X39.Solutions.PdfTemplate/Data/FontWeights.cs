@@ -1,6 +1,4 @@
-﻿using System.ComponentModel;
-
-namespace X39.Solutions.PdfTemplate.Data;
+﻿namespace X39.Solutions.PdfTemplate.Data;
 
 /// <summary>
 /// Common font weights.

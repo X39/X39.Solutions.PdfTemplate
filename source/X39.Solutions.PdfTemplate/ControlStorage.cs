@@ -1,5 +1,4 @@
 ﻿using System.Data;
-using System.Globalization;
 using System.Reflection;
 using X39.Solutions.PdfTemplate.Attributes;
 

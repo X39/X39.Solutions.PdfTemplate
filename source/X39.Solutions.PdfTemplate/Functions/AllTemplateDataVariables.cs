@@ -1,6 +1,4 @@
-﻿using System.Globalization;
-
-namespace X39.Solutions.PdfTemplate.Functions;
+﻿namespace X39.Solutions.PdfTemplate.Functions;
 
 internal class AllTemplateDataVariables : IFunction
 {

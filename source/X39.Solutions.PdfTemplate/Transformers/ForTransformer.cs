@@ -1,5 +1,4 @@
-﻿using System.Globalization;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using XmlNode = X39.Solutions.PdfTemplate.Xml.XmlNode;
 

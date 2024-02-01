@@ -1,6 +1,4 @@
-﻿using System.Globalization;
-
-namespace X39.Solutions.PdfTemplate;
+﻿namespace X39.Solutions.PdfTemplate;
 
 /// <summary>
 /// Allows access to pdf template data.

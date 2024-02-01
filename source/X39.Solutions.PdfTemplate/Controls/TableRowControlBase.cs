@@ -1,5 +1,4 @@
-﻿using System.Globalization;
-using X39.Solutions.PdfTemplate.Abstraction;
+﻿using X39.Solutions.PdfTemplate.Abstraction;
 using X39.Solutions.PdfTemplate.Controls.Base;
 using X39.Solutions.PdfTemplate.Data;
 using X39.Util.Collections;
