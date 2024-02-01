@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
-using SkiaSharp;
 using XmlNode = X39.Solutions.PdfTemplate.Xml.XmlNode;
 
 namespace X39.Solutions.PdfTemplate.Transformers;
@@ -79,7 +78,7 @@ public partial class IfTransformer : ITransformer
             yield return node.DeepCopy();
     }
 
-    private bool Similar(object? leftExpression, object? rightExpression)
+    private static bool Similar(object? leftExpression, object? rightExpression)
     {
         if (leftExpression is null && rightExpression is null)
             return true;
@@ -88,12 +87,12 @@ public partial class IfTransformer : ITransformer
         return Same(leftExpression, rightExpression);
     }
 
-    private bool Same(object? leftExpression, object? rightExpression)
+    private static bool Same(object? leftExpression, object? rightExpression)
     {
         return Equals(leftExpression, rightExpression);
     }
 
-    private bool Contains(object? leftExpression, object? rightExpression)
+    private static bool Contains(object? leftExpression, object? rightExpression)
     {
         return rightExpression switch
         {
@@ -104,7 +103,7 @@ public partial class IfTransformer : ITransformer
         };
     }
 
-    private int Compare(object? variableValue, object? value)
+    private static int Compare(object? variableValue, object? value)
     {
         if (variableValue is null && value is null)
             return 0;
