@@ -8,7 +8,14 @@
         <PackageId>X39.Solutions.PdfTemplate</PackageId>
         <Authors>X39</Authors>
         <Title>X39.Solutions.PdfTemplate</Title>
-        <PackageDescription>Allows to generate PDFs from objects.</PackageDescription>
+        <PackageDescription>
+            <![CDATA[This library provides a way to generate PDF documents (and images) from XML templates.
+It uses SkiaSharp for rendering and supports a variety of controls for creating complex layouts.
+You can easily integrate .NET objects into your templates by using so-called "variables" (`@myVariable`)
+or pull data from a database as needed, by providing a custom function (`@myFunction()`).
+You may even create your own controls by deriving from the `Control` base class!
+]]>
+        </PackageDescription>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <SupportUrl>https://github.com/X39/cs-x39-util/issues</SupportUrl>
         <RepositoryType>git</RepositoryType>
@@ -24,7 +31,7 @@
         <PackageTags>utility;common</PackageTags>
         <AnalysisLevel>latest-recommended</AnalysisLevel>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-        
+
         <NoWarn>CA1716</NoWarn>
         <NoWarn>CA1710</NoWarn>
         <NoWarn>CA1716</NoWarn>
@@ -36,6 +43,6 @@
         <None Include="$(SolutionDir)\README.md" Pack="true" PackagePath="\"/>
         <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.0"/>
         <PackageReference Include="SkiaSharp" Version="2.88.7"/>
-        <PackageReference Include="X39.Util" Version="1.0.0.40" />
+        <PackageReference Include="X39.Util" Version="1.0.0.40"/>
     </ItemGroup>
 </Project>
