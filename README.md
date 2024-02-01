@@ -240,29 +240,36 @@ The `text` control supports the following attributes:
 | `Text`            | The text to render. Also accepted as XML Content.                 | Any text                                                                          | `""`                                                         |
 
 #### `border`
+
 <!-- ToDo: Add content -->
 
 #### `image`
+
 <!-- ToDo: Add content -->
 
 #### `line`
+
 <!-- ToDo: Add content -->
 
 #### `pageNumber`
+
 <!-- ToDo: Add content -->
 
 #### `table`
+
 <!-- ToDo: Add content -->
 
 ##### `th`
+
 <!-- ToDo: Add content -->
 
 ##### `tr`
+
 <!-- ToDo: Add content -->
 
 ##### `td`
-<!-- ToDo: Add content -->
 
+<!-- ToDo: Add content -->
 
 ### Transformers
 
@@ -470,7 +477,8 @@ It also ensures that I can remove your contribution if necessary (e.g., because 
 that I can change your contribution if necessary (e.g., to fix a typo, change implementation details, or improve
 performance).
 It also shields me and every user of this project from any liability regarding your contribution by deflecting any
-potential liability caused by your contribution to you (e.g., if your contribution violates the rights of your employer).
+potential liability caused by your contribution to you (e.g., if your contribution violates the rights of your
+employer).
 Feel free to discuss this agreement in the discussions section of this repository, i am open to changes here (as long as
 they do not open me or any other user of this project to any liability due to a **malicious contribution**).
 

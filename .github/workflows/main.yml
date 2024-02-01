@@ -1,4 +1,3 @@
-
 name: NuGet package publish
 on:
   push:
@@ -8,24 +7,24 @@ jobs:
   upload-to-npgk:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: 8.0.x
-    - name: Setup NuGet.exe for use with actions
-      uses: NuGet/setup-nuget@v1.0.5
-      with:
-        nuget-version: latest
-    - name: Restore dependencies
-      run: dotnet restore
-    - name: Build
-      run: dotnet build --no-restore
-    - name: Test
-      run: dotnet test --framework net8.0 --no-build --verbosity normal
-    - name: Pack
-      # CHANGE PACKAGE VERSION - The retarded way
-      # Change the /p:VERSION=X.X.X part to change the actual package version.
-      run: dotnet pack --configuration Release /p:VERSION=4.0.0.${{ github.run_number }} --version-suffix ${{ github.sha }} 
-    - name: Upload to NuGet
-      run: dotnet nuget push ./source/X39.Solutions.PdfTemplate/bin/Release/X39.Solutions.PdfTemplate.*.nupkg -s https://api.nuget.org/v3/index.json -k ${{ secrets.NUGET_API_KEY }}
+      - uses: actions/checkout@v2
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 8.0.x
+      - name: Setup NuGet.exe for use with actions
+        uses: NuGet/setup-nuget@v1.0.5
+        with:
+          nuget-version: latest
+      - name: Restore dependencies
+        run: dotnet restore
+      - name: Build
+        run: dotnet build --no-restore
+      - name: Test
+        run: dotnet test --framework net8.0 --no-build --verbosity normal
+      - name: Pack
+        # CHANGE PACKAGE VERSION - The retarded way
+        # Change the /p:VERSION=X.X.X part to change the actual package version.
+        run: dotnet pack --configuration Release /p:VERSION=4.0.0.${{ github.run_number }} --version-suffix ${{ github.sha }}
+      - name: Upload to NuGet
+        run: dotnet nuget push ./source/X39.Solutions.PdfTemplate/bin/Release/X39.Solutions.PdfTemplate.*.nupkg -s https://api.nuget.org/v3/index.json -k ${{ secrets.NUGET_API_KEY }}
