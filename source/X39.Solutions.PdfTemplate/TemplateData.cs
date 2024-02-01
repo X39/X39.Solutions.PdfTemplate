@@ -1,22 +1,25 @@
-﻿using System.Text;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Text;
 
 namespace X39.Solutions.PdfTemplate;
 
 internal sealed class TemplateData : ITemplateData
 {
-    private readonly Stack<Dictionary<string, object?>> _variableStack = new();
-    private readonly Dictionary<string, IFunction>      _functions     = new();
+    private record struct VariableScope(
+        [SuppressMessage("ReSharper", "NotAccessedPositionalProperty.Local", Justification = "Debug help")] string Name,
+        Dictionary<string, object?>                                                  Variables);
 
-    public TemplateData()
-    {
-        _variableStack.Push(new Dictionary<string, object?>());
-    }
+    private readonly Stack<VariableScope>                _variableStack   = new();
+    private readonly Dictionary<string, IFunction>       _functions       = new();
+    private readonly Dictionary<(Type, string), object?> _transformerData = new();
+
+    public TemplateData() { _variableStack.Push(new VariableScope("__root__", new Dictionary<string, object?>())); }
 
     public IDisposable Scope(string scopeName)
     {
-        var dict = _variableStack.Any()
-            ? new Dictionary<string, object?>(_variableStack.Peek())
-            : new Dictionary<string, object?>();
+        var dict = _variableStack.Count != 0
+            ? new VariableScope(scopeName, new Dictionary<string, object?>(_variableStack.Peek().Variables))
+            : new VariableScope(scopeName, new Dictionary<string, object?>());
         _variableStack.Push(dict);
         return new Disposable(() => _variableStack.Pop());
     }
@@ -31,40 +34,42 @@ internal sealed class TemplateData : ITemplateData
         return disposable;
     }
 
-    public IDisposable Scope(Dictionary<string, object?> data)
+    public IDisposable Scope(string scopeName, Dictionary<string, object?> data)
     {
-        _variableStack.Push(data);
+        _variableStack.Push(new VariableScope(scopeName, data));
         return new Disposable(() => _variableStack.Pop());
     }
 
     public IEnumerable<IFunction> Functions => _functions.Values;
 
     public IEnumerable<KeyValuePair<string, object?>> Variables => _variableStack
-        .SelectMany((d) => d)
-        .DistinctBy((q) => q.Key);
+                                                                   .SelectMany((d) => d.Variables)
+                                                                   .DistinctBy((q) => q.Key);
 
-    public void RegisterFunction(IFunction function)
+    public void RegisterFunction(IFunction function) { _functions.Add(function.Name, function); }
+
+    public IFunction? GetFunction(string name) { return _functions.GetValueOrDefault(name); }
+
+    public T? GetTransformerData<T>(string name)
     {
-        _functions.Add(function.Name, function);
+        return (T?) _transformerData.GetValueOrDefault((typeof(T), name));
     }
 
-    public IFunction? GetFunction(string name)
+    public void SetTransformerData<T>(string name, T data)
     {
-        return _functions.GetValueOrDefault(name);
+        _transformerData[(typeof(T), name)] = data;
     }
 
     public void SetVariable(string name, object? value)
     {
         if (_variableStack.Count == 0)
             return;
-        _variableStack.Peek()[name] = value;
+        _variableStack.Peek().Variables[name] = value;
     }
 
     public object? GetVariable(string name)
     {
-        return _variableStack.Count == 0
-            ? null
-            : _variableStack.Peek().GetValueOrDefault(name);
+        return _variableStack.Count == 0 ? null : _variableStack.Peek().Variables.GetValueOrDefault(name);
     }
 
     public bool TryGetVariable(string name, out object? value)
@@ -75,11 +80,15 @@ internal sealed class TemplateData : ITemplateData
             return false;
         }
 
-        var dict = _variableStack.Peek();
+        var dict = _variableStack.Peek().Variables;
         return dict.TryGetValue(name, out value);
     }
 
-    public async ValueTask<object?> EvaluateAsync(CultureInfo cultureInfo, string expression, CancellationToken cancellationToken = default)
+    public async ValueTask<object?> EvaluateAsync(
+        CultureInfo       cultureInfo,
+        string            expression,
+        CancellationToken cancellationToken = default
+    )
     {
         var firstChar = expression.Length > 0 ? expression[0] : '\0';
         if (expression.Length > 1 && firstChar == '"')
@@ -97,20 +106,11 @@ internal sealed class TemplateData : ITemplateData
         return GetVariable(expression);
     }
 
-    private static bool IsTrue(string expression)
-    {
-        return expression == "true";
-    }
+    private static bool IsTrue(string expression) { return expression == "true"; }
 
-    private static bool IsFalse(string expression)
-    {
-        return expression == "false";
-    }
+    private static bool IsFalse(string expression) { return expression == "false"; }
 
-    private static bool IsFunctionExpression(string expression)
-    {
-        return expression.IndexOf('(') != -1;
-    }
+    private static bool IsFunctionExpression(string expression) { return expression.Contains('('); }
 
     private static bool IsNumericExpression(char firstChar)
     {
@@ -127,29 +127,29 @@ internal sealed class TemplateData : ITemplateData
     }
 
     private async ValueTask<object?> HandleFunctionExpressionAsync(
-        CultureInfo cultureInfo,
-        string expression,
-        CancellationToken cancellationToken)
+        CultureInfo       cultureInfo,
+        string            expression,
+        CancellationToken cancellationToken
+    )
     {
         var functionName = expression[..expression.IndexOf('(')];
-        var function = GetFunction(functionName);
+        var function     = GetFunction(functionName);
         if (function is null)
             throw new FunctionNotFoundDuringEvaluationException(functionName);
-        var argumentEnd = expression.LastIndexOf(')');
+        var argumentEnd         = expression.LastIndexOf(')');
         var argumentsExpression = expression[(functionName.Length + 1)..(argumentEnd)].Trim();
         if (argumentsExpression.IsNullOrEmpty())
             return await function.ExecuteAsync(cultureInfo, Array.Empty<object?>(), cancellationToken)
-                .ConfigureAwait(false);
-        var splatted = argumentsExpression.Split(',', StringSplitOptions.TrimEntries);
+                                 .ConfigureAwait(false);
+        var splatted  = argumentsExpression.Split(',', StringSplitOptions.TrimEntries);
         var arguments = new object?[splatted.Length];
         for (var i = 0; i < arguments.Length; i++)
         {
-            var result = await EvaluateAsync(cultureInfo, splatted[i], cancellationToken)
-                .ConfigureAwait(false);
+            var result = await EvaluateAsync(cultureInfo, splatted[i], cancellationToken).ConfigureAwait(false);
             arguments[i] = result;
         }
-        return await function.ExecuteAsync(cultureInfo, arguments, cancellationToken)
-            .ConfigureAwait(false);
+
+        return await function.ExecuteAsync(cultureInfo, arguments, cancellationToken).ConfigureAwait(false);
     }
 
     private static string HandleStringExpression(string expression)
@@ -187,8 +187,7 @@ internal sealed class TemplateData : ITemplateData
                     case '\\':
                         builder.Append('\\');
                         break;
-                    default:
-                        throw new InvalidOperationException($"Unknown escape sequence '\\{c}'.");
+                    default: throw new InvalidOperationException($"Unknown escape sequence '\\{c}'.");
                 }
 
                 escaped = false;
@@ -204,8 +203,6 @@ internal sealed class TemplateData : ITemplateData
 
     public Dictionary<string, object?> PeekScope()
     {
-        return _variableStack.Any()
-            ? _variableStack.Peek()
-            : new Dictionary<string, object?>();
+        return _variableStack.Count != 0 ? _variableStack.Peek().Variables : new Dictionary<string, object?>();
     }
 }

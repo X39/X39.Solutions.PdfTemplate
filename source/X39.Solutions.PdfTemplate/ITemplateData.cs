@@ -79,4 +79,42 @@ public interface ITemplateData
     /// <param name="name">The name of the function.</param>
     /// <returns>The function or null if not found.</returns>
     IFunction? GetFunction(string name);
+
+    /// <summary>
+    /// Gets the transformer data for a specified name.
+    /// </summary>
+    /// <typeparam name="T">The type of transformer data.</typeparam>
+    /// <param name="name">The name of the data to receive.</param>
+    /// <returns>The transformer data or <see langword="default"/>(<typeparamref name="T"/>) if not found.</returns>
+    /// <remarks>
+    /// This method allows transformers to share data, making some advanced scenarios possible.
+    /// The data is alive for the lifetime of the <see cref="ITemplateData"/> instance.
+    /// The data is unique at type and name level, not only at name level, allowing name collisions,
+    /// given that the types are different.
+    /// </remarks>
+    /// <example>
+    /// <code>
+    /// var data = GetTransformerData&lt;string&gt;("MyData");
+    /// </code>
+    /// </example>
+    T? GetTransformerData<T>(string name);
+
+    /// <summary>
+    /// Sets the transformer data for a given name.
+    /// </summary>
+    /// <typeparam name="T">The type of the transformer data.</typeparam>
+    /// <param name="name">The name of the transformer data.</param>
+    /// <param name="data">The transformer data.</param>
+    /// <remarks>
+    /// This method allows transformers to share data, making some advanced scenarios possible.
+    /// The data is alive for the lifetime of the <see cref="ITemplateData"/> instance.
+    /// The data is unique at type and name level, not only at name level, allowing name collisions,
+    /// given that the types are different.
+    /// </remarks>
+    /// <example>
+    /// <code>
+    /// SetTransformerData("MyData", "Hello World");
+    /// </code>
+    /// </example>
+    void SetTransformerData<T>(string name, T? data);
 }
