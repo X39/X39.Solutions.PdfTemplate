@@ -21,7 +21,6 @@ public interface IParameterConverter<T>
     /// <param name="value">The value to convert.</param>
     /// <param name="format">A format specifier if available.</param>
     /// <param name="cultureInfo">The culture to use for the conversion.</param>
-    /// <typeparam name="T">The type to convert to.</typeparam>
     /// <returns>The converted value.</returns>
     T Convert(string value, string? format, CultureInfo cultureInfo);
 }
