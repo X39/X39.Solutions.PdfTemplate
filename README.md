@@ -25,6 +25,8 @@
   * [Building and Testing](#building-and-testing)
   * [Proper documentation for End-Users](#proper-documentation-for-end-users)
   * [Contributing](#contributing)
+    * [Code of Conduct](#code-of-conduct)
+    * [Contributors Agreement](#contributors-agreement)
     * [Additional controls](#additional-controls)
   * [License](#license)
 <!-- TOC -->
