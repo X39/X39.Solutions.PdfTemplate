@@ -97,9 +97,12 @@ public abstract class TableRowControlBase : AlignableContentControl
     }
 
     /// <inheritdoc />
-    protected override void DoRender(ICanvas canvas, float dpi, in Size parentSize, CultureInfo cultureInfo)
+    protected override Size DoRender(ICanvas canvas, float dpi, in Size parentSize, CultureInfo cultureInfo)
     {
-        if (Table is null) throw new InvalidOperationException("A TableRowControl must be added to a TableControl");
+        var additionalWidth  = 0F;
+        var additionalHeight = 0F;
+        if (Table is null)
+            throw new InvalidOperationException("A TableRowControl must be added to a TableControl");
         using (canvas.CreateState())
         {
             foreach (var (control, index) in Children.OfType<TableCellControl>().Indexed())
@@ -109,6 +112,7 @@ public abstract class TableRowControlBase : AlignableContentControl
                 canvas.Translate(width, 0);
             }
         }
+        return new Size(additionalWidth, additionalHeight);
     }
 
     /// <inheritdoc />

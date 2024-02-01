@@ -78,11 +78,7 @@ public sealed class LineControl : AlignableControl
 
 
     /// <inheritdoc />
-    protected override void DoRender(
-        ICanvas canvas,
-        float dpi,
-        in Size parentSize,
-        CultureInfo cultureInfo)
+    protected override Size DoRender(ICanvas canvas, float dpi, in Size parentSize, CultureInfo cultureInfo)
     {
         var length = Length.ToPixels(
             Orientation is EOrientation.Horizontal
@@ -118,5 +114,6 @@ public sealed class LineControl : AlignableControl
             default:
                 throw new InvalidEnumArgumentException(nameof(Orientation), (int) Orientation, typeof(EOrientation));
         }
+        return Size.Zero;
     }
 }

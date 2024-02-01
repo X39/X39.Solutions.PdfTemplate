@@ -118,10 +118,11 @@ public sealed class ImageControl : AlignableControl, IInitializeAsync, IDisposab
     }
 
     /// <inheritdoc />
-    protected override void DoRender(ICanvas canvas, float dpi, in Size parentSize, CultureInfo cultureInfo)
+    protected override Size DoRender(ICanvas canvas, float dpi, in Size parentSize, CultureInfo cultureInfo)
     {
         if (_bitmap is null)
-            return;
+            return Size.Zero;
         canvas.DrawBitmap(_bitmap, ArrangementInner - Arrangement);
+        return Size.Zero;
     }
 }

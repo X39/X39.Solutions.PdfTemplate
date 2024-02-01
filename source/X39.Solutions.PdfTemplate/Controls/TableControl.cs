@@ -238,37 +238,44 @@ public sealed class TableControl : AlignableContentControl
     }
 
     /// <inheritdoc />
-    protected override void DoRender(ICanvas canvas, float dpi, in Size parentSize, CultureInfo cultureInfo)
+    protected override Size DoRender(ICanvas canvas, float dpi, in Size parentSize, CultureInfo cultureInfo)
     {
-        var height = 0F;
-        var headers = Children.OfType<TableHeaderControl>().ToArray();
+        var additionalWidth  = 0F;
+        var additionalHeight = 0F;
+        var headers          = Children.OfType<TableHeaderControl>().ToArray();
         foreach (var headerControl in headers)
         {
-            headerControl.Render(canvas, dpi, parentSize, cultureInfo);
-            canvas.Translate(0, headerControl.Arrangement.Height);
-            height += headerControl.Arrangement.Height;
+            var (width, height) =  headerControl.Render(canvas, dpi, parentSize, cultureInfo);
+            additionalWidth     += width;
+            additionalHeight    += height;
+            canvas.Translate(0, headerControl.ArrangementOuter.Height + height);
         }
 
         foreach (var control in Children.OfType<TableRowControl>())
         {
             var remainingPageHeight = canvas.GetRemainingPageHeight(parentSize.Height);
-            if (control.Arrangement.Height > remainingPageHeight)
+            if (control.ArrangementOuter.Height > remainingPageHeight)
             {
-                var delta = remainingPageHeight;
-                canvas.Translate(0, delta);
-                height = 0F;
+                canvas.Translate(0, remainingPageHeight);
+                additionalHeight += remainingPageHeight;
                 foreach (var headerControl in headers)
                 {
-                    headerControl.Render(canvas, dpi, parentSize, cultureInfo);
-                    canvas.Translate(0, headerControl.Arrangement.Height);
-                    height += headerControl.Arrangement.Height;
+                    var (width, height) =  headerControl.Render(canvas, dpi, parentSize, cultureInfo);
+                    additionalWidth     += width;
+                    additionalHeight    += headerControl.ArrangementOuter.Height + height;
+                    canvas.Translate(0, headerControl.ArrangementOuter.Height + height);
                 }
             }
 
-            control.Render(canvas, dpi, parentSize, cultureInfo);
-            canvas.Translate(0, control.Arrangement.Height);
-            height += control.Arrangement.Height;
+            {
+                var (width, height) =  control.Render(canvas, dpi, parentSize, cultureInfo);
+                additionalWidth     += width;
+                additionalHeight    += height;
+                canvas.Translate(0, control.ArrangementOuter.Height + height);
+            }
         }
+
+        return new Size(additionalWidth, additionalHeight);
     }
 
     /// <inheritdoc />

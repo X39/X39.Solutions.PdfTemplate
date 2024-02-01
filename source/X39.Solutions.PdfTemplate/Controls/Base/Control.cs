@@ -253,24 +253,31 @@ public abstract class Control : IControl
         CultureInfo cultureInfo);
 
     /// <inheritdoc />
-    public virtual void Render(
-        ICanvas canvas,
-        float dpi,
-        in Size parentSize,
-        CultureInfo cultureInfo)
+    public virtual Size Render(
+        ICanvas     canvas,
+        float       dpi,
+        in Size     parentSize,
+        CultureInfo cultureInfo
+    )
     {
         var padding = Padding.ToRectangle(parentSize, dpi);
-        var margin = Margin.ToRectangle(parentSize, dpi);
+        var margin  = Margin.ToRectangle(parentSize, dpi);
         using (canvas.CreateState())
         {
             var arrangedSize = new Size(
                 parentSize.Width - padding.Width - padding.Width - margin.Width - margin.Width,
-                parentSize.Height - padding.Height - padding.Height - margin.Height - margin.Height);
-            PreRender(canvas, dpi, arrangedSize, cultureInfo);
+                parentSize.Height - padding.Height - padding.Height - margin.Height - margin.Height
+            );
+            var (width, height) = PreRender(canvas, dpi, arrangedSize, cultureInfo);
+            var additionalHeight = height;
+            var additionalWidth  = width;
             if (Clip)
-                canvas.Clip(Arrangement);
+                canvas.Clip(Arrangement + new Size(additionalWidth, additionalHeight));
             canvas.Translate(ArrangementInner);
-            DoRender(canvas, dpi, arrangedSize, cultureInfo);
+            (width, height)  = DoRender(canvas, dpi, arrangedSize, cultureInfo);
+            additionalHeight = height;
+            additionalWidth  = width;
+            return new Size(additionalWidth, additionalHeight);
         }
     }
 
@@ -281,19 +288,16 @@ public abstract class Control : IControl
     /// <param name="dpi"></param>
     /// <param name="parentSize">The size of the parent control.</param>
     /// <param name="cultureInfo">The culture info to use for rendering.</param>
-    protected virtual void PreRender(
-        ICanvas canvas,
-        float dpi,
-        in Size parentSize,
+    /// <returns>Additional size used by the control. Note that this is only used for Clip and is discarded otherwise.</returns>
+    protected virtual Size PreRender(
+        ICanvas     canvas,
+        float       dpi,
+        in Size     parentSize,
         CultureInfo cultureInfo)
     {
-        /* empty */
+        return Size.Zero;
     }
 
     /// <inheritdoc cref="Render"/>
-    protected abstract void DoRender(
-        ICanvas canvas,
-        float dpi,
-        in Size parentSize,
-        CultureInfo cultureInfo);
+    protected abstract Size DoRender(ICanvas canvas, float dpi, in Size parentSize, CultureInfo cultureInfo);
 }

@@ -206,7 +206,7 @@ public abstract class TextBaseControl : AlignableControl
     }
 
     /// <inheritdoc />
-    protected override void DoRender(ICanvas canvas, float dpi, in Size parentSize, CultureInfo cultureInfo)
+    protected override Size DoRender(ICanvas canvas, float dpi, in Size parentSize, CultureInfo cultureInfo)
     {
         RenderText(canvas, dpi, GetText().Trim());
         return Size.Zero;

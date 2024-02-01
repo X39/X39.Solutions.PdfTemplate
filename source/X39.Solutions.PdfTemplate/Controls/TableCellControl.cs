@@ -65,16 +65,21 @@ public sealed class TableCellControl : AlignableContentControl
     }
 
     /// <inheritdoc />
-    protected override void DoRender(ICanvas canvas, float dpi, in Size parentSize, CultureInfo cultureInfo)
+    protected override Size DoRender(ICanvas canvas, float dpi, in Size parentSize, CultureInfo cultureInfo)
     {
+        var additionalWidth  = 0F;
+        var additionalHeight = 0F;
         using (canvas.CreateState())
         {
-            foreach (var (control, height) in Children.Zip(_heights))
+            foreach (var (child, childHeight) in Children.Zip(_heights))
             {
-                control.Render(canvas, dpi, parentSize, cultureInfo);
-                canvas.Translate(0, height);
+                var (width, height) =  child.Render(canvas, dpi, parentSize, cultureInfo);
+                additionalWidth     += width;
+                additionalHeight    += height;
+                canvas.Translate(0, childHeight);
             }
         }
+        return new Size(additionalWidth, additionalHeight);
     }
 
     /// <inheritdoc />

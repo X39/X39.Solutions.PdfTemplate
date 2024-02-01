@@ -39,16 +39,23 @@ public class BorderControl : AlignableContentControl
         in Size remainingSize,
         CultureInfo cultureInfo)
     {
-        var thickness = Thickness.ToRectangle(fullPageSize, dpi);
-        var size = Size.Zero;
+        var thickness       = Thickness.ToRectangle(fullPageSize, dpi);
+        var thicknessOffset = new Size(thickness.Left, thickness.Top) + new Size(thickness.Width, thickness.Height);
+        var size            = Size.Zero;
         foreach (var child in Children)
         {
-            var measure = child.Measure(dpi, fullPageSize, remainingSize - thickness, remainingSize - thickness, cultureInfo);
+            var measure = child.Measure(
+                dpi,
+                fullPageSize,
+                remainingSize - thicknessOffset,
+                remainingSize - thicknessOffset,
+                cultureInfo
+            );
             size = new Size(
                 Math.Max(size.Width, measure.Width),
                 size.Height + measure.Height);
         }
-        var result = size + new Size(thickness.Left, thickness.Top) + new Size(thickness.Width, thickness.Height);
+        var result = size + thicknessOffset;
         // if (HorizontalAlignment is EHorizontalAlignment.Stretch)
         //     result = result with {Width = Math.Max(result.Width, framedPageSize.Width)};
         // if (VerticalAlignment is EVerticalAlignment.Stretch)
@@ -64,17 +71,24 @@ public class BorderControl : AlignableContentControl
         in Size remainingSize,
         CultureInfo cultureInfo)
     {
-        var thickness = Thickness.ToRectangle(fullPageSize, dpi);
-        var size = Size.Zero;
+        var thickness     = Thickness.ToRectangle(fullPageSize, dpi);
+        var thicknessOffset = new Size(thickness.Left, thickness.Top) + new Size(thickness.Width, thickness.Height);
+        var size          = Size.Zero;
         foreach (var child in Children)
         {
-            var measure = child.Arrange(dpi, fullPageSize, remainingSize - thickness, remainingSize - thickness, cultureInfo);
+            var measure = child.Arrange(
+                dpi,
+                fullPageSize,
+                remainingSize - thicknessOffset,
+                remainingSize - thicknessOffset,
+                cultureInfo
+            );
             size = new Size(
                 Math.Max(size.Width, measure.Width),
                 size.Height + measure.Height);
             _arrangedSizes.Add(measure);
         }
-        var result = size + new Size(thickness.Left, thickness.Top) + new Size(thickness.Width, thickness.Height);
+        var result = size + thicknessOffset;
         if (HorizontalAlignment is EHorizontalAlignment.Stretch)
             result = result with {Width = Math.Max(result.Width, remainingSize.Width)};
         if (VerticalAlignment is EVerticalAlignment.Stretch)
@@ -83,9 +97,11 @@ public class BorderControl : AlignableContentControl
     }
 
     /// <inheritdoc />
-    protected override void DoRender(ICanvas canvas, float dpi, in Size parentSize, CultureInfo cultureInfo)
+    protected override Size DoRender(ICanvas canvas, float dpi, in Size parentSize, CultureInfo cultureInfo)
     {
         using var state = canvas.CreateState();
+        var additionalWidth = 0F;
+        var additionalHeight = 0F;
         canvas.Translate(-ArrangementInner);
         canvas.Translate(Arrangement);
         var thickness = Thickness.ToRectangle(parentSize, dpi);
@@ -129,9 +145,13 @@ public class BorderControl : AlignableContentControl
         canvas.Translate(thickness);
         foreach (var (child, arrangedSize) in Children.Zip(_arrangedSizes))
         {
-            child.Render(canvas, dpi, parentSize, cultureInfo);
+            var (width, height) = child.Render(canvas, dpi, parentSize, cultureInfo);
+            additionalWidth += width;
+            additionalHeight += height;
             canvas.Translate(0, arrangedSize.Height);
         }
+
+        return new Size(additionalWidth, additionalHeight);
     }
 
     /// <inheritdoc />

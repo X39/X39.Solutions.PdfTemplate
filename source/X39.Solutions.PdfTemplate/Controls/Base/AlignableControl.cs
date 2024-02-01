@@ -23,7 +23,7 @@ public abstract class AlignableControl : Control
     public EVerticalAlignment VerticalAlignment { get; set; } = EVerticalAlignment.Stretch;
 
     /// <inheritdoc />
-    protected override void PreRender(ICanvas canvas, float dpi, in Size parentSize, CultureInfo cultureInfo)
+    protected override Size PreRender(ICanvas canvas, float dpi, in Size parentSize, CultureInfo cultureInfo)
     {
         canvas.Translate(
             new Point
@@ -51,5 +51,6 @@ public abstract class AlignableControl : Control
                         typeof(EVerticalAlignment)),
                 },
             });
+        return Size.Zero;
     }
 }

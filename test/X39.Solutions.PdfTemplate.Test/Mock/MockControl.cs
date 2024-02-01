@@ -10,8 +10,8 @@ public class MockControl : IControl
 {
     private List<Length> _widths  = new();
     private List<Length> _heights = new();
-    private int _widhtIndex = 0;
-    private int _heightIndex = 0;
+    private int _widhtIndex;
+    private int _heightIndex;
 
     [Parameter]
     public Length Width
@@ -86,5 +86,6 @@ public class MockControl : IControl
         return new Size(width, height);
     }
 
-    public void Render(ICanvas canvas, float dpi, in Size parentSize, CultureInfo cultureInfo) { }
+    public Size Render(ICanvas canvas, float dpi, in Size parentSize, CultureInfo cultureInfo) { 
+        return Size.Zero;}
 }
