@@ -5,6 +5,11 @@
   * [Integration](#integration)
     * [Functions](#functions)
     * [Variables](#variables)
+    * [End-User facing data types](#end-user-facing-data-types)
+      * [`Orientation`](#orientation)
+      * [`Length`](#length)
+      * [`Color`](#color)
+      * [`Thickness`](#thickness)
     * [Controls](#controls)
       * [Creating your own control](#creating-your-own-control)
       * [`text`](#text)
@@ -130,6 +135,65 @@ the `Generator` instance:
 generator.TemplateData.SetVariable("MyVariable", "Hello World!");
 ```
 
+### End-User facing data types
+
+The library uses a variety of data types to represent values in the template.
+The following list gives an overview of end-user facing data types and their meaning.
+
+#### `Orientation`
+
+The `Orientation` enum is used to specify the orientation of a control.
+
+It can have one of the following values:
+
+| Value        | Description                           |
+|--------------|---------------------------------------|
+| `Horizontal` | The control is oriented horizontally. |
+| `Vertical`   | The control is oriented vertically.   |
+
+#### `Length`
+
+A `Length` is a value that represents a length.
+
+It can have one of the following units:
+
+| Unit   | Description                             | Example |
+|--------|-----------------------------------------|---------|
+| `px`   | The length is in pixels.                | `100px` |
+| `pt`   | The length is in points (font size).    | `12pt`  |
+| `cm`   | The length is in centimeters.           | `1cm`   |
+| `mm`   | The length is in millimeters.           | `10mm`  |
+| `in`   | The length is in inches.                | `1in`   |
+| `%`    | The length is in percent.               | `100%`  |
+| `auto` | The length is automatically determined. | `auto`  |
+
+#### `Color`
+
+A `Color` is a value that represents a color.
+
+It can have one of the following formats:
+
+| Format      | Description                      | Example     |
+|-------------|----------------------------------|-------------|
+| `#RGB`      | The color is in RGB format.      | `#F00`      |
+| `#RGBA`     | The color is in RGBA format.     | `#F00F`     |
+| `#RRGGBB`   | The color is in RRGGBB format.   | `#FF0000`   |
+| `#RRGGBBAA` | The color is in RRGGBBAA format. | `#FF0000FF` |
+| color name  | The color is a named color.      | `red`       |
+
+#### `Thickness`
+
+A `Thickness` is a value that represents a thickness.
+It consists of four [`Length`](#length)s, one for each side.
+
+It can have one of the following formats:
+
+| Format                | Description                                                                                                                                                     | Example           |
+|-----------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------|
+| all                   | All sides have the same thickness.                                                                                                                              | `1px`             |
+| horizontal vertical   | The horizontal sides have the first thickness, the vertical sides have the second thickness.                                                                    | `1px 2px`         |
+| left top right bottom | The left side has the first thickness, the top side has the second thickness, the right side has the third thickness, the bottom side has the fourth thickness. | `1px 2px 3px 4px` |
+
 ### Controls
 
 The library supports a variety of controls for creating complex layouts. Each control is represented by a class in
@@ -199,7 +263,7 @@ You can now use the control in your XML templates (note the namespace import at 
 
 <template xmlns:my="MyControls">
     <body>
-        <my:MyControl/>
+        <my:MyControl />
     </body>
 </template>
 ```
@@ -225,51 +289,174 @@ You may derive from the `TextBaseControl` class to create your own text-based co
 
 The `text` control supports the following attributes:
 
-| Attribute         | Description                                                       | Values                                                                            | Default                                                      |
-|-------------------|-------------------------------------------------------------------|-----------------------------------------------------------------------------------|--------------------------------------------------------------|
-| `Foreground`      | The foreground color of the text.                                 | #RGB, #RGBA, #RRGGBB, #RRGGBBAA, some color names (eg. `red`)                     | `black`                                                      |
-| `FontSize`        | The font size of the text in points.                              | A positive number                                                                 | `12`                                                         |
-| `LineHeight`      | The line height of the text in points, relative to the font size. | A positive number                                                                 | `1.0`                                                        |
-| `Scale`           | The scale of the text.                                            | A positive number                                                                 | `1.0`                                                        |
-| `Rotation`        | The rotation of the text in degrees.                              | A number                                                                          | `0`                                                          |
-| `StrokeThickness` | The thickness of the text stroke in points.                       | A positive number                                                                 | `1`                                                          |
-| `FontSpacing`     | The spacing between characters in points.                         | A number                                                                          | `0`                                                          |
-| `FontWeight`      | The weight of the font.                                           | Any positive number or the common names without a `-` (`thin`, `extraLight`, ...) | `normal`                                                     |
-| `FontStyle`       | The style of the font.                                            | `normal`, `italic`, `oblique`, `upright`                                          | `normal`                                                     |
-| `FontFamily`      | The font family of the text.                                      | A font family name or a comma-separated list of font family names                 | Windows: `Arial`, Any other system: OS-specific default font |
-| `Text`            | The text to render. Also accepted as XML Content.                 | Any text                                                                          | `""`                                                         |
+| Attribute         | Description                                                          | Values                                                                            | Default                                                      |
+|-------------------|----------------------------------------------------------------------|-----------------------------------------------------------------------------------|--------------------------------------------------------------|
+| `Foreground`      | The foreground color of the text. See [`Color`](#color) for details. | Any color                                                                         | `#000000`                                                    |
+| `FontSize`        | The font size of the text in points.                                 | A positive number                                                                 | `12`                                                         |
+| `LineHeight`      | The line height of the text in points, relative to the font size.    | A positive number                                                                 | `1.0`                                                        |
+| `Scale`           | The scale of the text.                                               | A positive number                                                                 | `1.0`                                                        |
+| `Rotation`        | The rotation of the text in degrees.                                 | A number                                                                          | `0`                                                          |
+| `StrokeThickness` | The thickness of the text stroke in points.                          | A positive number                                                                 | `1`                                                          |
+| `FontSpacing`     | The spacing between characters in points.                            | A number                                                                          | `0`                                                          |
+| `FontWeight`      | The weight of the font.                                              | Any positive number or the common names without a `-` (`thin`, `extraLight`, ...) | `normal`                                                     |
+| `FontStyle`       | The style of the font.                                               | `normal`, `italic`, `oblique`, `upright`                                          | `normal`                                                     |
+| `FontFamily`      | The font family of the text.                                         | A font family name or a comma-separated list of font family names                 | Windows: `Arial`, Any other system: OS-specific default font |
+| `Text`            | The text to render. Also accepted as XML Content.                    | Any text                                                                          | `""`                                                         |
 
 #### `border`
 
-<!-- ToDo: Add content -->
+A border control can be used to draw a border around other controls
+or to add a background color to a control.
+
+The `border` control supports the following attributes:
+
+| Attribute    | Description                                                             | Values                        | Default           |
+|--------------|-------------------------------------------------------------------------|-------------------------------|-------------------|
+| `Thickness`  | The thickness of the border. See [`Thickness`](#thickness) for details. | Any [`Thickness`](#thickness) | `1pt 1pt 1pt 1pt` |
+| `Background` | The background color of the border. See [`Color`](#color) for details.  | Any [`Color`](#color)         | `#FF0000`         |
+| `Color`      | The color of the border. See [`Color`](#color) for details.             | Any [`Color`](#color)         | `#FF0000`         |
+
+Usage:
+
+```xml
+
+<template>
+    <body>
+        <border thickness="1pt 1pt 1pt 1pt" background="#FF0000" color="#00FF00">
+            <text>Hello, world!</text>
+        </border>
+    </body>
+</template>
+```
 
 #### `image`
 
-<!-- ToDo: Add content -->
+The `image` control allows to render images.
+
+It supports the following attributes:
+
+| Attribute | Description                                                                                                                         | Values                                                                       | Default                     |
+|-----------|-------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------|-----------------------------|
+| `Source`  | The source of the image. By default, the source is interpreted as Base64. Use a custom `IResourceResolver` to change this behavior. | Any URI, see [`IResourceResolver`](#iresourceresolver) for different formats | `data:image/png;base64,...` |
+| `Width`   | The width of the image in [`Length`](#length).                                                                                      | Any [`Length`](#length)                                                      | `auto`                      |
+| `Height`  | The height of the image in [`Length`](#length).                                                                                     | Any [`Length`](#length)                                                      | `auto`                      |
+
+Usage:
+
+```xml
+
+<template>
+    <body>
+        <image source="data:image/png;base64,..." />
+    </body>
+</template>
+```
 
 #### `line`
 
-<!-- ToDo: Add content -->
+The `line` control renders a simple line.
+
+It supports the following attributes:
+
+| Attribute     | Description                                                                 | Values                        | Default      |
+|---------------|-----------------------------------------------------------------------------|-------------------------------|--------------|
+| `Thickness`   | The thickness of the line. See [`Length`](#length) for details.             | Any [`Length`](#length)       | `1pt`        |
+| `Color`       | The color of the line. See [`Color`](#color) for details.                   | Any [`Color`](#color)         | `#FF0000`    |
+| `Length`      | The length of the line in [`Length`](#length).                              | Any [`Length`](#length)       | `auto`       |
+| `Orientation` | The orientation of the line. See [`Orientation`](#orientation) for details. | [`Orientation`](#orientation) | `Horizontal` |
+
+Usage:
+
+```xml
+
+<template>
+    <body>
+        <line thickness="1pt" color="#FF0000" length="100%" orientation="Horizontal" />
+    </body>
+</template>
+```
 
 #### `pageNumber`
 
-<!-- ToDo: Add content -->
+The `pageNumber` control renders the current page number or the total number of pages or both.
+
+It supports the following attributes:
+
+| Attribute   | Description                                                                               | Values                                             | Default   |
+|-------------|-------------------------------------------------------------------------------------------|----------------------------------------------------|-----------|
+| `Mode`      | The mode of the page number. Can be `Current`, `Total`, `CurrentTotal` or `TotalCurrent`. | `Current`, `Total`, `CurrentTotal`, `TotalCurrent` | `Current` |
+| `Prefix`    | The prefix of the page number.                                                            | Any text                                           | `""`      |
+| `Suffix`    | The suffix of the page number.                                                            | Any text                                           | `""`      |
+| `Delimiter` | The delimiter between the current and total page number.                                  | Any text                                           | `""`      |
+
+Usage:
+
+```xml
+
+<template>
+    <body>
+        <pageNumber mode="CurrentTotal" prefix="Page " delimiter=" of " />
+    </body>
+</template>
+```
 
 #### `table`
 
-<!-- ToDo: Add content -->
+The `table` control allows to render tables.
+It is used in conjunction with the [`th`](#th), [`tr`](#tr) and [`td`](#td) controls.
+
+It has no attributes.
+
+Usage:
+
+```xml
+
+<template>
+    <body>
+        <table>
+            <th>
+                <th>Header 1</th>
+                <th>Header 2</th>
+            </th>
+            <tr>
+                <td>Cell 1</td>
+                <td>Cell 2</td>
+            </tr>
+        </table>
+    </body>
+</template>
+```
 
 ##### `th`
 
-<!-- ToDo: Add content -->
+The `th` control is used to define the table headers.
+A table header is repeated on every page if the table spans multiple pages.
+
+It has no attributes.
+
+See [`table`](#table) for usage.
 
 ##### `tr`
 
-<!-- ToDo: Add content -->
+The `tr` control is used to define the table rows.
+A table row cannot span multiple pages, but total rows will be broken across pages.
+
+It has no attributes.
+
+See [`table`](#table) for usage.
 
 ##### `td`
 
-<!-- ToDo: Add content -->
+The `td` control is used to define the table cells.
+
+It has the following attributes:
+
+| Attribute    | Description                                                             | Values                                      | Default |
+|--------------|-------------------------------------------------------------------------|---------------------------------------------|---------|
+| `ColumnSpan` | The number of columns the cell spans.                                   | Any positive number                         | `1`     |
+| `Width`      | The width of the cell in either [`Length`](#length) or parts (eg. `1*). | Any [`Length`](#length) or parts (eg. `1*`) | `auto`  |
+
+See [`table`](#table) for usage.
 
 ### Transformers
 
