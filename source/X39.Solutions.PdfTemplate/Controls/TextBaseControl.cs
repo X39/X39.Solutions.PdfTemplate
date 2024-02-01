@@ -11,7 +11,10 @@ namespace X39.Solutions.PdfTemplate.Controls;
 /// </summary>
 public abstract class TextBaseControl : AlignableControl
 {
-    private readonly ITextService _textService;
+    /// <summary>
+    /// The text service passed in the constructor.
+    /// </summary>
+    protected ITextService TextService { get; }
 
     /// <summary>
     /// Creates a new instance of <see cref="TextControl"/>
@@ -19,7 +22,7 @@ public abstract class TextBaseControl : AlignableControl
     /// <param name="textService">The text service to use.</param>#
     public TextBaseControl(ITextService textService)
     {
-        _textService = textService;
+        TextService = textService;
     }
 
     /// <summary>
@@ -28,7 +31,10 @@ public abstract class TextBaseControl : AlignableControl
     /// <returns>The text to be displayed.</returns>
     protected abstract string GetText();
 
-    private TextStyle _textStyle = new();
+    /// <summary>
+    /// The text style represented by this control.
+    /// </summary>
+    protected TextStyle TextStyle { get; private set; } = new();
 
 
     /// <summary>
@@ -37,8 +43,8 @@ public abstract class TextBaseControl : AlignableControl
     [Parameter]
     public Color Foreground
     {
-        get => _textStyle.Foreground;
-        set => _textStyle = _textStyle with
+        get => TextStyle.Foreground;
+        set => TextStyle = TextStyle with
         {
             Foreground = value,
         };
@@ -50,8 +56,8 @@ public abstract class TextBaseControl : AlignableControl
     [Parameter]
     public float FontSize
     {
-        get => _textStyle.FontSize;
-        set => _textStyle = _textStyle with
+        get => TextStyle.FontSize;
+        set => TextStyle = TextStyle with
         {
             FontSize = value,
         };
@@ -64,8 +70,8 @@ public abstract class TextBaseControl : AlignableControl
     [Parameter]
     public float LineHeight
     {
-        get => _textStyle.LineHeight;
-        set => _textStyle = _textStyle with
+        get => TextStyle.LineHeight;
+        set => TextStyle = TextStyle with
         {
             LineHeight = value,
         };
@@ -77,8 +83,8 @@ public abstract class TextBaseControl : AlignableControl
     [Parameter]
     public float Scale
     {
-        get => _textStyle.Scale;
-        set => _textStyle = _textStyle with
+        get => TextStyle.Scale;
+        set => TextStyle = TextStyle with
         {
             Scale = value,
         };
@@ -90,8 +96,8 @@ public abstract class TextBaseControl : AlignableControl
     [Parameter]
     public float Rotation
     {
-        get => _textStyle.Rotation;
-        set => _textStyle = _textStyle with
+        get => TextStyle.Rotation;
+        set => TextStyle = TextStyle with
         {
             Rotation = value,
         };
@@ -103,8 +109,8 @@ public abstract class TextBaseControl : AlignableControl
     [Parameter]
     public float StrokeThickness
     {
-        get => _textStyle.StrokeThickness;
-        set => _textStyle = _textStyle with
+        get => TextStyle.StrokeThickness;
+        set => TextStyle = TextStyle with
         {
             StrokeThickness = value,
         };
@@ -116,10 +122,10 @@ public abstract class TextBaseControl : AlignableControl
     [Parameter]
     public FontWidth LetterSpacing
     {
-        get => _textStyle.FontFamily.LetterSpacing;
-        set => _textStyle = _textStyle with
+        get => TextStyle.FontFamily.LetterSpacing;
+        set => TextStyle = TextStyle with
         {
-            FontFamily = _textStyle.FontFamily with
+            FontFamily = TextStyle.FontFamily with
             {
                 LetterSpacing = value,
             },
@@ -132,10 +138,10 @@ public abstract class TextBaseControl : AlignableControl
     [Parameter]
     public FontWeight Weight
     {
-        get => _textStyle.FontFamily.Weight;
-        set => _textStyle = _textStyle with
+        get => TextStyle.FontFamily.Weight;
+        set => TextStyle = TextStyle with
         {
-            FontFamily = _textStyle.FontFamily with
+            FontFamily = TextStyle.FontFamily with
             {
                 Weight = value,
             },
@@ -148,10 +154,10 @@ public abstract class TextBaseControl : AlignableControl
     [Parameter]
     public EFontStyle Style
     {
-        get => _textStyle.FontFamily.Style;
-        set => _textStyle = _textStyle with
+        get => TextStyle.FontFamily.Style;
+        set => TextStyle = TextStyle with
         {
-            FontFamily = _textStyle.FontFamily with
+            FontFamily = TextStyle.FontFamily with
             {
                 Style = value,
             },
@@ -164,10 +170,10 @@ public abstract class TextBaseControl : AlignableControl
     [Parameter]
     public string FontFamily
     {
-        get => _textStyle.FontFamily.Family;
-        set => _textStyle = _textStyle with
+        get => TextStyle.FontFamily.Family;
+        set => TextStyle = TextStyle with
         {
-            FontFamily = _textStyle.FontFamily with
+            FontFamily = TextStyle.FontFamily with
             {
                 Family = value,
             },
@@ -175,7 +181,7 @@ public abstract class TextBaseControl : AlignableControl
     }
     
     
-    internal TextStyle GetTextStyle() => _textStyle;
+    internal TextStyle GetTextStyle() => TextStyle;
 
     /// <inheritdoc />
     protected override Size DoMeasure(
@@ -185,7 +191,7 @@ public abstract class TextBaseControl : AlignableControl
         in Size     remainingSize,
         CultureInfo cultureInfo)
     {
-        return _textService.Measure(_textStyle, dpi, GetText().AsSpan(), remainingSize.Width);
+        return TextService.Measure(TextStyle, dpi, GetText().AsSpan().Trim(), remainingSize.Width);
     }
 
     /// <inheritdoc />
@@ -196,12 +202,24 @@ public abstract class TextBaseControl : AlignableControl
         in Size     remainingSize,
         CultureInfo cultureInfo)
     {
-        return _textService.Measure(_textStyle, dpi, GetText().AsSpan(), remainingSize.Width);
+        return TextService.Measure(TextStyle, dpi, GetText().AsSpan().Trim(), remainingSize.Width);
     }
 
     /// <inheritdoc />
     protected override void DoRender(ICanvas canvas, float dpi, in Size parentSize, CultureInfo cultureInfo)
     {
-        _textService.Draw(canvas, _textStyle, dpi, GetText().AsSpan(), this.ArrangementInner.Width);
+        RenderText(canvas, dpi, GetText().Trim());
+        return Size.Zero;
+    }
+
+    /// <summary>
+    /// Renders the specified text on a drawable canvas with the specified text style settings.
+    /// </summary>
+    /// <param name="canvas">The drawable canvas on which to render the text.</param>
+    /// <param name="dpi">The dots per inch value.</param>
+    /// <param name="text">The text to render.</param>
+    protected void RenderText(IDrawableCanvas canvas, float dpi, string text)
+    {
+        TextService.Draw(canvas, TextStyle, dpi, text.AsSpan(), ArrangementInner.Width);
     }
 }
