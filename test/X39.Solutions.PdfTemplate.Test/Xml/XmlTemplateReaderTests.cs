@@ -53,6 +53,41 @@ public class XmlTemplateReaderTests
     }
 
     [Fact]
+    public async Task LowestLevelStyleAppliedLast()
+    {
+        const string ns = Constants.ControlsNamespace;
+        const string template = $"""
+                                 <?xml version="1.0" encoding="utf-8"?>
+                                 <styleTest xmlns="{ns}">
+                                     <styleTest.style>
+                                         <line margin="1px" padding="1px"/>
+                                     </styleTest.style>
+                                     <nested>
+                                         <nested.style>
+                                             <line margin="2px" padding="2px"/>
+                                         </nested.style>
+                                         <line margin="0px"/>
+                                     </nested>
+                                    <line margin="0px"/>
+                                 </styleTest>
+                                 """;
+        var templateReader = new XmlTemplateReader(
+            CultureInfo.InvariantCulture,
+            new TemplateData(),
+            ArraySegment<ITransformer>.Empty
+        );
+        using var xmlStream = new MemoryStream(Encoding.UTF8.GetBytes(template));
+        using var xmlReader = XmlReader.Create(xmlStream);
+        var       node      = await templateReader.ReadAsync(xmlReader);
+
+        // Assert effective styles are as expected
+        Assert.Equal("0px", node["nested", ns]!["line", ns]!.Attributes["MARGIN"]);
+        Assert.Equal("2px", node["nested", ns]!["line", ns]!.Attributes["PADDING"]);
+        Assert.Equal("0px", node["line", ns]!.Attributes["MARGIN"]);
+        Assert.Equal("1px", node["line", ns]!.Attributes["PADDING"]);
+    }
+
+    [Fact]
     public async Task NoDotInName()
     {
         const string ns = Constants.ControlsNamespace;

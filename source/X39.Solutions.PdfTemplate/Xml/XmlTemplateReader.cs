@@ -490,7 +490,7 @@ public sealed class XmlTemplateReader : IDisposable
     {
         Dictionary<(string controlName, string controlNamespace), IReadOnlyDictionary<string, string>> effectiveStyles =
             new();
-        foreach (var style in _styles)
+        foreach (var style in _styles.Reverse())
         {
             foreach (var (key, value) in style.GetAll())
             {
