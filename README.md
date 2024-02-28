@@ -70,7 +70,15 @@ Next, create an XML template. Here is a simple example:
 </template>
 ```
 
-Now, you can use the `Generator` class to generate a PDF document from the template:
+After registering the library with your dependency injection container at startup:
+
+```csharp
+// ...
+services.AddPdfTemplateServices();
+// ...
+```
+
+You can use the following code to generate a PDF document from the template:
 
 ```csharp
 // IServiceProvider serviceProvider
