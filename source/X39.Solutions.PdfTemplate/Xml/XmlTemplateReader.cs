@@ -93,9 +93,21 @@ public sealed class XmlTemplateReader : IDisposable
             if (!value.StartsWith('@'))
                 continue;
             // Evaluate potential expressions
-            var result = await _templateData.EvaluateAsync(_cultureInfo, value[1..], cancellationToken)
-                                            .ConfigureAwait(false);
-            node.SetAttribute(key, result?.ToString() ?? string.Empty);
+            try
+            {
+                var result = await _templateData.EvaluateAsync(_cultureInfo, value[1..], cancellationToken)
+                                                .ConfigureAwait(false);
+
+                node.SetAttribute(key, result?.ToString() ?? string.Empty);
+            }
+            catch (Exception ex)
+            {
+                // Enrich the exception with additional information
+                throw new TransformationEvaluationFailedException(
+                    value,
+                    node,
+                    ex);
+            }
         }
         if (node is {IsTextNode: true, Text: { } text} && (text.Contains('@') || text.Contains('{')))
         {

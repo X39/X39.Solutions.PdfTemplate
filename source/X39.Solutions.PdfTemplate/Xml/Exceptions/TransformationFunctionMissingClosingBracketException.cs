@@ -9,14 +9,17 @@ public sealed class TransformationFunctionMissingClosingBracketException : XmlTe
     /// The function text that failed to parse.
     /// </summary>
     public string FunctionText { get; }
-    
+
     /// <summary>
     /// The number of brackets that are missing.
     /// </summary>
-    public int    BracketsMissing { get; }
+    public int BracketsMissing { get; }
+
     internal TransformationFunctionMissingClosingBracketException(string text, XmlNode node, int bracketsMissing)
-        : base ($"Failed to parse function expression '{text}' at L{node.Line}:C{node.Column}, missing closing bracket (bracket count: {bracketsMissing}).",
-            node)
+        : base(
+            $"Failed to parse function expression '{text}' at L{node.Line}:C{node.Column}, missing closing bracket (bracket count: {bracketsMissing}).",
+            node
+        )
     {
         FunctionText    = text;
         BracketsMissing = bracketsMissing;
