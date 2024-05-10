@@ -17,9 +17,9 @@ You may even create your own controls by deriving from the `Control` base class!
 ]]>
         </PackageDescription>
         <PackageReadmeFile>README.md</PackageReadmeFile>
-        <SupportUrl>https://github.com/X39/cs-x39-util/issues</SupportUrl>
+        <SupportUrl>https://github.com/X39/X39.Solutions.PdfTemplate/issues</SupportUrl>
         <RepositoryType>git</RepositoryType>
-        <RepositoryUrl>https://github.com/X39/cs-x39-util</RepositoryUrl>
+        <RepositoryUrl>https://github.com/X39/X39.Solutions.PdfTemplate</RepositoryUrl>
         <PackageLicenseExpression>LGPL-3.0-only</PackageLicenseExpression>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
         <IncludeSymbols>true</IncludeSymbols>
