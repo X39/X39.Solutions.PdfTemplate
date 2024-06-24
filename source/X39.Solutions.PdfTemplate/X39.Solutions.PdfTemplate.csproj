@@ -28,7 +28,7 @@ You may even create your own controls by deriving from the `Control` base class!
         <IsTrimable>true</IsTrimable>
         <NeutralLanguage>en-US</NeutralLanguage>
         <DefaultLanguage>en-US</DefaultLanguage>
-        <PackageTags>utility;common</PackageTags>
+        <PackageTags>XML;semantic-versioning;semver;PDF;C#;dotnet;csharp;.NET;library;document;generation;report;invoice;receipt;image;skia;export;windows;linux;mac;open-source;foss;LGPLv3;free;create-pdf;creation;create;pdf-table</PackageTags>
         <AnalysisLevel>latest-recommended</AnalysisLevel>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 
