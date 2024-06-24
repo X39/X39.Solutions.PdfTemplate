@@ -57,14 +57,14 @@ public sealed partial class AlternateTransformer : ITransformer
             await Task.WhenAll(valueTasks).ConfigureAwait(false);
             var values = valueTasks.Select(t => t.Result).ToArray();
             if (templateData.GetTransformerData<AlternateValue?>(variable) is not {} alternateValue
-                || !alternateValue.Values.SequenceEqual(values))
+                || (values.Length > 0 && !alternateValue.Values.SequenceEqual(values)))
                 alternateValue = new AlternateValue(values.Length - 1, values);
 
             var index = (alternateValue.Index + 1) % alternateValue.Values.Length;
             templateData.SetTransformerData<AlternateValue?>(variable, alternateValue with { Index = index });
 
             using var scope = templateData.Scope("alternate");
-            templateData.SetVariable(variable, values[index]);
+            templateData.SetVariable(variable, alternateValue.Values[index]);
             foreach (var node in nodes)
                 yield return node.DeepCopy();
         }

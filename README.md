@@ -423,8 +423,8 @@ Usage:
     <body>
         <table>
             <th>
-                <th>Header 1</th>
-                <th>Header 2</th>
+                <td>Header 1</td>
+                <td>Header 2</td>
             </th>
             <tr>
                 <td>Cell 1</td>
@@ -526,6 +526,14 @@ It can be used as follows:
         <text>@value</text>
         }
         @alternate on value with ["one", "two"] {
+        <!-- @value is "two" -->
+        <text>@value</text>
+        }
+        @alternate on value {
+        <!-- @value is "one" -->
+        <text>@value</text>
+        }
+        @alternate on value {
         <!-- @value is "two" -->
         <text>@value</text>
         }
