@@ -1,4 +1,4 @@
-![A sample output for reference](https://raw.githubusercontent.com/X39/X39.Solutions.PdfTemplate/master/.github/media/sample.yml)
+![A sample output for reference](https://raw.githubusercontent.com/X39/X39.Solutions.PdfTemplate/master/.github/media/sample.png)
 
 <!-- TOC -->
 * [X39.Solutions.PdfTemplate](#x39solutionspdftemplate)
