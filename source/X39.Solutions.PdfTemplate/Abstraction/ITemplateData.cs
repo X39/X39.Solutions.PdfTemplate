@@ -1,4 +1,4 @@
-﻿namespace X39.Solutions.PdfTemplate;
+﻿namespace X39.Solutions.PdfTemplate.Abstraction;
 
 /// <summary>
 /// Allows access to pdf template data.

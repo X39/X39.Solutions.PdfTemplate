@@ -3,6 +3,8 @@ using System.Text;
 using System.Xml;
 using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
+using X39.Solutions.PdfTemplate.Abstraction;
+using X39.Solutions.PdfTemplate.Services;
 using X39.Solutions.PdfTemplate.Test.Mock;
 using X39.Solutions.PdfTemplate.Xml;
 

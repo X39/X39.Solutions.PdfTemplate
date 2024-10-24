@@ -1,4 +1,6 @@
-﻿namespace X39.Solutions.PdfTemplate.Xml.Exceptions;
+﻿using X39.Solutions.PdfTemplate.Xml;
+
+namespace X39.Solutions.PdfTemplate.Exceptions;
 
 /// <summary>
 /// Thrown when the evaluation of a transformation expression fails during the transformation of an XML document.

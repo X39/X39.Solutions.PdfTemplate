@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using X39.Solutions.PdfTemplate.Abstraction;
 
 namespace X39.Solutions.PdfTemplate.Attributes;
 

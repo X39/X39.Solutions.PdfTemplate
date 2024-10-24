@@ -1,7 +1,7 @@
 using System.Runtime.Serialization;
 using System.Xml;
 
-namespace X39.Solutions.PdfTemplate.Xml.Exceptions;
+namespace X39.Solutions.PdfTemplate.Exceptions;
 
 /// <summary>
 /// Base class for exceptions thrown during parsing of an XML document.
@@ -15,7 +15,7 @@ public abstract class XmlTemplateReaderException : XmlException
     }
 
     /// <inheritdoc />
-    protected XmlTemplateReaderException(XmlNode xmlNode) : base(null, null, xmlNode.Line, xmlNode.Column)
+    protected XmlTemplateReaderException(Xml.XmlNode xmlNode) : base(null, null, xmlNode.Line, xmlNode.Column)
     {
     }
 
@@ -26,7 +26,7 @@ public abstract class XmlTemplateReaderException : XmlException
     }
 
     /// <inheritdoc />
-    protected XmlTemplateReaderException(string? message, XmlNode xmlNode) : base(message, null, xmlNode.Line, xmlNode.Column)
+    protected XmlTemplateReaderException(string? message, Xml.XmlNode xmlNode) : base(message, null, xmlNode.Line, xmlNode.Column)
     {
     }
 
@@ -36,7 +36,7 @@ public abstract class XmlTemplateReaderException : XmlException
     }
 
     /// <inheritdoc />
-    protected XmlTemplateReaderException(string? message, Exception? innerException, XmlNode xmlNode) : base(message, innerException, xmlNode.Line, xmlNode.Column)
+    protected XmlTemplateReaderException(string? message, Exception? innerException, Xml.XmlNode xmlNode) : base(message, innerException, xmlNode.Line, xmlNode.Column)
     {
     }
 

@@ -1,9 +1,10 @@
 ﻿using System.Globalization;
 using System.Text;
 using System.Xml;
+using X39.Solutions.PdfTemplate.Abstraction;
+using X39.Solutions.PdfTemplate.Exceptions;
 using X39.Solutions.PdfTemplate.Transformers;
 using X39.Solutions.PdfTemplate.Xml;
-using X39.Solutions.PdfTemplate.Xml.Exceptions;
 
 namespace X39.Solutions.PdfTemplate.Test.Xml;
 

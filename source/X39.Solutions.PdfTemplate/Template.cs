@@ -1,4 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using X39.Solutions.PdfTemplate.Abstraction;
+using X39.Solutions.PdfTemplate.Exceptions;
 using X39.Solutions.PdfTemplate.Xml;
 
 namespace X39.Solutions.PdfTemplate;

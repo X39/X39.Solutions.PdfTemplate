@@ -1,4 +1,6 @@
-﻿namespace X39.Solutions.PdfTemplate.Attributes;
+﻿using X39.Solutions.PdfTemplate.Abstraction;
+
+namespace X39.Solutions.PdfTemplate.Attributes;
 
 /// <summary>
 /// Allows to specify a default converter for a class when used as a parameter for <see cref="IControl"/>.

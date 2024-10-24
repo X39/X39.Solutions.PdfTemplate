@@ -1,10 +1,12 @@
 ﻿using System.ComponentModel;
 using System.Linq.Expressions;
 using System.Reflection;
+using X39.Solutions.PdfTemplate.Abstraction;
 using X39.Solutions.PdfTemplate.Attributes;
+using X39.Solutions.PdfTemplate.Exceptions;
 using X39.Util.Threading;
 
-namespace X39.Solutions.PdfTemplate;
+namespace X39.Solutions.PdfTemplate.Services;
 
 /// <summary>
 /// Caches the creation of controls.

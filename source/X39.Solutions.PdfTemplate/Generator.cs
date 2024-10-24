@@ -2,6 +2,7 @@
 using SkiaSharp;
 using X39.Solutions.PdfTemplate.Abstraction;
 using X39.Solutions.PdfTemplate.Attributes;
+using X39.Solutions.PdfTemplate.Canvas;
 using X39.Solutions.PdfTemplate.Data;
 using X39.Solutions.PdfTemplate.Functions;
 using X39.Solutions.PdfTemplate.Services;

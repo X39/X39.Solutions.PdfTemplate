@@ -1,4 +1,4 @@
-﻿namespace X39.Solutions.PdfTemplate;
+﻿namespace X39.Solutions.PdfTemplate.Exceptions;
 
 /// <summary>
 /// Thrown when a control does not have a parameter that is specified in the template.

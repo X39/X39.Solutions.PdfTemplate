@@ -1,6 +1,6 @@
 using X39.Solutions.PdfTemplate.Attributes;
 
-namespace X39.Solutions.PdfTemplate;
+namespace X39.Solutions.PdfTemplate.Abstraction;
 
 /// <summary>
 /// Interface for a converter that converts a <see cref="string"/> to a

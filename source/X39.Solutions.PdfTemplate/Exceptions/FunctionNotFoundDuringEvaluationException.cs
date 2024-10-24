@@ -1,4 +1,4 @@
-﻿namespace X39.Solutions.PdfTemplate;
+﻿namespace X39.Solutions.PdfTemplate.Exceptions;
 
 /// <summary>
 /// Thrown when a function is not found during evaluation.

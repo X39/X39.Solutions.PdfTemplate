@@ -1,3 +1,4 @@
+using X39.Solutions.PdfTemplate.Abstraction;
 using X39.Solutions.PdfTemplate.Attributes;
 
 namespace X39.Solutions.PdfTemplate.Data.Compound;

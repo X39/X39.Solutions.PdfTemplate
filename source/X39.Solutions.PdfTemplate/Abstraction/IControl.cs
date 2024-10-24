@@ -1,7 +1,6 @@
-using X39.Solutions.PdfTemplate.Abstraction;
 using X39.Solutions.PdfTemplate.Data;
 
-namespace X39.Solutions.PdfTemplate;
+namespace X39.Solutions.PdfTemplate.Abstraction;
 
 /// <summary>
 /// A control that can be drawn on a page.

@@ -1,4 +1,5 @@
-﻿using X39.Util.Collections;
+﻿using X39.Solutions.PdfTemplate.Abstraction;
+using X39.Util.Collections;
 
 namespace X39.Solutions.PdfTemplate.Functions;
 

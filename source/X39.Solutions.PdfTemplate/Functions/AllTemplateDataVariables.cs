@@ -1,4 +1,6 @@
-﻿namespace X39.Solutions.PdfTemplate.Functions;
+﻿using X39.Solutions.PdfTemplate.Abstraction;
+
+namespace X39.Solutions.PdfTemplate.Functions;
 
 internal class AllTemplateDataVariables : IFunction
 {

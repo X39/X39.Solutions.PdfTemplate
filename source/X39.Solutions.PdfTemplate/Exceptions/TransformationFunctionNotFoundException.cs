@@ -1,4 +1,6 @@
-﻿namespace X39.Solutions.PdfTemplate.Xml.Exceptions;
+﻿using X39.Solutions.PdfTemplate.Xml;
+
+namespace X39.Solutions.PdfTemplate.Exceptions;
 
 /// <summary>
 /// The exception that is thrown when a function could not be found.

@@ -1,8 +1,9 @@
 ﻿using SkiaSharp;
+using X39.Solutions.PdfTemplate.Abstraction;
 using X39.Solutions.PdfTemplate.Data;
 using X39.Solutions.PdfTemplate.Services;
 
-namespace X39.Solutions.PdfTemplate.Abstraction;
+namespace X39.Solutions.PdfTemplate.Canvas;
 
 internal sealed class ImmediateCanvasImpl : IImmediateCanvas
 {

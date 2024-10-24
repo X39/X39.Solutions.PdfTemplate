@@ -1,6 +1,7 @@
 ﻿using System.Globalization;
 using System.Text;
 using System.Xml;
+using X39.Solutions.PdfTemplate.Abstraction;
 using X39.Solutions.PdfTemplate.Xml;
 
 namespace X39.Solutions.PdfTemplate.Test.ExpressionTests;

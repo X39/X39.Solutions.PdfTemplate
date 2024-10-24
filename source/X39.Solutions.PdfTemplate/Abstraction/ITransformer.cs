@@ -1,6 +1,6 @@
 ﻿using XmlNode = X39.Solutions.PdfTemplate.Xml.XmlNode;
 
-namespace X39.Solutions.PdfTemplate;
+namespace X39.Solutions.PdfTemplate.Abstraction;
 
 /// <summary>
 /// Interface providing the ability to transform template elements into a different format,

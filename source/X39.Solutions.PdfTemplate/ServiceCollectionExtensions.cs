@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using X39.Solutions.PdfTemplate.Abstraction;
 using X39.Solutions.PdfTemplate.Services;
 using X39.Solutions.PdfTemplate.Services.PropertyAccessCache;
 using X39.Solutions.PdfTemplate.Services.ResourceResolver;

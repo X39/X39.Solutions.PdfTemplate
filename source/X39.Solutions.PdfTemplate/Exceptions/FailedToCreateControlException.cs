@@ -1,7 +1,6 @@
 ﻿using X39.Solutions.PdfTemplate.Xml;
-using X39.Solutions.PdfTemplate.Xml.Exceptions;
 
-namespace X39.Solutions.PdfTemplate;
+namespace X39.Solutions.PdfTemplate.Exceptions;
 
 /// <summary>
 /// Thrown when a control does was not being able to be created.

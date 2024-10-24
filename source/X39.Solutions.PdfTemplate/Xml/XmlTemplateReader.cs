@@ -1,7 +1,8 @@
 ﻿using System.ComponentModel;
 using System.Text;
 using System.Xml;
-using X39.Solutions.PdfTemplate.Xml.Exceptions;
+using X39.Solutions.PdfTemplate.Abstraction;
+using X39.Solutions.PdfTemplate.Exceptions;
 
 namespace X39.Solutions.PdfTemplate.Xml;
 

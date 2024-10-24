@@ -1,6 +1,6 @@
 ﻿using System.Runtime.Serialization;
 
-namespace X39.Solutions.PdfTemplate;
+namespace X39.Solutions.PdfTemplate.Exceptions;
 
 /// <summary>
 /// Base class for all exceptions that occur during evaluation.

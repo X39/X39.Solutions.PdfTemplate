@@ -1,4 +1,4 @@
-﻿namespace X39.Solutions.PdfTemplate;
+﻿namespace X39.Solutions.PdfTemplate.Abstraction;
 
 /// <summary>
 /// A function that can be used in a template.

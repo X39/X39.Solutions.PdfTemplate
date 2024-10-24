@@ -1,4 +1,4 @@
-namespace X39.Solutions.PdfTemplate;
+namespace X39.Solutions.PdfTemplate.Abstraction;
 
 /// <summary>
 /// Interface that allows a control to be initialized asynchronously after it and all its children have been created.

@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
+using X39.Solutions.PdfTemplate.Abstraction;
 using XmlNode = X39.Solutions.PdfTemplate.Xml.XmlNode;
 
 namespace X39.Solutions.PdfTemplate.Transformers;

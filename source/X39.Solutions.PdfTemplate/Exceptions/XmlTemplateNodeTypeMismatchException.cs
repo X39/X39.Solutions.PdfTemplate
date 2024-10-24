@@ -1,6 +1,6 @@
 ﻿using System.Xml;
 
-namespace X39.Solutions.PdfTemplate.Xml.Exceptions;
+namespace X39.Solutions.PdfTemplate.Exceptions;
 
 internal class XmlTemplateNodeTypeMismatchException : Exception
 {

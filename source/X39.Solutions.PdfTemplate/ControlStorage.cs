@@ -1,6 +1,8 @@
 ﻿using System.Data;
 using System.Reflection;
+using X39.Solutions.PdfTemplate.Abstraction;
 using X39.Solutions.PdfTemplate.Attributes;
+using X39.Solutions.PdfTemplate.Services;
 
 namespace X39.Solutions.PdfTemplate;
 

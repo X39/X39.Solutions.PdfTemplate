@@ -1,4 +1,5 @@
 using System.Collections;
+using X39.Solutions.PdfTemplate.Abstraction;
 
 namespace X39.Solutions.PdfTemplate.Xml;
 
