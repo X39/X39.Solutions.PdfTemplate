@@ -1,41 +1,49 @@
+***NOTE FOR [NuGet.org](https://www.nuget.org/packages/X39.Solutions.PdfTemplate):***
+*This readme contains comments in the XML which is not rendered by the NuGet markdown parser.
+Use [GitHub](https://github.com/X39/X39.Solutions.PdfTemplate) for best reading experience*
+
 ![A sample output for reference](https://raw.githubusercontent.com/X39/X39.Solutions.PdfTemplate/master/.github/media/sample.yml)
 
 <!-- TOC -->
+
 * [X39.Solutions.PdfTemplate](#x39solutionspdftemplate)
-  * [Semantic Versioning](#semantic-versioning)
-  * [Getting Started](#getting-started)
-  * [Integration](#integration)
-    * [Functions](#functions)
-    * [Variables](#variables)
-    * [End-User facing data types](#end-user-facing-data-types)
-      * [`Orientation`](#orientation)
-      * [`Length`](#length)
-      * [`Color`](#color)
-      * [`Thickness`](#thickness)
-    * [Controls](#controls)
-      * [Creating your own control](#creating-your-own-control)
-      * [`text`](#text)
-      * [`border`](#border)
-      * [`image`](#image)
-      * [`line`](#line)
-      * [`pageNumber`](#pagenumber)
-      * [`table`](#table)
-        * [`th`](#th)
-        * [`tr`](#tr)
-        * [`td`](#td)
-    * [Transformers](#transformers)
-      * [Creating your own transformer](#creating-your-own-transformer)
-      * [`alternate`](#alternate)
-      * [`if`](#if)
-      * [`for`](#for)
-      * [`foreach`](#foreach)
-  * [Building and Testing](#building-and-testing)
-  * [Proper documentation for End-Users](#proper-documentation-for-end-users)
-  * [Contributing](#contributing)
-    * [Code of Conduct](#code-of-conduct)
-    * [Contributors Agreement](#contributors-agreement)
-    * [Additional controls](#additional-controls)
-  * [License](#license)
+    * [Semantic Versioning](#semantic-versioning)
+    * [Getting Started](#getting-started)
+    * [Template structure](#template-structure)
+    * [Integration](#integration)
+        * [Functions](#functions)
+        * [Variables](#variables)
+        * [End-User facing data types](#end-user-facing-data-types)
+            * [`Orientation`](#orientation)
+            * [`Length`](#length)
+            * [`Color`](#color)
+            * [`Thickness`](#thickness)
+        * [Controls](#controls)
+            * [Creating your own control](#creating-your-own-control)
+            * [`text`](#text)
+            * [`border`](#border)
+            * [`image`](#image)
+            * [`line`](#line)
+            * [`pageNumber`](#pagenumber)
+            * [`table`](#table)
+                * [`th`](#th)
+                * [`tr`](#tr)
+                * [`td`](#td)
+        * [Transformers](#transformers)
+            * [Creating your own transformer](#creating-your-own-transformer)
+            * [`alternate`](#alternate)
+            * [`var`](#var)
+            * [`if`](#if)
+            * [`for`](#for)
+            * [`foreach`](#foreach)
+    * [Building and Testing](#building-and-testing)
+    * [Proper documentation for End-Users](#proper-documentation-for-end-users)
+    * [Contributing](#contributing)
+        * [Code of Conduct](#code-of-conduct)
+        * [Contributors Agreement](#contributors-agreement)
+        * [Additional controls](#additional-controls)
+    * [License](#license)
+
 <!-- TOC -->
 
 # X39.Solutions.PdfTemplate
@@ -59,6 +67,13 @@ project:
 
 ```shell
 dotnet add package X39.Solutions.PdfTemplate
+```
+
+If you are running linux, you also will have to add
+the [SkiaSharp linux assets](https://www.nuget.org/packages/SkiaSharp.NativeAssets.Linux):
+
+```shell
+dotnet add package SkiaSharp.NativeAssets.Linux
 ```
 
 Next, create an XML template. Here is a simple example:
@@ -101,6 +116,59 @@ await generator.GeneratePdfAsync(pdfStream, reader, CultureInfo.CurrentUICulture
 ```
 
 This will generate a PDF document with the text "Hello, world!".
+
+## Template structure
+
+A template is a "simple" XML file with some basic preprocessor.
+It has four base sections:
+
+```xml
+<!-- The root node name is ignored and can be modified to your hearts desire -->
+<template>
+    <background>
+        <!--
+           All background contents are only rendering the first page.
+           Background also ignores page margin and padding configuration,
+           working with the initial size.
+           Background is rendered every page and can be used to eg. add fold lines.
+        -->
+    </background>
+    <header>
+        <!--
+           Header Section is used to define a "header" that
+           may have up to 25% (- page margin/padding) of the height.
+           The header is repeated and rendered every page, always at top.
+        -->
+    </header>
+    <body>
+        <!--
+           Body section contains the actual document contents.
+           It is rendered across as many pages as required.
+           Depending on the header/footer sections, the available size on the page
+           may be 100% or 50% (- page margin/padding).
+        -->
+    </body>
+    <footer>
+        <!--
+           Footer Section is used to define a "footer" that
+           may have up to 25% (- page margin/padding) of the height.
+           The footer is repeated and rendered every page, always at the bottom.
+        -->
+    </footer>
+</template>
+```
+
+The template automatically references the default XML namespace
+`X39.Solutions.PdfTemplate.Controls`, allowing the use of its controls without
+requiring an `xmlns` prefix.
+This means the actual root node for the example template appears to the library as
+`<template xmlns="X39.Solutions.PdfTemplate.Controls">`.
+This implicit reference simplifies template creation for end-users by
+omitting the need for the `xmlns` attribute.
+However, if a template overrides the default `xmlns`,
+you must use a different prefix for the controls,
+such as `xmlns:prefix="X39.Solutions.PdfTemplate.Controls"`.
+For instance, `<text>` would then be written as `<prefix:text>`.
 
 ## Integration
 
@@ -273,7 +341,7 @@ You can now use the control in your XML templates (note the namespace import at 
 
 <template xmlns:my="MyControls">
     <body>
-        <my:MyControl />
+        <my:MyControl/>
     </body>
 </template>
 ```
@@ -357,7 +425,7 @@ Usage:
 
 <template>
     <body>
-        <image source="data:image/png;base64,..." />
+        <image source="data:image/png;base64,..."/>
     </body>
 </template>
 ```
@@ -381,7 +449,7 @@ Usage:
 
 <template>
     <body>
-        <line thickness="1pt" color="#FF0000" length="100%" orientation="Horizontal" />
+        <line thickness="1pt" color="#FF0000" length="100%" orientation="Horizontal"/>
     </body>
 </template>
 ```
@@ -405,7 +473,7 @@ Usage:
 
 <template>
     <body>
-        <pageNumber mode="CurrentTotal" prefix="Page " delimiter=" of " />
+        <pageNumber mode="CurrentTotal" prefix="Page " delimiter=" of "/>
     </body>
 </template>
 ```
@@ -507,6 +575,39 @@ generator.AddTransformer(new MyTransformer());
 Note that the way transformers are added is subject to change in the future to allow for a better integration with
 dependency injection.
 
+##### Evaluating user data
+
+While building your transformer, you may have to evaluate data of a user to eg. resolve a function call.
+This can be done by utilizing the following function of the passed `ITemplateData` interface:
+
+```csharp
+// interface X39.Solutions.PdfTemplate.ITemplateData
+ValueTask<object?> EvaluateAsync(
+        CultureInfo cultureInfo,
+        string expression,
+        CancellationToken cancellationToken = default)
+```
+
+##### Introducing new variables or changing existing
+
+A core feature of a transformer is dealing with variables. The library exposes
+core functionality for variable interaction via the passed `ITemplateData`.
+
+While you can modify all variables immediately, it is recommended that you create
+a variable scope first:
+
+```csharp
+using var scope = templateData.Scope("scopeName");
+```
+
+This will ensure that your variable changes are only applied to the nodes returned
+by the transformer.
+
+To then set a variable, use `templateData.SetVariable(variable, value);`
+Do note that while you can certainly receive variable values using `templateData.GetVariable(value);`,
+chances are that you are more interested in [evaluating the user data](#evaluating-user-data) to also
+accept functions.
+
 #### `alternate`
 
 The `alternate` transformer allows to alternate between values, making it possible to eg. create a table with
@@ -543,6 +644,27 @@ It can be used as follows:
         @alternate on value with ["three"] {
         <!-- @value is "three" -->
         <text>@value</text>
+        }
+    </body>
+</template>
+```
+
+#### `var`
+
+The `var` transformer allows to introduce new variables in the XML template to eg. cache a result or
+to simply make access to a certain, commonly used value more easy on the user.
+It can be used as follows:
+
+```xml
+
+<template>
+    <body>
+        @var text = someFunc() {
+        <text>@text</text>
+        }
+        @var text = someFunc(), text2 = moreFunc() {
+        <text>@text</text>
+        <text>@text2</text>
         }
     </body>
 </template>

@@ -39,6 +39,7 @@ public static class GeneratorDefaults
         self.AddTransformer(new IfTransformer());
         self.AddTransformer(new ForEachTransformer());
         self.AddTransformer(new AlternateTransformer());
+        self.AddTransformer(new VariableTransformer());
         return self;
     }
 }
