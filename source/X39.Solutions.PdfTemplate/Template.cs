@@ -1,24 +1,29 @@
-﻿using X39.Solutions.PdfTemplate.Xml;
+﻿using System.Diagnostics.CodeAnalysis;
+using X39.Solutions.PdfTemplate.Xml;
 
 namespace X39.Solutions.PdfTemplate;
 
 internal sealed class Template : IAsyncDisposable
 {
     private Template(
+        IReadOnlyCollection<IControl> backgroundControls,
         IReadOnlyCollection<IControl> headerControls,
         IReadOnlyCollection<IControl> bodyControls,
         IReadOnlyCollection<IControl> footerControls)
     {
+        BackgroundControls = backgroundControls;
         HeaderControls = headerControls;
         BodyControls   = bodyControls;
         FooterControls = footerControls;
     }
 
+    public IReadOnlyCollection<IControl> BackgroundControls { get; }
     public IReadOnlyCollection<IControl> HeaderControls { get; }
     public IReadOnlyCollection<IControl> BodyControls { get; }
     public IReadOnlyCollection<IControl> FooterControls { get; }
 
 
+    [SuppressMessage("ReSharper", "InvertIf")]
     public static async Task<Template> CreateAsync(
         XmlNodeInformation rootNode,
         ControlStorage cache,
@@ -28,6 +33,7 @@ internal sealed class Template : IAsyncDisposable
         var headerControls = new List<IControl>();
         var bodyControls = new List<IControl>();
         var footerControls = new List<IControl>();
+        var backgroundControls = new List<IControl>();
         if (rootNode["header", rootNode.NodeNamespace] is { } headerNode)
         {
             foreach (var node in headerNode.Children)
@@ -58,7 +64,17 @@ internal sealed class Template : IAsyncDisposable
             }
         }
 
-        return new Template(headerControls.AsReadOnly(), bodyControls.AsReadOnly(), footerControls.AsReadOnly());
+        if (rootNode["background", rootNode.NodeNamespace] is { } backgroundNode)
+        {
+            foreach (var node in backgroundNode.Children)
+            {
+                var control = await CreateControlAsync(node, cache, cultureInfo, cancellationToken)
+                    .ConfigureAwait(false);
+                backgroundControls.Add(control);
+            }
+        }
+
+        return new Template(backgroundControls.AsReadOnly(), headerControls.AsReadOnly(), bodyControls.AsReadOnly(), footerControls.AsReadOnly());
     }
 
     private static async Task<IControl> CreateControlAsync(
