@@ -235,7 +235,7 @@ public sealed class Generator : IDisposable, IAsyncDisposable, IAddControls, IAd
         #region Arrange
 
         var backgroundSizes = new List<Size>();
-        var backgroundPageSize = originalPageSize with {Height = originalPageSize.Height * 0.25F};
+        var backgroundPageSize = originalPageSize with {Height = originalPageSize.Height};
         foreach (var control in template.BackgroundControls)
         {
             var size = control.Arrange(options.DotsPerInch, originalPageSize, backgroundPageSize, backgroundPageSize, cultureInfo);
