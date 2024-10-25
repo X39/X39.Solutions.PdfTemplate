@@ -38,7 +38,8 @@ public sealed class Generator : IDisposable, IAsyncDisposable, IAddControls, IAd
     public Generator(
         SkPaintCache skPaintCache,
         ControlExpressionCache controlExpressionCache,
-        IEnumerable<IFunction> functions)
+        IEnumerable<IFunction> functions
+    )
     {
         TemplateData = new TemplateData();
         TemplateData.RegisterFunction(new AllTemplateDataFunctions(TemplateData));
@@ -60,7 +61,8 @@ public sealed class Generator : IDisposable, IAsyncDisposable, IAddControls, IAd
     /// <exception cref="InvalidOperationException">Thrown when the type does not have a <see cref="ControlAttribute"/>.</exception>
     public void AddControl<
         [MeansImplicitUse(
-            ImplicitUseKindFlags.InstantiatedNoFixedConstructorSignature | ImplicitUseKindFlags.Assign)]
+            ImplicitUseKindFlags.InstantiatedNoFixedConstructorSignature | ImplicitUseKindFlags.Assign
+        )]
         TControl>()
         where TControl : IControl => _controlStorage.AddControl<TControl>();
 
@@ -102,12 +104,14 @@ public sealed class Generator : IDisposable, IAsyncDisposable, IAddControls, IAd
         XmlReader reader,
         CultureInfo cultureInfo,
         DocumentOptions? documentOptions = default,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default
+    )
     {
         var options = documentOptions ?? DocumentOptions.Default;
         var pageSize = new Size(
             options.DotsPerMillimeter * options.PageWidthInMillimeters,
-            options.DotsPerMillimeter * options.PageHeightInMillimeters);
+            options.DotsPerMillimeter * options.PageHeightInMillimeters
+        );
         using var skDocument = SKDocument.CreatePdf(
             outputStream,
             new SKDocumentPdfMetadata
@@ -116,7 +120,8 @@ public sealed class Generator : IDisposable, IAsyncDisposable, IAddControls, IAd
                 Producer  = options.Producer,
                 Modified  = options.Modified,
                 PdfA      = true,
-            });
+            }
+        );
         var hasOpenPage = false;
         await GenerateAsync(
                 () =>
@@ -127,9 +132,11 @@ public sealed class Generator : IDisposable, IAsyncDisposable, IAddControls, IAd
                 reader,
                 cultureInfo,
                 options,
-                cancellationToken)
+                cancellationToken
+            )
             .ConfigureAwait(false);
-        if (!hasOpenPage) skDocument.BeginPage(pageSize.Width, pageSize.Height).Dispose();
+        if (!hasOpenPage)
+            skDocument.BeginPage(pageSize.Width, pageSize.Height).Dispose();
         skDocument.EndPage();
         skDocument.Close();
     }
@@ -153,12 +160,14 @@ public sealed class Generator : IDisposable, IAsyncDisposable, IAddControls, IAd
         XmlReader reader,
         CultureInfo cultureInfo,
         DocumentOptions? documentOptions = default,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default
+    )
     {
         var options = documentOptions ?? DocumentOptions.Default;
         var pageSize = new Size(
             options.DotsPerMillimeter * options.PageWidthInMillimeters,
-            options.DotsPerMillimeter * options.PageHeightInMillimeters);
+            options.DotsPerMillimeter * options.PageHeightInMillimeters
+        );
         var bitmaps = new List<SKBitmap>();
         try
         {
@@ -168,7 +177,8 @@ public sealed class Generator : IDisposable, IAsyncDisposable, IAddControls, IAd
                     {
                         var bitmap = new SKBitmap(
                             (int) Math.Ceiling(pageSize.Width),
-                            (int) Math.Ceiling(pageSize.Height));
+                            (int) Math.Ceiling(pageSize.Height)
+                        );
                         bitmaps.Add(bitmap);
                         canvas = new SKCanvas(bitmap);
                         canvas.Clear(SKColors.White);
@@ -177,7 +187,8 @@ public sealed class Generator : IDisposable, IAsyncDisposable, IAddControls, IAd
                     reader,
                     cultureInfo,
                     options,
-                    cancellationToken)
+                    cancellationToken
+                )
                 .ConfigureAwait(false);
             canvas?.Dispose();
             return bitmaps.AsReadOnly();
@@ -194,29 +205,28 @@ public sealed class Generator : IDisposable, IAsyncDisposable, IAddControls, IAd
         XmlReader reader,
         CultureInfo cultureInfo,
         DocumentOptions? documentOptions = default,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default
+    )
     {
         using var templateDataScope = TemplateData.Scope("Document");
         var options = documentOptions ?? DocumentOptions.Default;
         XmlNodeInformation rootNode;
         using (var templateReader = new XmlTemplateReader(cultureInfo, TemplateData, _transformers))
-            rootNode = await templateReader.ReadAsync(reader, cancellationToken)
-                .ConfigureAwait(false);
+            rootNode = await templateReader.ReadAsync(reader, cancellationToken).ConfigureAwait(false);
 
         await using var template = await Template.CreateAsync(rootNode, _controlStorage, cultureInfo, cancellationToken)
-            .ConfigureAwait(false);
+                                                 .ConfigureAwait(false);
         var originalPageSize = new Size(
             options.DotsPerMillimeter * options.PageWidthInMillimeters,
-            options.DotsPerMillimeter * options.PageHeightInMillimeters);
+            options.DotsPerMillimeter * options.PageHeightInMillimeters
+        );
         var marginLeft = options.Margin.Left.ToPixels(originalPageSize.Width, options.DotsPerInch);
         var marginTop = options.Margin.Top.ToPixels(originalPageSize.Height, options.DotsPerInch);
         var pageSize = new Size(
-            originalPageSize.Width
-            - marginLeft
-            - options.Margin.Right.ToPixels(originalPageSize.Width, options.DotsPerInch),
-            originalPageSize.Height
-            - marginTop
-            - options.Margin.Bottom.ToPixels(originalPageSize.Height, options.DotsPerInch)
+            originalPageSize.Width - marginLeft -
+            options.Margin.Right.ToPixels(originalPageSize.Width, options.DotsPerInch),
+            originalPageSize.Height - marginTop -
+            options.Margin.Bottom.ToPixels(originalPageSize.Height, options.DotsPerInch)
         );
 
         #region Measure
@@ -225,7 +235,8 @@ public sealed class Generator : IDisposable, IAsyncDisposable, IAddControls, IAd
                                           .Concat(template.BackgroundControls)
                                           .Concat(template.HeaderControls)
                                           .Concat(template.BodyControls)
-                                          .Concat(template.FooterControls))
+                                          .Concat(template.FooterControls)
+                                          .Concat(template.ForegroundControls))
         {
             control.Measure(options.DotsPerInch, pageSize, pageSize, pageSize, cultureInfo);
         }
@@ -234,50 +245,93 @@ public sealed class Generator : IDisposable, IAsyncDisposable, IAddControls, IAd
 
         #region Arrange
 
+        #region Background
+
         var backgroundSizes = new List<Size>();
-        var backgroundPageSize = originalPageSize with {Height = originalPageSize.Height};
+        var backgroundPageSize = originalPageSize with { Height = originalPageSize.Height };
         foreach (var control in template.BackgroundControls)
         {
-            var size = control.Arrange(options.DotsPerInch, originalPageSize, backgroundPageSize, backgroundPageSize, cultureInfo);
+            var size = control.Arrange(
+                options.DotsPerInch,
+                originalPageSize,
+                backgroundPageSize,
+                backgroundPageSize,
+                cultureInfo
+            );
             backgroundSizes.Add(size);
         }
 
-        backgroundPageSize = backgroundPageSize with {Height = backgroundSizes.Sum((q) => q.Height)};
+        backgroundPageSize = backgroundPageSize with { Height = backgroundSizes.Sum((q) => q.Height) };
         if (backgroundPageSize.Height > originalPageSize.Height)
-            backgroundPageSize = backgroundPageSize with {Height = originalPageSize.Height};
+            backgroundPageSize = backgroundPageSize with { Height = originalPageSize.Height };
+
+        #endregion
+
+        #region Header
 
         var headerSizes = new List<Size>();
-        var headerPageSize = pageSize with {Height = pageSize.Height * 0.25F};
+        var headerPageSize = pageSize with { Height = pageSize.Height * 0.25F };
         foreach (var control in template.HeaderControls)
         {
             var size = control.Arrange(options.DotsPerInch, pageSize, headerPageSize, headerPageSize, cultureInfo);
             headerSizes.Add(size);
         }
 
-        headerPageSize = headerPageSize with {Height = headerSizes.Sum((q) => q.Height)};
+        headerPageSize = headerPageSize with { Height = headerSizes.Sum((q) => q.Height) };
         if (headerPageSize.Height > pageSize.Height * 0.25F)
-            headerPageSize = headerPageSize with {Height = pageSize.Height * 0.25F};
+            headerPageSize = headerPageSize with { Height = pageSize.Height * 0.25F };
+
+        #endregion
+
+        #region Footer
 
         var footerSizes = new List<Size>();
-        var footerPageSize = pageSize with {Height = pageSize.Height * 0.25F};
+        var footerPageSize = pageSize with { Height = pageSize.Height * 0.25F };
         foreach (var control in template.FooterControls)
         {
             var size = control.Arrange(options.DotsPerInch, pageSize, footerPageSize, footerPageSize, cultureInfo);
             footerSizes.Add(size);
         }
 
-        footerPageSize = footerPageSize with {Height = footerSizes.Sum((q) => q.Height)};
+        footerPageSize = footerPageSize with { Height = footerSizes.Sum((q) => q.Height) };
         if (footerPageSize.Height > pageSize.Height * 0.25F)
-            footerPageSize = footerPageSize with {Height = pageSize.Height * 0.25F};
+            footerPageSize = footerPageSize with { Height = pageSize.Height * 0.25F };
 
+        #endregion
+
+        #region Body
 
         var bodySizes = new List<Size>();
-        var bodyPageSize = pageSize with {Height = pageSize.Height - headerPageSize.Height - footerPageSize.Height};
+        var bodyPageSize = pageSize with { Height = pageSize.Height - headerPageSize.Height - footerPageSize.Height };
         foreach (var control in template.BodyControls)
         {
             var size = control.Arrange(options.DotsPerInch, pageSize, bodyPageSize, bodyPageSize, cultureInfo);
             bodySizes.Add(size);
         }
+
+        #endregion
+
+        #region Foreground
+
+        var foregroundSizes = new List<Size>();
+        var foregroundPageSize = originalPageSize with { Height = originalPageSize.Height };
+        foreach (var control in template.ForegroundControls)
+        {
+            var size = control.Arrange(
+                options.DotsPerInch,
+                originalPageSize,
+                foregroundPageSize,
+                foregroundPageSize,
+                cultureInfo
+            );
+            foregroundSizes.Add(size);
+        }
+
+        foregroundPageSize = foregroundPageSize with { Height = foregroundSizes.Sum((q) => q.Height) };
+        if (foregroundPageSize.Height > originalPageSize.Height)
+            foregroundPageSize = foregroundPageSize with { Height = originalPageSize.Height };
+
+        #endregion
 
         #endregion
 
@@ -309,11 +363,17 @@ public sealed class Generator : IDisposable, IAsyncDisposable, IAddControls, IAd
         {
             foreach (var (control, size) in template.BodyControls.Zip(bodySizes))
             {
-                var (_, additionalHeight) = control.Render(bodyCanvasAbstraction, options.DotsPerInch, bodyPageSize, cultureInfo);
+                var (_, additionalHeight) = control.Render(
+                    bodyCanvasAbstraction,
+                    options.DotsPerInch,
+                    bodyPageSize,
+                    cultureInfo
+                );
                 desiredBodyHeight += additionalHeight;
                 bodyCanvasAbstraction.Translate(0F, size.Height + additionalHeight);
             }
         }
+
         var pageCount = (ushort) Math.Ceiling(desiredBodyHeight / bodyPageSize.Height);
 
         var footerCanvasAbstraction = new DeferredCanvasImpl();
@@ -326,52 +386,88 @@ public sealed class Generator : IDisposable, IAsyncDisposable, IAddControls, IAd
             }
         }
 
+        var foregroundCanvasAbstraction = new DeferredCanvasImpl();
+        using (foregroundCanvasAbstraction.CreateState())
+        {
+            foreach (var (control, size) in template.ForegroundControls.Zip(foregroundSizes))
+            {
+                _ = control.Render(foregroundCanvasAbstraction, options.DotsPerInch, foregroundPageSize, cultureInfo);
+                foregroundCanvasAbstraction.Translate(0F, size.Height);
+            }
+        }
+
         var currentHeight = 0F;
 
         for (var i = 0; i < pageCount; i++)
         {
+            // ReSharper disable AccessToDisposedClosure
             using var canvas = nextCanvas();
             var immediateCanvas = new ImmediateCanvasImpl(canvas, _skPaintCache)
             {
                 PageNumber = (ushort) (i + 1), TotalPages = pageCount,
             };
-            canvas.Save();
-            canvas.Save();
-            canvas.ClipRect(
-                new SKRect { Left = 0, Right = backgroundPageSize.Width, Top = 0, Bottom = backgroundPageSize.Height }
-            );
-            backgroundCanvasAbstraction.Render(immediateCanvas);
-            canvas.Restore();
+            using var initialScope = new Disposable(() => canvas.Save(), () => canvas.Restore());
+
+            using (new Disposable(() => canvas.Save(), () => canvas.Restore()))
+            {
+                canvas.ClipRect(
+                    new SKRect
+                    {
+                        Left = 0, Right = backgroundPageSize.Width, Top = 0, Bottom = backgroundPageSize.Height
+                    }
+                );
+                backgroundCanvasAbstraction.Render(immediateCanvas);
+            }
 
 
-            canvas.Translate(marginLeft, marginTop);
+            using (new Disposable(() => canvas.Save(), () => canvas.Restore()))
+            {
+                canvas.Translate(marginLeft, marginTop);
 
-            canvas.Save();
-            canvas.ClipRect(
-                new SKRect { Left = 0, Right = headerPageSize.Width, Top = 0, Bottom = headerPageSize.Height }
-            );
-            headerCanvasAbstraction.Render(immediateCanvas);
-            canvas.Restore();
+                using (new Disposable(() => canvas.Save(), () => canvas.Restore()))
+                {
+                    canvas.ClipRect(
+                        new SKRect { Left = 0, Right = headerPageSize.Width, Top = 0, Bottom = headerPageSize.Height }
+                    );
+                    headerCanvasAbstraction.Render(immediateCanvas);
+                }
 
-            canvas.Save();
-            canvas.Translate(0, headerPageSize.Height);
-            canvas.ClipRect(new SKRect { Left = 0, Right = bodyPageSize.Width, Top = 0, Bottom = bodyPageSize.Height });
-            canvas.Translate(0, -currentHeight);
-            bodyCanvasAbstraction.Render(immediateCanvas);
-            canvas.Restore();
+                using (new Disposable(() => canvas.Save(), () => canvas.Restore()))
+                {
+                    canvas.Translate(0, headerPageSize.Height);
+                    canvas.ClipRect(
+                        new SKRect { Left = 0, Right = bodyPageSize.Width, Top = 0, Bottom = bodyPageSize.Height }
+                    );
+                    canvas.Translate(0, -currentHeight);
+                    bodyCanvasAbstraction.Render(immediateCanvas);
+                }
 
-            canvas.Save();
-            canvas.Translate(0, headerPageSize.Height);
-            canvas.Translate(0, bodyPageSize.Height);
-            canvas.ClipRect(
-                new SKRect { Left = 0, Right = footerPageSize.Width, Top = 0, Bottom = footerPageSize.Height }
-            );
-            footerCanvasAbstraction.Render(immediateCanvas);
+                using (new Disposable(() => canvas.Save(), () => canvas.Restore()))
+                {
+                    canvas.Translate(0, headerPageSize.Height);
+                    canvas.Translate(0, bodyPageSize.Height);
+                    canvas.ClipRect(
+                        new SKRect { Left = 0, Right = footerPageSize.Width, Top = 0, Bottom = footerPageSize.Height }
+                    );
+                    footerCanvasAbstraction.Render(immediateCanvas);
+                }
+            }
+
+            using (new Disposable(() => canvas.Save(), () => canvas.Restore()))
+            {
+                canvas.ClipRect(
+                    new SKRect
+                    {
+                        Left = 0, Right = foregroundPageSize.Width, Top = 0, Bottom = foregroundPageSize.Height
+                    }
+                );
+                foregroundCanvasAbstraction.Render(immediateCanvas);
+            }
+
             canvas.Restore();
             currentHeight += bodyPageSize.Height;
-
-            canvas.Restore();
         }
+        // ReSharper restore AccessToDisposedClosure
 
         #endregion
     }

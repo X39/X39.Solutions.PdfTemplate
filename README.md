@@ -132,10 +132,13 @@ It has four base sections:
 <template>
     <background>
         <!--
-           All background contents are only rendering the first page.
+           Background is rendered every page and can be used to eg. add fold lines.
+           All background contents are only rendering the first page
+           (to clarify: the available space only accounts for the first page,
+            it is rendered on all pages, but only ever the first page of
+            the contents).
            Background also ignores page margin and padding configuration,
            working with the initial size.
-           Background is rendered every page and can be used to eg. add fold lines.
         -->
     </background>
     <header>
@@ -160,6 +163,17 @@ It has four base sections:
            The footer is repeated and rendered every page, always at the bottom.
         -->
     </footer>
+    <foreground>
+      <!--
+         Foreground is rendered every page and can be used to eg. add fold lines.
+         All foreground contents are only rendering the first page
+         (to clarify: the available space only accounts for the first page,
+          it is rendered on all pages, but only ever the first page of
+          the contents).
+         Foreground also ignores page margin and padding configuration,
+         working with the initial size.
+      -->
+    </foreground>
 </template>
 ```
 

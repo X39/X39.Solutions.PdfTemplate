@@ -11,19 +11,22 @@ internal sealed class Template : IAsyncDisposable
         IReadOnlyCollection<IControl> backgroundControls,
         IReadOnlyCollection<IControl> headerControls,
         IReadOnlyCollection<IControl> bodyControls,
-        IReadOnlyCollection<IControl> footerControls)
+        IReadOnlyCollection<IControl> footerControls,
+        IReadOnlyCollection<IControl> foregroundControls)
     {
         BackgroundControls = backgroundControls;
         HeaderControls = headerControls;
         BodyControls   = bodyControls;
         FooterControls = footerControls;
+        ForegroundControls = foregroundControls;
     }
 
     public IReadOnlyCollection<IControl> BackgroundControls { get; }
     public IReadOnlyCollection<IControl> HeaderControls { get; }
     public IReadOnlyCollection<IControl> BodyControls { get; }
     public IReadOnlyCollection<IControl> FooterControls { get; }
-
+    public IReadOnlyCollection<IControl> ForegroundControls { get; }
+    
 
     [SuppressMessage("ReSharper", "InvertIf")]
     public static async Task<Template> CreateAsync(
@@ -36,6 +39,7 @@ internal sealed class Template : IAsyncDisposable
         var bodyControls = new List<IControl>();
         var footerControls = new List<IControl>();
         var backgroundControls = new List<IControl>();
+        var foregroundControls = new List<IControl>();
         if (rootNode["header", rootNode.NodeNamespace] is { } headerNode)
         {
             foreach (var node in headerNode.Children)
@@ -76,7 +80,23 @@ internal sealed class Template : IAsyncDisposable
             }
         }
 
-        return new Template(backgroundControls.AsReadOnly(), headerControls.AsReadOnly(), bodyControls.AsReadOnly(), footerControls.AsReadOnly());
+        if (rootNode["foreground", rootNode.NodeNamespace] is { } foregroundNode)
+        {
+            foreach (var node in foregroundNode.Children)
+            {
+                var control = await CreateControlAsync(node, cache, cultureInfo, cancellationToken)
+                    .ConfigureAwait(false);
+                foregroundControls.Add(control);
+            }
+        }
+
+        return new Template(
+            backgroundControls.AsReadOnly(),
+            headerControls.AsReadOnly(),
+            bodyControls.AsReadOnly(),
+            footerControls.AsReadOnly(),
+            foregroundControls.AsReadOnly()
+        );
     }
 
     private static async Task<IControl> CreateControlAsync(
