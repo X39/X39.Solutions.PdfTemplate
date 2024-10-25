@@ -2,7 +2,7 @@
 *This readme contains comments in the XML which is not rendered by the NuGet markdown parser.
 Use [GitHub](https://github.com/X39/X39.Solutions.PdfTemplate) for best reading experience*
 
-![A sample output for reference](https://raw.githubusercontent.com/X39/X39.Solutions.PdfTemplate/master/.github/media/sample.yml)
+![A sample output for reference](https://raw.githubusercontent.com/X39/X39.Solutions.PdfTemplate/master/.github/media/sample.png)
 
 <!-- TOC -->
 * [X39.Solutions.PdfTemplate](#x39solutionspdftemplate)

@@ -31,6 +31,7 @@ You may even create your own controls by deriving from the `Control` base class!
         <PackageTags>XML;semantic-versioning;semver;PDF;C#;dotnet;csharp;.NET;library;document;generation;report;invoice;receipt;image;skia;export;windows;linux;mac;open-source;foss;LGPLv3;free;create-pdf;creation;create;pdf-table</PackageTags>
         <AnalysisLevel>latest-recommended</AnalysisLevel>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <Deterministic>true</Deterministic>
 
         <NoWarn>CA1716</NoWarn>
         <NoWarn>CA1710</NoWarn>
