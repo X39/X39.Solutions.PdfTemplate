@@ -5,45 +5,50 @@ Use [GitHub](https://github.com/X39/X39.Solutions.PdfTemplate) for best reading 
 ![A sample output for reference](https://raw.githubusercontent.com/X39/X39.Solutions.PdfTemplate/master/.github/media/sample.yml)
 
 <!-- TOC -->
-
 * [X39.Solutions.PdfTemplate](#x39solutionspdftemplate)
-    * [Semantic Versioning](#semantic-versioning)
-    * [Getting Started](#getting-started)
-    * [Template structure](#template-structure)
-    * [Integration](#integration)
-        * [Functions](#functions)
-        * [Variables](#variables)
-        * [End-User facing data types](#end-user-facing-data-types)
-            * [`Orientation`](#orientation)
-            * [`Length`](#length)
-            * [`Color`](#color)
-            * [`Thickness`](#thickness)
-        * [Controls](#controls)
-            * [Creating your own control](#creating-your-own-control)
-            * [`text`](#text)
-            * [`border`](#border)
-            * [`image`](#image)
-            * [`line`](#line)
-            * [`pageNumber`](#pagenumber)
-            * [`table`](#table)
-                * [`th`](#th)
-                * [`tr`](#tr)
-                * [`td`](#td)
-        * [Transformers](#transformers)
-            * [Creating your own transformer](#creating-your-own-transformer)
-            * [`alternate`](#alternate)
-            * [`var`](#var)
-            * [`if`](#if)
-            * [`for`](#for)
-            * [`foreach`](#foreach)
-    * [Building and Testing](#building-and-testing)
-    * [Proper documentation for End-Users](#proper-documentation-for-end-users)
-    * [Contributing](#contributing)
-        * [Code of Conduct](#code-of-conduct)
-        * [Contributors Agreement](#contributors-agreement)
-        * [Additional controls](#additional-controls)
-    * [License](#license)
-
+  * [Semantic Versioning](#semantic-versioning)
+  * [Getting Started](#getting-started)
+  * [Template structure](#template-structure)
+  * [Integration](#integration)
+    * [Functions](#functions)
+    * [Variables](#variables)
+    * [End-User facing data types](#end-user-facing-data-types)
+      * [`Orientation`](#orientation)
+      * [`Length`](#length)
+      * [`Color`](#color)
+      * [`Thickness`](#thickness)
+    * [Controls](#controls)
+      * [Creating your own control](#creating-your-own-control)
+      * [`text`](#text)
+      * [`border`](#border)
+      * [`image`](#image)
+      * [`line`](#line)
+      * [`pageNumber`](#pagenumber)
+      * [`table`](#table)
+        * [`th`](#th)
+        * [`tr`](#tr)
+        * [`td`](#td)
+    * [Transformers](#transformers)
+      * [Creating your own transformer](#creating-your-own-transformer)
+        * [Evaluating user data](#evaluating-user-data)
+        * [Introducing new variables or changing existing](#introducing-new-variables-or-changing-existing)
+      * [`alternate`](#alternate)
+      * [`var`](#var)
+      * [`if`](#if)
+      * [`for`](#for)
+      * [`foreach`](#foreach)
+    * [Interfaces](#interfaces)
+      * [`IDrawableCanvas`](#idrawablecanvas)
+      * [`IDeferredCanvas`](#ideferredcanvas)
+      * [`IImmediateCanvas`](#iimmediatecanvas)
+      * [`IResourceResolver`](#iresourceresolver)
+  * [Building and Testing](#building-and-testing)
+  * [Proper documentation for End-Users](#proper-documentation-for-end-users)
+  * [Contributing](#contributing)
+    * [Code of Conduct](#code-of-conduct)
+    * [Contributors Agreement](#contributors-agreement)
+    * [Additional controls](#additional-controls)
+  * [License](#license)
 <!-- TOC -->
 
 # X39.Solutions.PdfTemplate
@@ -743,6 +748,83 @@ generator.TemplateData.SetVariable("MyList", new[] { "one", "two", "three" });
     </body>
 </template>
 ```
+
+### Interfaces
+
+This section contains the different interfaces relevant to implementors.
+
+#### `IDrawableCanvas`
+
+The `IDrawableCanvas` is implementing the abstraction required for the actual, concrete backend.
+Currently, only `SkiaSharp` is available as render backend.
+
+#### `IDeferredCanvas`
+
+The `IDeferredCanvas` is extending the [`IDrawableCanvas`](#idrawablecanvas) by introducing a way
+to defer a rendering call to the background. The call then is executed only when the actual
+rendering is done. This is required for things like page number,
+which are not calculated ahead of rendering, to work. You usually do not have to rely on this
+unless you specifically need it.
+See also: [`IImmediateCanvas`](#iimmediatecanvas)
+
+#### `IImmediateCanvas`
+
+The `IImmediateCanvas` is extending the [`IDrawableCanvas`](#idrawablecanvas) by introducing
+specialized properties available at point of rendering. It is exposed by the [`IDeferredCanvas`](#ideferredcanvas),
+representing the actual time of rendering of any canvas operation.
+<!--
+#### `IControl`
+
+Stub
+
+#### `IContentControl`
+
+Stub
+
+#### `IFunction`
+
+Stub
+
+#### `IInitializeAsync`
+
+Stub
+
+#### `IParameterConverter`
+
+Stub
+
+#### `ITempalteData`
+
+Stub
+
+#### `ITransformer`
+
+Stub
+
+#### `IAddControls`
+
+Stub
+
+#### `IAddTransformers`
+
+Stub
+
+#### `IPropertyAccessCache`
+
+Stub
+
+#### `ITextService`
+
+Stub
+-->
+
+#### `IResourceResolver`
+
+The resource resolver is responsible for resolving resources when controls need them.
+The default controls library only uses it for the `image` control.
+
+Its purpose is to allow fine control about how resources are resolved by the system.
+The default implementation provided will treat all input as base64 encoded images.
 
 ## Building and Testing
 
