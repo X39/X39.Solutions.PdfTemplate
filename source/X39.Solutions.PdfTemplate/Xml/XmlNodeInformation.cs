@@ -29,7 +29,13 @@ public record XmlNodeInformation(
     /// <param name="controlName">The name of the control to search for.</param>
     /// <param name="controlNamespace">The namespace the control is in.</param>
     public XmlNodeInformation? this[string controlName, string controlNamespace]
-        => Children.FirstOrDefault(x => x.NodeName == controlName && x.NodeNamespace == controlNamespace);
+        => Children.FirstOrDefault(x => x.NodeName.Equals(controlName, StringComparison.OrdinalIgnoreCase) && x.NodeNamespace.Equals(controlNamespace, StringComparison.OrdinalIgnoreCase));
+    /// <summary>
+    /// Returns the first attribute with the given <paramref name="controlName"/>.
+    /// </summary>
+    /// <param name="controlName">The name of the attribute to search for.</param>
+    public string? this[string controlName]
+        => Attributes.FirstOrDefault(x => x.Key.Equals(controlName, StringComparison.OrdinalIgnoreCase)).Value;
 
     /// <inheritdoc />
     public IEnumerator<XmlNodeInformation> GetEnumerator()

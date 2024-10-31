@@ -28,6 +28,7 @@ Use [GitHub](https://github.com/X39/X39.Solutions.PdfTemplate) for best reading 
         * [`th`](#th)
         * [`tr`](#tr)
         * [`td`](#td)
+      * [`area`](#area)
     * [Transformers](#transformers)
       * [Creating your own transformer](#creating-your-own-transformer)
         * [Evaluating user data](#evaluating-user-data)
@@ -174,6 +175,11 @@ It has four base sections:
          working with the initial size.
       -->
     </foreground>
+    <areas>
+      <area left="10cm" right="10cm" height="10cm" top="10cm">
+        <!-- See About areas -->
+      </area>
+    </areas>
 </template>
 ```
 
@@ -188,6 +194,28 @@ However, if a template overrides the default `xmlns`,
 you must use a different prefix for the controls,
 such as `xmlns:prefix="X39.Solutions.PdfTemplate.Controls"`.
 For instance, `<text>` would then be written as `<prefix:text>`.
+
+
+
+### About `areas`
+
+The `areas` section is a special section, rendering content at a designated area.
+The area is identified by a position provided on a separate node and ignore margin rules.
+
+Areas are rendered above body but below foreground.
+
+It has the following attributes:
+
+| Attribute | Description                                                                                                                         | Values              | Default |
+|-----------|-------------------------------------------------------------------------------------------------------------------------------------|---------------------|---------|
+| `Width`   | The width of the area.                                                                                                              | [`Length`](#length) | `0`     |
+| `Height`  | The height of the area.                                                                                                             | [`Length`](#length) | `0`     |
+| `Left`    | The distance from the left side of a page for the area. If both `Left` and `Right` values are provided, `Width` will be ignored.    | [`Length`](#length) | `0`     |
+| `Top`     | The distance from the top side of a page for the area. If both `Top` and `Bottom` values are provided, `Height` will be ignored.    | [`Length`](#length) | `0`     |
+| `Right`   | The distance from the right side of a page for the area. If both `Left` and `Right` values are provided, `Width` will be ignored.   | [`Length`](#length) | `null`  |
+| `Bottom`  | The distance from the bottom side of a page for the area. If both `Top` and `Bottom` values are provided, `Height` will be ignored. | [`Length`](#length) | `null`  |
+
+
 
 ## Integration
 

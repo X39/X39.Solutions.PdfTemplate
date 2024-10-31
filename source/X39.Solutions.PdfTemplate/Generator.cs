@@ -7,6 +7,7 @@ using X39.Solutions.PdfTemplate.Data;
 using X39.Solutions.PdfTemplate.Functions;
 using X39.Solutions.PdfTemplate.Services;
 using X39.Solutions.PdfTemplate.Xml;
+using X39.Util.Collections;
 
 namespace X39.Solutions.PdfTemplate;
 
@@ -246,6 +247,15 @@ public sealed class Generator : IDisposable, IAsyncDisposable, IAddControls, IAd
             control.Measure(options.DotsPerInch, pageSize, pageSize, pageSize, cultureInfo);
         }
 
+        foreach (var area in template.AreaControls)
+        {
+            var tuple = area.CalculateClippingAndTranslationData(options.DotsPerInch, originalPageSize);
+            foreach (var areaControl in area.Controls)
+            {
+                areaControl.Measure(options.DotsPerInch, tuple.size, tuple.size, tuple.size, cultureInfo);
+            }
+        }
+
         #endregion
 
         #region Arrange
@@ -334,9 +344,27 @@ public sealed class Generator : IDisposable, IAsyncDisposable, IAddControls, IAd
 
         #endregion
 
+        #region Areas
+
+        var areaSizes = new List<(int areaIndex, Size size)>();
+        foreach (var (area, areaIndex) in template.AreaControls.Indexed())
+        {
+            var tuple = area.CalculateClippingAndTranslationData(options.DotsPerInch, originalPageSize);
+
+            foreach (var control in area.Controls)
+            {
+                var size = control.Arrange(options.DotsPerInch, tuple.size, tuple.size, tuple.size, cultureInfo);
+                areaSizes.Add((areaIndex, size));
+            }
+        }
+
+        #endregion
+
         #endregion
 
         #region Render
+
+        #region Background
 
         var backgroundCanvasAbstraction = new DeferredCanvasImpl
         {
@@ -351,6 +379,10 @@ public sealed class Generator : IDisposable, IAsyncDisposable, IAddControls, IAd
             }
         }
 
+        #endregion
+
+        #region Header
+
         var headerCanvasAbstraction = new DeferredCanvasImpl
         {
             ActualPageSize = originalPageSize, PageSize = pageSize,
@@ -363,6 +395,10 @@ public sealed class Generator : IDisposable, IAsyncDisposable, IAddControls, IAd
                 headerCanvasAbstraction.Translate(0F, size.Height);
             }
         }
+
+        #endregion
+
+        #region Body
 
         var bodyCanvasAbstraction = new DeferredCanvasImpl { ActualPageSize = originalPageSize, PageSize = pageSize, };
         float desiredBodyHeight;
@@ -382,7 +418,10 @@ public sealed class Generator : IDisposable, IAsyncDisposable, IAddControls, IAd
             }
         }
 
-        var pageCount = Math.Max((ushort) Math.Ceiling(desiredBodyHeight / bodyPageSize.Height), (ushort) 1);
+        #endregion
+
+
+        #region Footer
 
         var footerCanvasAbstraction = new DeferredCanvasImpl
         {
@@ -397,6 +436,39 @@ public sealed class Generator : IDisposable, IAsyncDisposable, IAddControls, IAd
             }
         }
 
+        #endregion
+
+        #region Area
+
+        var areaCanvasAbstraction = new DeferredCanvasImpl
+        {
+            ActualPageSize = originalPageSize, PageSize = originalPageSize,
+        };
+        using (areaCanvasAbstraction.CreateState())
+        {
+            foreach (var (area, areaIndex) in template.AreaControls.Indexed())
+            {
+                var tuple = area.CalculateClippingAndTranslationData(options.DotsPerInch, originalPageSize);
+                using (areaCanvasAbstraction.CreateState())
+                {
+                    // Translate canvas
+                    areaCanvasAbstraction.Translate(tuple.left, tuple.top);
+                    // Clip Canvas
+                    areaCanvasAbstraction.Clip(0, 0, tuple.width, tuple.height);
+                    foreach (var (control, (_, size)) in area.Controls.Zip(areaSizes.Where(t => t.areaIndex == areaIndex)))
+                    {
+                        _ = control.Render(areaCanvasAbstraction, options.DotsPerInch, tuple.size, cultureInfo);
+                        areaCanvasAbstraction.Translate(0F, size.Height);
+                    }
+                }
+            }
+        }
+
+
+        #endregion
+
+        #region Foreground
+
         var foregroundCanvasAbstraction = new DeferredCanvasImpl
         {
             ActualPageSize = originalPageSize, PageSize = originalPageSize,
@@ -410,8 +482,11 @@ public sealed class Generator : IDisposable, IAsyncDisposable, IAddControls, IAd
             }
         }
 
+        #endregion
+
         var currentHeight = 0F;
 
+        var pageCount = Math.Max((ushort) Math.Ceiling(desiredBodyHeight / bodyPageSize.Height), (ushort) 1);
         for (var i = 0; i < pageCount; i++)
         {
             // ReSharper disable AccessToDisposedClosure
@@ -452,6 +527,11 @@ public sealed class Generator : IDisposable, IAsyncDisposable, IAddControls, IAd
                     footerCanvasAbstraction.Render(immediateCanvas);
                 }
             }
+            using (immediateCanvas.CreateState())
+            {
+                immediateCanvas.Translate(0, i * originalPageSize.Height);
+                areaCanvasAbstraction.Render(immediateCanvas);
+            }
 
             using (immediateCanvas.CreateState())
             {
@@ -459,7 +539,6 @@ public sealed class Generator : IDisposable, IAsyncDisposable, IAddControls, IAd
                 foregroundCanvasAbstraction.Render(immediateCanvas);
             }
 
-            canvas.Restore();
             currentHeight += bodyPageSize.Height;
         }
         // ReSharper restore AccessToDisposedClosure

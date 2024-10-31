@@ -13,3 +13,5 @@
 /dataSources.local.xml
 # GitHub Copilot persisted chat sessions
 /copilot/chatSessions
+# Developer Tools
+developer-tools.xml
