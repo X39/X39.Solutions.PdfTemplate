@@ -14,7 +14,7 @@ public static class Canvas
     /// When the balancing call is done by disposing the return value,
     /// the previous matrix, clipping, and drawing filters are restored.
     /// </summary>
-    public static IDisposable CreateState(this IDeferredCanvas canvas)
+    public static IDisposable CreateState(this IDrawableCanvas canvas)
     {
         canvas.PushState();
         return new Disposable(canvas.PopState);

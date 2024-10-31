@@ -42,7 +42,7 @@ public class LineControlTests
         var pageBounds = new Size(pageArr[0], pageArr[1]);
         var measure = new Size(measureArr[0], measureArr[1]);
         var arrange = new Size(arrangeArr[0], arrangeArr[1]);
-        var mock = new DeferredCanvasMock();
+        var mock = new DeferredCanvasMock{ActualPageSize = pageBounds, PageSize = pageBounds};
         var lineControl = new LineControl
         {
             Color               = Colors.Green,
@@ -79,7 +79,8 @@ public class LineControlTests
     [InlineData(EOrientation.Vertical)]
     public void PaddingIsApplied(EOrientation orientation)
     {
-        var mock = new DeferredCanvasMock();
+        var pageBounds = new Size(1000, 1000);
+        var mock = new DeferredCanvasMock{ActualPageSize = pageBounds, PageSize = pageBounds};
         var lineControl = new LineControl
         {
             Color               = Colors.Green,
@@ -92,7 +93,6 @@ public class LineControlTests
             Clip                = false,
             Thickness           = new Length(1, ELengthUnit.Pixel),
         };
-        var pageBounds = new Size(1000, 1000);
         var measure = new Size(
             orientation == EOrientation.Horizontal ? 1000F : 21F,
             orientation == EOrientation.Horizontal ? 21F : 1000F);
@@ -125,7 +125,8 @@ public class LineControlTests
     [InlineData(EOrientation.Vertical)]
     public void MarginIsApplied(EOrientation orientation)
     {
-        var mock = new DeferredCanvasMock();
+        var pageBounds = new Size(1000, 1000);
+        var mock = new DeferredCanvasMock{ActualPageSize = pageBounds, PageSize = pageBounds};
         var lineControl = new LineControl
         {
             Color               = Colors.Green,
@@ -138,7 +139,6 @@ public class LineControlTests
             Clip                = false,
             Thickness           = new Length(1, ELengthUnit.Pixel),
         };
-        var pageBounds = new Size(1000, 1000);
         var measure = new Size(
             orientation == EOrientation.Horizontal ? 1000F : 21F,
             orientation == EOrientation.Horizontal ? 21F : 1000F);
@@ -167,7 +167,8 @@ public class LineControlTests
     [InlineData(EOrientation.Vertical)]
     public void MarginAndPaddingBothAreApplied(EOrientation orientation)
     {
-        var mock = new DeferredCanvasMock();
+        var pageBounds = new Size(1000, 1000);
+        var mock = new DeferredCanvasMock{ActualPageSize = pageBounds, PageSize = pageBounds};
         var lineControl = new LineControl
         {
             Color               = Colors.Green,
@@ -180,7 +181,6 @@ public class LineControlTests
             Clip                = false,
             Thickness           = new Length(1, ELengthUnit.Pixel),
         };
-        var pageBounds = new Size(1000, 1000);
         var measure = new Size(
             orientation == EOrientation.Horizontal ? 1000F : 41F,
             orientation == EOrientation.Horizontal ? 41F : 1000F);

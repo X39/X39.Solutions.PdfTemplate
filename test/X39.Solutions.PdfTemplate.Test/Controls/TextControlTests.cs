@@ -30,7 +30,7 @@ public class TextControlTests : IDisposable
     public void SizeGreaterZero(string text)
     {
         var pageBounds = new Size(595, 842);
-        var mock = new DeferredCanvasMock();
+        var mock = new DeferredCanvasMock{ActualPageSize = pageBounds, PageSize = pageBounds};
         var fontPath = GetTestFont();
         var control = new TextControl(new TextService(_paintCache))
         {
@@ -51,7 +51,7 @@ public class TextControlTests : IDisposable
     {
         const string text = "The quick brown fox jumps over the lazy dog";
         var pageBounds = new Size(595, 842);
-        var mock = new DeferredCanvasMock();
+        var mock = new DeferredCanvasMock{ActualPageSize = pageBounds, PageSize = pageBounds};
         var fontPath = GetTestFont();
         var control = new TextControl(new TextService(_paintCache))
         {

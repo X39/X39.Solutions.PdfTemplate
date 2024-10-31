@@ -11,6 +11,19 @@ namespace X39.Solutions.PdfTemplate.Abstraction;
 public interface IDeferredCanvas : IDrawableCanvas
 {
     /// <summary>
+    /// The actual size of a single page without any margins applied.
+    /// </summary>
+    Size ActualPageSize { get; }
+
+    /// <summary>
+    /// The size of the page, including all margins.
+    /// </summary>
+    /// <remarks>
+    /// For foreground and background layer, this is the same as <see cref="ActualPageSize"/>.
+    /// </remarks>
+    Size PageSize { get; }
+
+    /// <summary>
     /// Represents the current translation of the canvas.
     /// </summary>
     /// <remarks>

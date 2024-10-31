@@ -36,7 +36,7 @@ public class TableRowControlTests
         const float cell0Width = 100;
 
         var pageSize   = new Size(pageHeight, pageWidth);
-        var mockCanvas = new DeferredCanvasMock();
+        var mockCanvas = new DeferredCanvasMock{ActualPageSize = pageSize, PageSize = pageSize};
         var measure    = control.Measure(dpi, pageSize, pageSize, pageSize, CultureInfo.InvariantCulture);
         Assert.Equal(new Size(expectedControlMeasureWidth, expectedControlMeasureHeight), measure);
         Assert.Equal(cell0Width,                                                          table.CellWidths[0].Item1);
@@ -82,7 +82,7 @@ public class TableRowControlTests
         const float cell1Width = 100;
 
         var pageSize   = new Size(pageHeight, pageWidth);
-        var mockCanvas = new DeferredCanvasMock();
+        var mockCanvas = new DeferredCanvasMock{ActualPageSize = pageSize, PageSize = pageSize};
         var measure    = control.Measure(dpi, pageSize, pageSize, pageSize, CultureInfo.InvariantCulture);
         Assert.Equal(new Size(expectedControlMeasureWidth, expectedControlMeasureHeight), measure);
         Assert.Equal(cell0Width,                                         table.CellWidths[0].Item1);
@@ -137,7 +137,7 @@ public class TableRowControlTests
         const float cell3Width = 100;
 
         var pageSize   = new Size(pageHeight, pageWidth);
-        var mockCanvas = new DeferredCanvasMock();
+        var mockCanvas = new DeferredCanvasMock{ActualPageSize = pageSize, PageSize = pageSize};
         var measure    = control.Measure(dpi, pageSize, pageSize, pageSize, CultureInfo.InvariantCulture);
         Assert.Equal(new Size(expectedControlMeasureWidth, expectedControlMeasureHeight), measure);
         Assert.Equal(cell0Width,                                                          table.CellWidths[0].Item1);

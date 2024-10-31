@@ -14,21 +14,29 @@ internal sealed class ImmediateCanvasImpl : IImmediateCanvas
     {
         _canvas     = canvas;
         _paintCache = paintCache;
+        _canvas.Clear();
     }
 
-    public void PushState()               => _canvas.Save();
-    public void Clip(Rectangle rectangle) => _canvas.ClipRect(rectangle);
-    public void PopState()                => _canvas.Restore();
+    public void PushState()
+        => _canvas.Save();
+
+    public void Clip(Rectangle rectangle)
+        => _canvas.ClipRect(rectangle);
+
+    public void PopState()
+        => _canvas.Restore();
 
     public void DrawLine(Color color, float thickness, float startX, float startY, float endX, float endY)
         => _canvas.DrawLine(startX, startY, endX, endY, _paintCache.Get(color, thickness));
 
-    public void Translate(Point point) => _canvas.Translate(point.X, point.Y);
+    public void Translate(Point point)
+        => _canvas.Translate(point.X, point.Y);
 
     public void DrawText(TextStyle textStyle, float dpi, string text, float x, float y)
         => _canvas.DrawText(text, x, y, _paintCache.Get(textStyle, dpi));
 
-    public void DrawRect(Rectangle rectangle, Color color) => _canvas.DrawRect(rectangle, _paintCache.Get(color));
+    public void DrawRect(Rectangle rectangle, Color color)
+        => _canvas.DrawRect(rectangle, _paintCache.Get(color));
 
     public void DrawBitmap(byte[] bytes, Rectangle rectangle)
     {
@@ -39,7 +47,9 @@ internal sealed class ImmediateCanvasImpl : IImmediateCanvas
         _canvas.DrawBitmap(bitmap, rectangle);
     }
 
-    public void   DrawBitmap(SKBitmap bitmap, Rectangle arrangementInner) => _canvas.DrawBitmap(bitmap, arrangementInner);
+    public void DrawBitmap(SKBitmap bitmap, Rectangle arrangementInner)
+        => _canvas.DrawBitmap(bitmap, arrangementInner);
+
     public ushort PageNumber { get; internal set; }
     public ushort TotalPages { get; internal set; }
 }

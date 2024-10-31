@@ -29,7 +29,7 @@ public class BorderControl : AlignableContentControl
     [Parameter]
     public Color Background { get; set; }
     
-    private List<Size> _arrangedSizes = new();
+    private readonly List<Size> _arrangedSizes = new();
 
     /// <inheritdoc />
     protected override Size DoMeasure(

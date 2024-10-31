@@ -1,6 +1,7 @@
 ﻿using System.Globalization;
 using System.Text;
 using System.Xml;
+using X39.Solutions.PdfTemplate.Data;
 
 namespace X39.Solutions.PdfTemplate.Test.Samples;
 
@@ -113,6 +114,10 @@ public class TextSample : SampleBase
     [Fact]
     public async Task LoremIpsum100Paragraphs()
     {
+        var       docOptions = new DocumentOptions
+        {
+            Margin = new Thickness(new Length(2, ELengthUnit.Centimeters)),
+        };
         using var generator = CreateGenerator();
         using var xmlStream = new MemoryStream(
             Encoding.UTF8.GetBytes(
@@ -230,7 +235,8 @@ public class TextSample : SampleBase
         await generator.GeneratePdfAsync(
             pdfStream,
             xmlReader,
-            CultureInfo.InvariantCulture);
+            CultureInfo.InvariantCulture,
+            docOptions);
     }
     
     

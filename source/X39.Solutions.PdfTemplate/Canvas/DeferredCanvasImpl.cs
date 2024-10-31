@@ -12,6 +12,8 @@ internal sealed class DeferredCanvasImpl : IDeferredCanvas
     private const    int          DefaultStackCapacity = 20 + 1;
     private readonly Stack<Point> _stateStack          = new(DefaultStackCapacity);
     public           Point        Translation                            => _stateStack.Count is not 0 ? _stateStack.Peek() : new Point();
+    public Size ActualPageSize { get; set; }
+    public Size PageSize { get; set; }
 
     public void Defer(Action<IImmediateCanvas> action)
     {
@@ -39,11 +41,15 @@ internal sealed class DeferredCanvasImpl : IDeferredCanvas
 
     public void DrawRect(Rectangle rectangle, Color color)
     {
+        if (color.Alpha is 0)
+            return;
         _drawActions.Add((canvas) => canvas.DrawRect(rectangle, color));
     }
 
     public void Translate(Point point)
     {
+        if (point is { X: 0, Y: 0 })
+            return;
         var translation = Translation + point;
         _stateStack.Pop();
         _stateStack.Push(translation);
@@ -58,11 +64,15 @@ internal sealed class DeferredCanvasImpl : IDeferredCanvas
 
     public void DrawLine(Color color, float thickness, float startX, float startY, float endX, float endY)
     {
+        if (color.Alpha is 0)
+            return;
         _drawActions.Add((canvas) =>canvas.DrawLine(color, thickness, startX, startY, endX, endY));
     }
 
     public void DrawText(TextStyle textStyle, float dpi, string text, float x, float y)
     {
+        if (text.IsNullOrWhiteSpace())
+            return;
         _drawActions.Add((canvas) => canvas.DrawText(textStyle, dpi, text, x, y));
     }
 

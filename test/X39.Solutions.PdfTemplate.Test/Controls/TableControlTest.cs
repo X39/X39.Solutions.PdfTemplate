@@ -19,7 +19,7 @@ public class TableControlTest
                               </table>
                               """.ToControl<TableControl>();
         var pageSize   = new Size(200, 200);
-        var mockCanvas = new DeferredCanvasMock();
+        var mockCanvas = new DeferredCanvasMock{ActualPageSize = pageSize, PageSize = pageSize};
         control.Measure(90, pageSize, pageSize, pageSize, CultureInfo.InvariantCulture);
         control.Arrange(90, pageSize, pageSize, pageSize, CultureInfo.InvariantCulture);
         control.Render(mockCanvas, 90, pageSize, CultureInfo.InvariantCulture);
@@ -46,7 +46,7 @@ public class TableControlTest
                               </table>
                               """.ToControl<TableControl>();
         var pageSize   = new Size(200, 200);
-        var mockCanvas = new DeferredCanvasMock();
+        var mockCanvas = new DeferredCanvasMock{ActualPageSize = pageSize, PageSize = pageSize};
         control.Measure(90, pageSize, pageSize, pageSize, CultureInfo.InvariantCulture);
         control.Arrange(90, pageSize, pageSize, pageSize, CultureInfo.InvariantCulture);
         control.Render(mockCanvas, 90, pageSize, CultureInfo.InvariantCulture);
@@ -73,7 +73,7 @@ public class TableControlTest
                               </table>
                               """.ToControl<TableControl>();
         var pageSize   = new Size(200, 200);
-        var mockCanvas = new DeferredCanvasMock();
+        var mockCanvas = new DeferredCanvasMock{ActualPageSize = pageSize, PageSize = pageSize};
         control.Measure(90, pageSize, pageSize, pageSize, CultureInfo.InvariantCulture);
         control.Arrange(90, pageSize, pageSize, pageSize, CultureInfo.InvariantCulture);
         control.Render(mockCanvas, 90, pageSize, CultureInfo.InvariantCulture);
@@ -110,7 +110,7 @@ public class TableControlTest
                               </table>
                               """.ToControl<TableControl>();
         var pageSize   = new Size(200, 200);
-        var mockCanvas = new DeferredCanvasMock();
+        var mockCanvas = new DeferredCanvasMock{ActualPageSize = pageSize, PageSize = pageSize};
         control.Measure(90, pageSize, pageSize, pageSize, CultureInfo.InvariantCulture);
         control.Arrange(90, pageSize, pageSize, pageSize, CultureInfo.InvariantCulture);
         control.Render(mockCanvas, 90, pageSize, CultureInfo.InvariantCulture);
@@ -137,7 +137,7 @@ public class TableControlTest
                               </table>
                               """.ToControl<TableControl>();
         var pageSize   = new Size(200, 200);
-        var mockCanvas = new DeferredCanvasMock();
+        var mockCanvas = new DeferredCanvasMock{ActualPageSize = pageSize, PageSize = pageSize};
         control.Measure(90, pageSize, pageSize, pageSize, CultureInfo.InvariantCulture);
         control.Arrange(90, pageSize, pageSize, pageSize, CultureInfo.InvariantCulture);
         control.Render(mockCanvas, 90, pageSize, CultureInfo.InvariantCulture);
@@ -160,7 +160,7 @@ public class TableControlTest
                                 </table>
                               """.ToControl<TableControl>();
         var pageSize   = new Size(200, 200);
-        var mockCanvas = new DeferredCanvasMock();
+        var mockCanvas = new DeferredCanvasMock{ActualPageSize = pageSize, PageSize = pageSize};
         control.Measure(90, pageSize, pageSize, pageSize, CultureInfo.InvariantCulture);
         control.Arrange(90, pageSize, pageSize, pageSize, CultureInfo.InvariantCulture);
         control.Render(mockCanvas, 90, pageSize, CultureInfo.InvariantCulture);
@@ -198,7 +198,7 @@ public class TableControlTest
                                 </table>
                               """.ToControl<TableControl>();
         var pageSize   = new Size(100, 125);
-        var mockCanvas = new DeferredCanvasMock();
+        var mockCanvas = new DeferredCanvasMock{ActualPageSize = pageSize, PageSize = pageSize};
         control.Measure(90, pageSize, pageSize, pageSize, CultureInfo.InvariantCulture);
         control.Arrange(90, pageSize, pageSize, pageSize, CultureInfo.InvariantCulture);
         control.Render(mockCanvas, 90, pageSize, CultureInfo.InvariantCulture);
@@ -250,7 +250,7 @@ public class TableControlTest
                                 </table>
                               """.ToControl<TableControl>();
         var pageSize   = new Size(100, 125);
-        var mockCanvas = new DeferredCanvasMock();
+        var mockCanvas = new DeferredCanvasMock{ActualPageSize = pageSize, PageSize = pageSize};
         control.Measure(90, pageSize, pageSize, pageSize, CultureInfo.InvariantCulture);
         control.Arrange(90, pageSize, pageSize, pageSize, CultureInfo.InvariantCulture);
         control.Render(mockCanvas, 90, pageSize, CultureInfo.InvariantCulture);

@@ -19,7 +19,7 @@ public interface IDrawableCanvas
     void PushState();
 
     /// <summary>
-    /// Modify the current clip with the specified <see cref="Rectangle"/>.
+    /// Add to the current clip with the specified <see cref="Rectangle"/>.
     /// </summary>
     /// <param name="rectangle">The <see cref="Rectangle"/> to combine with the current clip.</param>
     void Clip(Rectangle rectangle);

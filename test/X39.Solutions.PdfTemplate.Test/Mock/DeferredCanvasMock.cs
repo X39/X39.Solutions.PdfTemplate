@@ -38,9 +38,14 @@ public partial class DeferredCanvasMock : IDeferredCanvas, IImmediateCanvas
 
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public Rectangle Clip { get; set; }
+
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
+        public Rectangle Unclip { get; set; }
     }
 
 
+    public Size ActualPageSize { get; set; }
+    public Size PageSize { get; set; }
     public Point Translation                            => _stateStack.Any() ? _stateStack.Peek().Translation : new Point();
     public void  Defer(Action<IImmediateCanvas> action) { action(this); }
 
@@ -48,6 +53,7 @@ public partial class DeferredCanvasMock : IDeferredCanvas, IImmediateCanvas
     private readonly List<DrawLineCall> _drawLineCalls = new();
     private readonly List<DrawTextCall> _drawTextCalls = new();
     private readonly List<Rectangle>    _clipCalls     = new();
+    private readonly List<Rectangle>    _unclipCalls     = new();
 
     public void PushState()
     {
@@ -65,6 +71,13 @@ public partial class DeferredCanvasMock : IDeferredCanvas, IImmediateCanvas
         rectangle += Translation;
         _clipCalls.Add(rectangle);
         _stateStack.Peek().Clip = rectangle;
+    }
+
+    public void Unclip(Rectangle rectangle)
+    {
+        rectangle += Translation;
+        _unclipCalls.Add(rectangle);
+        _stateStack.Peek().Unclip = rectangle;
     }
 
     public void PopState()

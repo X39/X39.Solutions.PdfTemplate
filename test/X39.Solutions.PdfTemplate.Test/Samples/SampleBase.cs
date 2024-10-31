@@ -57,7 +57,11 @@ public abstract class SampleBase : IAsyncDisposable
                             });
                         if (process is null)
                             throw new InvalidOperationException("Could not start process.");
+                        var now = DateTime.Now;
                         process.WaitForExit();
+                        var then = DateTime.Now;
+                        if (now - then < TimeSpan.FromMilliseconds(1000) && Debugger.IsAttached)
+                            Thread.Sleep(1000); // Yes, we sleep here if a debugger is attached, because sample jobs are for opening the PDF
                         File.Delete(tmpFile);
                     });
             }
