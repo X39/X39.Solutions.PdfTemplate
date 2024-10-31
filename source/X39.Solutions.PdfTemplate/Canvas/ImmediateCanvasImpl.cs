@@ -14,7 +14,6 @@ internal sealed class ImmediateCanvasImpl : IImmediateCanvas
     {
         _canvas     = canvas;
         _paintCache = paintCache;
-        _canvas.Clear();
     }
 
     public void PushState()

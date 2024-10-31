@@ -3,6 +3,7 @@ using System.Text;
 using System.Xml;
 using SkiaSharp;
 using X39.Solutions.PdfTemplate.Data;
+using X39.Util.Collections;
 
 namespace X39.Solutions.PdfTemplate.Test.Samples;
 
@@ -184,6 +185,19 @@ public class ReadMeSample : SampleBase
         // {
         //     bitmaps.First().Encode(fstream, SKEncodedImageFormat.Png, 100);
         // }
-        await generator.GeneratePdfAsync(pdfStream, xmlReader, CultureInfo.InvariantCulture, docOptions);
+        // await generator.GeneratePdfAsync(pdfStream, xmlReader, CultureInfo.InvariantCulture, docOptions);
+        var results = await generator.GenerateBitmapsAsync(xmlReader, CultureInfo.InvariantCulture, docOptions);
+        foreach (var (skBitmap, index) in results.Indexed())
+            using (skBitmap)
+            {
+                using var image = SKImage.FromBitmap(skBitmap);
+                using var data = image.Encode(SKEncodedImageFormat.Png, 100);
+                await using var fstream = new FileStream(
+                    Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), $"{index}.png"),
+                    FileMode.Create,
+                    FileAccess.Write
+                );
+                data.SaveTo(fstream);
+            }
     }
 }
