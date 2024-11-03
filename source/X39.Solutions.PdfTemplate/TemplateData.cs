@@ -129,29 +129,50 @@ internal sealed class TemplateData : ITemplateData
     }
 
     private async ValueTask<object?> HandleFunctionExpressionAsync(
-        CultureInfo       cultureInfo,
-        string            expression,
+        CultureInfo cultureInfo,
+        string expression,
         CancellationToken cancellationToken
     )
     {
-        var functionName = expression[..expression.IndexOf('(')];
-        var function     = GetFunction(functionName);
+        var argsStartIndex = expression.IndexOf('(');
+        var functionName = expression[..argsStartIndex];
+        var function = GetFunction(functionName);
         if (function is null)
             throw new FunctionNotFoundDuringEvaluationException(functionName);
-        var argumentEnd         = expression.LastIndexOf(')');
-        var argumentsExpression = expression[(functionName.Length + 1)..(argumentEnd)].Trim();
-        if (argumentsExpression.IsNullOrEmpty())
-            return await function.ExecuteAsync(cultureInfo, Array.Empty<object?>(), cancellationToken)
-                                 .ConfigureAwait(false);
-        var splatted  = argumentsExpression.Split(',', StringSplitOptions.TrimEntries);
-        var arguments = new object?[splatted.Length];
-        for (var i = 0; i < arguments.Length; i++)
-        {
-            var result = await EvaluateAsync(cultureInfo, splatted[i], cancellationToken).ConfigureAwait(false);
-            arguments[i] = result;
-        }
 
-        return await function.ExecuteAsync(cultureInfo, arguments, cancellationToken).ConfigureAwait(false);
+        var args = new List<object?>();
+        var braceCount = 1;
+        var currentStart = argsStartIndex + 1;
+        var i = argsStartIndex + 1;
+        for (; i < expression.Length && braceCount > 0; i++)
+        {
+            var c = expression[i];
+            switch (c)
+            {
+                case '(':
+                    braceCount++;
+                    break;
+                case ')' when braceCount > 1:
+                    braceCount--;
+                    break;
+                case ',' when braceCount == 1:
+                case ')':
+                {
+                    var nestedExpression = expression[currentStart..i].Trim();
+                    if (nestedExpression.Length is 0)
+                        break;
+                    var value = await EvaluateAsync(cultureInfo, nestedExpression, cancellationToken);
+                    args.Add(value);
+                    currentStart = i + 1;
+                    break;
+                }
+            }
+        }
+        if (i != expression.Length)
+            throw new FunctionExpressionNotFullyHandledException(functionName, expression, expression[i..]);
+
+        return await function.ExecuteAsync(cultureInfo, args.ToArray(), cancellationToken)
+            .ConfigureAwait(false);
     }
 
     private static string HandleStringExpression(string expression)
