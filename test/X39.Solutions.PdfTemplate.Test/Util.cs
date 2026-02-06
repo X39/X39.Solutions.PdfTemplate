@@ -30,7 +30,7 @@ public static class Util
         using var xmlReader = XmlReader.Create(xmlStream);
         ITemplateData templateData = new TemplateData();
         var transformers = new TransformerList().AddDefaultTransformers();
-        using var xmlTemplateReader = new XmlTemplateReader(CultureInfo.InvariantCulture, templateData, transformers);
+        using var xmlTemplateReader = new XmlTemplateReader(default, CultureInfo.InvariantCulture, templateData, transformers);
         var root = await xmlTemplateReader.ReadAsync(xmlReader);
         var serviceCollection = new ServiceCollection();
         serviceCollection.AddPdfTemplateServices();

@@ -21,7 +21,7 @@ public class IfTransformerTests
                                   </styleMustBeEmptyTagTest>
                                   """;
         var templateReader = new XmlTemplateReader(
-            CultureInfo.InvariantCulture,
+            default, CultureInfo.InvariantCulture,
             new TemplateData(),
             new[] {new IfTransformer()});
         using var xmlStream = new MemoryStream(Encoding.UTF8.GetBytes(template));
@@ -44,7 +44,7 @@ public class IfTransformerTests
                                   </styleMustBeEmptyTagTest>
                                   """;
         var templateReader = new XmlTemplateReader(
-            CultureInfo.InvariantCulture,
+            default, CultureInfo.InvariantCulture,
             new TemplateData(),
             new[] {new IfTransformer()});
         using var xmlStream = new MemoryStream(Encoding.UTF8.GetBytes(template));
@@ -98,7 +98,7 @@ public class IfTransformerTests
         var data = new TemplateData();
         data.SetVariable("variable", left);
         data.RegisterFunction(new DummyValueFunction("function", right, new[] {typeof(int), typeof(string)}));
-        var templateReader = new XmlTemplateReader(CultureInfo.InvariantCulture, data, new[] {new IfTransformer()});
+        var templateReader = new XmlTemplateReader(default, CultureInfo.InvariantCulture, data, new[] {new IfTransformer()});
         using var xmlStream = new MemoryStream(Encoding.UTF8.GetBytes(template));
         using var xmlReader = XmlReader.Create(xmlStream);
         var nodeInformation = await templateReader.ReadAsync(xmlReader);

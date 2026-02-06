@@ -22,7 +22,7 @@ public class ForEachTransformerTests
                                   """;
         var data = new TemplateData();
         data.SetVariable("list", new[] {1, 2, 3});
-        var templateReader = new XmlTemplateReader(CultureInfo.InvariantCulture, data, new[] {new ForEachTransformer()});
+        var templateReader = new XmlTemplateReader(default, CultureInfo.InvariantCulture, data, new[] {new ForEachTransformer()});
         using var xmlStream = new MemoryStream(Encoding.UTF8.GetBytes(template));
         using var xmlReader = XmlReader.Create(xmlStream);
         var nodeInformation = await templateReader.ReadAsync(xmlReader);
@@ -46,7 +46,7 @@ public class ForEachTransformerTests
                                   """;
         var data = new TemplateData();
         data.SetVariable("list", new[] {1, 2, 3});
-        var templateReader = new XmlTemplateReader(CultureInfo.InvariantCulture, data, new[] {new ForEachTransformer()});
+        var templateReader = new XmlTemplateReader(default, CultureInfo.InvariantCulture, data, new[] {new ForEachTransformer()});
         using var xmlStream = new MemoryStream(Encoding.UTF8.GetBytes(template));
         using var xmlReader = XmlReader.Create(xmlStream);
         var nodeInformation = await templateReader.ReadAsync(xmlReader);
@@ -70,7 +70,7 @@ public class ForEachTransformerTests
                                   """;
         var data = new TemplateData();
         data.SetVariable("list", new object[] {});
-        var templateReader = new XmlTemplateReader(CultureInfo.InvariantCulture, data, new[] {new ForEachTransformer()});
+        var templateReader = new XmlTemplateReader(default, CultureInfo.InvariantCulture, data, new[] {new ForEachTransformer()});
         using var xmlStream = new MemoryStream(Encoding.UTF8.GetBytes(template));
         using var xmlReader = XmlReader.Create(xmlStream);
         var nodeInformation = await templateReader.ReadAsync(xmlReader);
@@ -91,7 +91,7 @@ public class ForEachTransformerTests
                                   """;
         var data = new TemplateData();
         data.RegisterFunction(new DummyValueCollectionFunction("list", Enumerable.Range(1, 10).Cast<object>().ToList(), new[] {typeof(int), typeof(string)}));
-        var templateReader = new XmlTemplateReader(CultureInfo.InvariantCulture, data, new[] {new ForEachTransformer()});
+        var templateReader = new XmlTemplateReader(default, CultureInfo.InvariantCulture, data, new[] {new ForEachTransformer()});
         using var xmlStream = new MemoryStream(Encoding.UTF8.GetBytes(template));
         using var xmlReader = XmlReader.Create(xmlStream);
         var nodeInformation = await templateReader.ReadAsync(xmlReader);
@@ -127,7 +127,7 @@ public class ForEachTransformerTests
                                   """;
         var data = new TemplateData();
         data.RegisterFunction(new DummyValueCollectionFunction("list", Enumerable.Range(1, 2).Cast<object>().ToList(), new[] {typeof(int), typeof(string)}));
-        var templateReader = new XmlTemplateReader(CultureInfo.InvariantCulture, data, new[] {new ForEachTransformer()});
+        var templateReader = new XmlTemplateReader(default, CultureInfo.InvariantCulture, data, new[] {new ForEachTransformer()});
         using var xmlStream = new MemoryStream(Encoding.UTF8.GetBytes(template));
         using var xmlReader = XmlReader.Create(xmlStream);
         var nodeInformation =await  templateReader.ReadAsync(xmlReader);
@@ -162,7 +162,7 @@ public class ForEachTransformerTests
         var data = new TemplateData();
         data.RegisterFunction(new DummyValueCollectionFunction("list", Enumerable.Empty<object>().ToList(), new[] {typeof(int), typeof(string)}));
         data.RegisterFunction(new DummyValueCollectionFunction("list2", Enumerable.Range(1, 2).Cast<object>().ToList(), new[] {typeof(int), typeof(string)}));
-        var templateReader = new XmlTemplateReader(CultureInfo.InvariantCulture, data, new[] {new ForEachTransformer()});
+        var templateReader = new XmlTemplateReader(default, CultureInfo.InvariantCulture, data, new[] {new ForEachTransformer()});
         using var xmlStream = new MemoryStream(Encoding.UTF8.GetBytes(template));
         using var xmlReader = XmlReader.Create(xmlStream);
         var nodeInformation = await templateReader.ReadAsync(xmlReader);

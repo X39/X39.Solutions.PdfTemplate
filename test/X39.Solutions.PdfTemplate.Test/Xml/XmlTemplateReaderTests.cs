@@ -29,7 +29,7 @@ public class XmlTemplateReaderTests
                                      <line margin="4px"/>
                                  </effectiveStyleTest>
                                  """;
-        var templateReader = new XmlTemplateReader(CultureInfo.InvariantCulture, new TemplateData(), ArraySegment<ITransformer>.Empty);
+        var templateReader = new XmlTemplateReader(default, CultureInfo.InvariantCulture, new TemplateData(), ArraySegment<ITransformer>.Empty);
         using var xmlStream = new MemoryStream(Encoding.UTF8.GetBytes(template));
         using var xmlReader = XmlReader.Create(xmlStream);
         var node = await templateReader.ReadAsync(xmlReader);
@@ -73,7 +73,7 @@ public class XmlTemplateReaderTests
                                  </styleTest>
                                  """;
         var templateReader = new XmlTemplateReader(
-            CultureInfo.InvariantCulture,
+            default, CultureInfo.InvariantCulture,
             new TemplateData(),
             ArraySegment<ITransformer>.Empty
         );
@@ -98,7 +98,7 @@ public class XmlTemplateReaderTests
                                      <invalid.element margin="4px"/>
                                  </noDotInNameTest>
                                  """;
-        var templateReader = new XmlTemplateReader(CultureInfo.InvariantCulture, new TemplateData(), ArraySegment<ITransformer>.Empty);
+        var templateReader = new XmlTemplateReader(default, CultureInfo.InvariantCulture, new TemplateData(), ArraySegment<ITransformer>.Empty);
         using var xmlStream = new MemoryStream(Encoding.UTF8.GetBytes(template));
         using var xmlReader = XmlReader.Create(xmlStream);
         await Assert.ThrowsAsync<XmlNodeNameException>(() => templateReader.ReadAsync(xmlReader));
@@ -118,7 +118,7 @@ public class XmlTemplateReaderTests
                                     </styleMustBeEmptyTagTest.style>
                                  </styleMustBeEmptyTagTest>
                                  """;
-        var templateReader = new XmlTemplateReader(CultureInfo.InvariantCulture, new TemplateData(), ArraySegment<ITransformer>.Empty);
+        var templateReader = new XmlTemplateReader(default, CultureInfo.InvariantCulture, new TemplateData(), ArraySegment<ITransformer>.Empty);
         using var xmlStream = new MemoryStream(Encoding.UTF8.GetBytes(template));
         using var xmlReader = XmlReader.Create(xmlStream);
         await Assert.ThrowsAsync<XmlStyleInformationCannotNestException>(() => templateReader.ReadAsync(xmlReader));
@@ -136,7 +136,7 @@ public class XmlTemplateReaderTests
                                     }
                                  </styleMustBeEmptyTagTest>
                                  """;
-        var templateReader = new XmlTemplateReader(CultureInfo.InvariantCulture, new TemplateData(), new []{new ForTransformer()});
+        var templateReader = new XmlTemplateReader(default, CultureInfo.InvariantCulture, new TemplateData(), new []{new ForTransformer()});
         using var xmlStream = new MemoryStream(Encoding.UTF8.GetBytes(template));
         using var xmlReader = XmlReader.Create(xmlStream);
         var nodeInformation = await templateReader.ReadAsync(xmlReader);

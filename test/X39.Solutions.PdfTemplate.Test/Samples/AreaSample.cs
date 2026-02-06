@@ -1,8 +1,11 @@
 ﻿using System.Globalization;
+using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 using System.Xml;
 using SkiaSharp;
 using X39.Solutions.PdfTemplate.Data;
+using Xunit;
 
 namespace X39.Solutions.PdfTemplate.Test.Samples;
 

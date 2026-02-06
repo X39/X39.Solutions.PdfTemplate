@@ -65,4 +65,12 @@ public record struct DocumentOptions()
     /// but the content will be moved by 100pt... or 10pt... respectively.
     /// </remarks>
     public Thickness Margin { get; init; } = new(0, 0, 0, 0);
+
+    /// <summary>
+    /// If set to true, instructs the generator to ignore any error that may occur.
+    /// </summary>
+    /// <remarks>
+    /// Depending on the exact position, this may lead to invalid xml, preventing the printing anyways.
+    /// </remarks>
+    public bool IgnoreErrors { get; set; }
 }

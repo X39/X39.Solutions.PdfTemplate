@@ -24,7 +24,7 @@ public class FunctionCallTests
         templateData.RegisterFunction(new DummyValueFunction("myFunc", "someValue", []));
 
         // Act
-        var templateReader = new XmlTemplateReader(CultureInfo.InvariantCulture, templateData, []);
+        var templateReader = new XmlTemplateReader(default, CultureInfo.InvariantCulture, templateData, []);
         using var xmlStream = new MemoryStream(Encoding.UTF8.GetBytes(template));
         using var xmlReader = XmlReader.Create(xmlStream);
         var nodeInformation = await templateReader.ReadAsync(xmlReader);
@@ -49,7 +49,7 @@ public class FunctionCallTests
         templateData.RegisterFunction(new DummyValueFunction("myFunc", "someValue", [typeof(int)]));
 
         // Act
-        var templateReader = new XmlTemplateReader(CultureInfo.InvariantCulture, templateData, []);
+        var templateReader = new XmlTemplateReader(default, CultureInfo.InvariantCulture, templateData, []);
         using var xmlStream = new MemoryStream(Encoding.UTF8.GetBytes(template));
         using var xmlReader = XmlReader.Create(xmlStream);
         var nodeInformation = await templateReader.ReadAsync(xmlReader);
@@ -74,7 +74,7 @@ public class FunctionCallTests
         templateData.RegisterFunction(new DummyValueFunction("myFunc", "someValue", [typeof(int), typeof(int)]));
 
         // Act
-        var templateReader = new XmlTemplateReader(CultureInfo.InvariantCulture, templateData, []);
+        var templateReader = new XmlTemplateReader(default, CultureInfo.InvariantCulture, templateData, []);
         using var xmlStream = new MemoryStream(Encoding.UTF8.GetBytes(template));
         using var xmlReader = XmlReader.Create(xmlStream);
         var nodeInformation = await templateReader.ReadAsync(xmlReader);
@@ -101,7 +101,7 @@ public class FunctionCallTests
         );
 
         // Act
-        var templateReader = new XmlTemplateReader(CultureInfo.InvariantCulture, templateData, []);
+        var templateReader = new XmlTemplateReader(default, CultureInfo.InvariantCulture, templateData, []);
         using var xmlStream = new MemoryStream(Encoding.UTF8.GetBytes(template));
         using var xmlReader = XmlReader.Create(xmlStream);
         var nodeInformation = await templateReader.ReadAsync(xmlReader);
@@ -144,7 +144,7 @@ public class FunctionCallTests
         templateData.RegisterFunction(new DummyValueFunction("myFunc", "someValue", args));
 
         // Act
-        var templateReader = new XmlTemplateReader(CultureInfo.InvariantCulture, templateData, []);
+        var templateReader = new XmlTemplateReader(default, CultureInfo.InvariantCulture, templateData, []);
         using var xmlStream = new MemoryStream(Encoding.UTF8.GetBytes(template));
         using var xmlReader = XmlReader.Create(xmlStream);
         var nodeInformation = await templateReader.ReadAsync(xmlReader);
@@ -170,7 +170,7 @@ public class FunctionCallTests
         templateData.RegisterFunction(new DummyValueFunction("nestedFunc", "someValue", []));
 
         // Act
-        var templateReader = new XmlTemplateReader(CultureInfo.InvariantCulture, templateData, []);
+        var templateReader = new XmlTemplateReader(default, CultureInfo.InvariantCulture, templateData, []);
         using var xmlStream = new MemoryStream(Encoding.UTF8.GetBytes(template));
         using var xmlReader = XmlReader.Create(xmlStream);
         var nodeInformation = await templateReader.ReadAsync(xmlReader);
@@ -196,7 +196,7 @@ public class FunctionCallTests
         templateData.SetVariable("fancyVar", "string");
 
         // Act
-        var templateReader = new XmlTemplateReader(CultureInfo.InvariantCulture, templateData, []);
+        var templateReader = new XmlTemplateReader(default, CultureInfo.InvariantCulture, templateData, []);
         using var xmlStream = new MemoryStream(Encoding.UTF8.GetBytes(template));
         using var xmlReader = XmlReader.Create(xmlStream);
         var nodeInformation = await templateReader.ReadAsync(xmlReader);
@@ -222,7 +222,7 @@ public class FunctionCallTests
         templateData.RegisterFunction(new DummyValueFunction("nestedFunc", "someValue", [typeof(string),typeof(string),typeof(string)]));
 
         // Act
-        var templateReader = new XmlTemplateReader(CultureInfo.InvariantCulture, templateData, []);
+        var templateReader = new XmlTemplateReader(default, CultureInfo.InvariantCulture, templateData, []);
         using var xmlStream = new MemoryStream(Encoding.UTF8.GetBytes(template));
         using var xmlReader = XmlReader.Create(xmlStream);
         var nodeInformation = await templateReader.ReadAsync(xmlReader);
@@ -248,7 +248,7 @@ public class FunctionCallTests
         templateData.RegisterFunction(new DummyValueFunction("nestedFunc", "someValue", [typeof(string),typeof(string)]));
 
         // Act
-        var templateReader = new XmlTemplateReader(CultureInfo.InvariantCulture, templateData, []);
+        var templateReader = new XmlTemplateReader(default, CultureInfo.InvariantCulture, templateData, []);
         using var xmlStream = new MemoryStream(Encoding.UTF8.GetBytes(template));
         using var xmlReader = XmlReader.Create(xmlStream);
         var nodeInformation = await templateReader.ReadAsync(xmlReader);

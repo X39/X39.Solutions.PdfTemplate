@@ -23,7 +23,7 @@ public class ForTransformerTests
                          </styleMustBeEmptyTagTest>
                          """;
         var templateReader = new XmlTemplateReader(
-            CultureInfo.InvariantCulture,
+            default, CultureInfo.InvariantCulture,
             new TemplateData(),
             new[] {new ForTransformer()});
         using var xmlStream = new MemoryStream(Encoding.UTF8.GetBytes(template));
@@ -49,7 +49,7 @@ public class ForTransformerTests
                          </styleMustBeEmptyTagTest>
                          """;
         var templateReader = new XmlTemplateReader(
-            CultureInfo.InvariantCulture,
+            default, CultureInfo.InvariantCulture,
             new TemplateData(),
             new[] {new ForTransformer()});
         using var xmlStream = new MemoryStream(Encoding.UTF8.GetBytes(template));
@@ -73,7 +73,7 @@ public class ForTransformerTests
                          </styleMustBeEmptyTagTest>
                          """;
         var templateReader = new XmlTemplateReader(
-            CultureInfo.InvariantCulture,
+            default, CultureInfo.InvariantCulture,
             new TemplateData(),
             new[] {new ForTransformer()});
         using var xmlStream = new MemoryStream(Encoding.UTF8.GetBytes(template));
@@ -100,7 +100,7 @@ public class ForTransformerTests
                          </styleMustBeEmptyTagTest>
                          """;
         var templateReader = new XmlTemplateReader(
-            CultureInfo.InvariantCulture,
+            default, CultureInfo.InvariantCulture,
             new TemplateData(),
             new[] {new ForTransformer()});
         using var xmlStream = new MemoryStream(Encoding.UTF8.GetBytes(template));
@@ -130,7 +130,7 @@ public class ForTransformerTests
         data.RegisterFunction(new DummyValueFunction("start", start, new[] {typeof(int), typeof(string)}));
         data.RegisterFunction(new DummyValueFunction("end", end, new[] {typeof(int), typeof(string)}));
         data.RegisterFunction(new DummyValueFunction("step", step ?? 1, new[] {typeof(int), typeof(string)}));
-        var templateReader = new XmlTemplateReader(CultureInfo.InvariantCulture, data, new[] {new ForTransformer()});
+        var templateReader = new XmlTemplateReader(default, CultureInfo.InvariantCulture, data, new[] {new ForTransformer()});
         using var xmlStream = new MemoryStream(Encoding.UTF8.GetBytes(template));
         using var xmlReader = XmlReader.Create(xmlStream);
         var nodeInformation = await templateReader.ReadAsync(xmlReader);
@@ -158,7 +158,7 @@ public class ForTransformerTests
         data.SetVariable("start", start);
         data.SetVariable("end", end);
         data.SetVariable("step", step ?? 1);
-        var templateReader = new XmlTemplateReader(CultureInfo.InvariantCulture, data, new[] {new ForTransformer()});
+        var templateReader = new XmlTemplateReader(default, CultureInfo.InvariantCulture, data, new[] {new ForTransformer()});
         using var xmlStream = new MemoryStream(Encoding.UTF8.GetBytes(template));
         using var xmlReader = XmlReader.Create(xmlStream);
         var nodeInformation = await templateReader.ReadAsync(xmlReader);

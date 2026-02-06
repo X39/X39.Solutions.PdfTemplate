@@ -18,6 +18,7 @@ public sealed class XmlTemplateReader : IDisposable
     }
 
     private readonly TemplateData                      _templateData;
+    private readonly DocumentOptions                   _documentOptions;
     private readonly CultureInfo                       _cultureInfo;
     private readonly IReadOnlyCollection<ITransformer> _transformers;
     private readonly IDisposable?                      _disposable;
@@ -25,13 +26,16 @@ public sealed class XmlTemplateReader : IDisposable
     /// <summary>
     /// Creates a new <see cref="XmlTemplateReader"/> with the given <paramref name="templateData"/> and <paramref name="transformers"/>.
     /// </summary>
+    /// <param name="documentOptions"></param>
     /// <param name="cultureInfo">The culture info to use.</param>
     /// <param name="templateData">The template data to use.</param>
     /// <param name="transformers">The transformers to use.</param>
     public XmlTemplateReader(
+        DocumentOptions documentOptions,
         CultureInfo cultureInfo,
         ITemplateData templateData,
-        IReadOnlyCollection<ITransformer> transformers)
+        IReadOnlyCollection<ITransformer> transformers
+    )
     {
         if (templateData is not TemplateData data)
         {
@@ -43,8 +47,9 @@ public sealed class XmlTemplateReader : IDisposable
             _templateData = data;
         }
 
-        _cultureInfo  = cultureInfo;
-        _transformers = transformers;
+        _documentOptions = documentOptions;
+        _cultureInfo     = cultureInfo;
+        _transformers    = transformers;
     }
 
     private readonly Stack<XmlStyleInformation> _styles = new();
@@ -87,7 +92,8 @@ public sealed class XmlTemplateReader : IDisposable
         XmlNode nodeTree,
         XmlNode node,
         int nodeIndex,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken
+    )
     {
         foreach (var (key, value) in node.Attributes)
         {
@@ -97,32 +103,31 @@ public sealed class XmlTemplateReader : IDisposable
             try
             {
                 var result = await _templateData.EvaluateAsync(_cultureInfo, value[1..], cancellationToken)
-                                                .ConfigureAwait(false);
+                    .ConfigureAwait(false);
 
                 node.SetAttribute(key, result?.ToString() ?? string.Empty);
             }
             catch (Exception ex)
             {
                 // Enrich the exception with additional information
-                throw new TransformationEvaluationFailedException(
-                    value,
-                    node,
-                    ex);
+                throw new TransformationEvaluationFailedException(value, node, ex);
             }
         }
-        if (node is {IsTextNode: true, Text: { } text} && (text.Contains('@') || text.Contains('{')))
+
+        if (node is { IsTextNode: true, Text: { } text } && (text.Contains('@') || text.Contains('{')))
         {
-#if !DEBUG
+            #if !DEBUG
             try
             {
-#endif
+            #endif
             nodeIndex = await TransformNodeTreeExpressionCandidateAsync(
                 nodeIndex,
                 nodeTree,
                 node,
                 text,
-                cancellationToken);
-#if !DEBUG
+                cancellationToken
+            );
+            #if !DEBUG
             }
             catch (XmlTemplateReaderException)
             {
@@ -132,7 +137,7 @@ public sealed class XmlTemplateReader : IDisposable
             {
                 throw new UnhandledXmlTemplateTransformationException(ex, node);
             }
-#endif
+            #endif
         }
         else
         {
@@ -148,7 +153,8 @@ public sealed class XmlTemplateReader : IDisposable
         XmlNode nodeTree,
         XmlNode node,
         string text,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default
+    )
     {
         var builder = new StringBuilder(text.Length);
         var previousIndex = -1;
@@ -160,18 +166,25 @@ public sealed class XmlTemplateReader : IDisposable
             var previousText = text[(previousIndex is -1 ? 0 : previousIndex)..indexOfExpressionStart];
             previousIndex = indexOfExpressionStart;
             builder.Append(previousText);
-            if (!previousText.LastOrDefault().IsWhiteSpace() && indexOfExpressionStart is not 0)
+            if (!previousText.LastOrDefault()
+                    .IsWhiteSpace()
+                && indexOfExpressionStart is not 0)
                 continue; // No match as @ must be preceded by whitespace or be at the beginning of the string.
             var endOfName = indexOfExpressionStart + 1;
 
             // Scan for the end of the name.
-            while (text.Length > endOfName &&
-                   (text[endOfName].IsLetterOrDigit() || text[endOfName] == '-' || text[endOfName] == '_'))
+            while (text.Length > endOfName
+                   && (text[endOfName]
+                           .IsLetterOrDigit()
+                       || text[endOfName] == '-'
+                       || text[endOfName] == '_'))
                 endOfName++;
 
             var name = text[(indexOfExpressionStart + 1)..endOfName];
             var lookAhead = text.IndexOf('(', endOfName);
-            if (lookAhead != -1 && text[endOfName..lookAhead].IsNullOrWhiteSpace())
+            if (lookAhead != -1
+                && text[endOfName..lookAhead]
+                    .IsNullOrWhiteSpace())
             {
                 // We got a function here
                 var bracketCount = 1;
@@ -186,32 +199,36 @@ public sealed class XmlTemplateReader : IDisposable
                 }
 
                 if (bracketCount > 0)
-                    throw new TransformationFunctionMissingClosingBracketException(
-                        text,
-                        node,
-                        bracketCount);
-                object? functionResult;
+                    throw new TransformationFunctionMissingClosingBracketException(text, node, bracketCount);
+                object? functionResult = null;
                 try
                 {
                     functionResult = await _templateData.EvaluateAsync(
                             _cultureInfo,
                             text[(indexOfExpressionStart + 1)..endOfFunction],
-                            cancellationToken)
+                            cancellationToken
+                        )
                         .ConfigureAwait(false);
                 }
                 catch (FunctionNotFoundDuringEvaluationException ex)
                 {
-                    throw new TransformationFunctionNotFoundException(
-                        text[(indexOfExpressionStart + 1)..endOfFunction],
-                        node,
-                        ex.FunctionName);
+                    if (!_documentOptions.IgnoreErrors)
+                        throw new TransformationFunctionNotFoundException(
+                            text[(indexOfExpressionStart + 1)..endOfFunction],
+                            node,
+                            ex.FunctionName
+                        );
+                }
+                catch
+                {
+                    if (_documentOptions.IgnoreErrors)
+                        throw;
                 }
 
                 previousIndex = endOfFunction;
                 AppendValueToStringBuilder(functionResult, builder);
             }
-            else if (_transformers.FirstOrDefault(
-                         (t) => t.Name.Equals(name, StringComparison.OrdinalIgnoreCase)) is
+            else if (_transformers.FirstOrDefault((t) => t.Name.Equals(name, StringComparison.OrdinalIgnoreCase)) is
                      { } transformer)
             {
                 // A transformer name was matched
@@ -221,7 +238,9 @@ public sealed class XmlTemplateReader : IDisposable
 
                 var transformerBody = text[(endOfName + 1)..bracketIndex];
                 var remainingText = text[(bracketIndex + 1)..];
-                if (builder.Length > 0 && builder.ToString().All(char.IsWhiteSpace))
+                if (builder.Length > 0
+                    && builder.ToString()
+                        .All(char.IsWhiteSpace))
                     node.SetText(builder.ToString());
                 else
                     nodeTree.RemoveChild(node);
@@ -229,10 +248,8 @@ public sealed class XmlTemplateReader : IDisposable
                 {
                     nodeTree.InsertChild(
                         nodeIndex,
-                        new XmlNode(node.Line, node.Column, remainingText.TrimStart())
-                        {
-                            Scope = node.Scope,
-                        });
+                        new XmlNode(node.Line, node.Column, remainingText.TrimStart()) { Scope = node.Scope, }
+                    );
                 }
 
                 var nodesOfTransformer = new List<XmlNode>();
@@ -249,10 +266,11 @@ public sealed class XmlTemplateReader : IDisposable
                     }
 
                     var childText = childNode.Text
-#pragma warning disable CA2201
+                                    #pragma warning disable CA2201
                                     ?? throw new NullReferenceException(
-                                        $"Failed to parse transformer expression '{text}' at L{childNode.Line}:C{childNode.Column}, text node text is null.");
-#pragma warning restore CA2201
+                                        $"Failed to parse transformer expression '{text}' at L{childNode.Line}:C{childNode.Column}, text node text is null."
+                                    );
+                    #pragma warning restore CA2201
 
                     for (var i = 0; i < childText.Length; i++)
                     {
@@ -318,20 +336,28 @@ public sealed class XmlTemplateReader : IDisposable
                     nodeTree.RemoveChild(xmlNode);
                 }
 
-                var transformedNodes = transformer.TransformAsync(
-                    _cultureInfo,
-                    _templateData,
-                    transformerBody,
-                    nodesOfTransformer.AsReadOnly(),
-                    cancellationToken);
-                currentNodeIndex = nodeIndex;
-                await foreach (var transformedNode in transformedNodes.ConfigureAwait(false))
+                try
                 {
-                    var scope = _templateData
-                        .PeekScope()
-                        .ToDictionary((q) => q.Key, (q) => q.Value);
-                    transformedNode.Scope = scope;
-                    nodeTree.InsertChild(currentNodeIndex++, transformedNode);
+                    var transformedNodes = transformer.TransformAsync(
+                        _cultureInfo,
+                        _templateData,
+                        transformerBody,
+                        nodesOfTransformer.AsReadOnly(),
+                        cancellationToken
+                    );
+                    currentNodeIndex = nodeIndex;
+                    await foreach (var transformedNode in transformedNodes.ConfigureAwait(false))
+                    {
+                        var scope = _templateData.PeekScope()
+                            .ToDictionary((q) => q.Key, (q) => q.Value);
+                        transformedNode.Scope = scope;
+                        nodeTree.InsertChild(currentNodeIndex++, transformedNode);
+                    }
+                }
+                catch
+                {
+                    if (!_documentOptions.IgnoreErrors)
+                        throw;
                 }
 
                 var distanceToEnd = nodeTree.Children.Count - currentNodeIndex;
@@ -394,11 +420,14 @@ public sealed class XmlTemplateReader : IDisposable
         reader.MoveToContent();
         if (reader.NodeType is not XmlNodeType.Element)
             throw new XmlTemplateNodeTypeMismatchException(
-                Location(reader).line,
-                Location(reader).column,
+                Location(reader)
+                    .line,
+                Location(reader)
+                    .column,
                 reader.NodeType,
                 XmlNodeType.Element,
-                $"Expected element at L{Location(reader).line}:C{Location(reader).column}.");
+                $"Expected element at L{Location(reader).line}:C{Location(reader).column}."
+            );
         var nodeStack = new Stack<XmlNode>();
         var location = Location(reader);
         var nodeName = reader.Name;
@@ -407,12 +436,12 @@ public sealed class XmlTemplateReader : IDisposable
         var node = new XmlNode(
             location.line,
             location.column,
-            nodeNamespace.IsNullOrEmpty()
-                ? Constants.ControlsNamespace
-                : nodeNamespace,
-            nodeName);
+            nodeNamespace.IsNullOrEmpty() ? Constants.ControlsNamespace : nodeNamespace,
+            nodeName
+        );
         if (nodeStack.Count > 0)
-            nodeStack.Peek().AddChild(node);
+            nodeStack.Peek()
+                .AddChild(node);
         if (reader.HasAttributes)
         {
             for (var i = 0; i < reader.AttributeCount; i++)
@@ -431,11 +460,7 @@ public sealed class XmlTemplateReader : IDisposable
             if (reader.NodeType is XmlNodeType.Text)
             {
                 var (line, column) = Location(reader);
-                node.AddChild(
-                    new XmlNode(
-                        line,
-                        column,
-                        reader.Value.Trim()));
+                node.AddChild(new XmlNode(line, column, reader.Value.Trim()));
                 reader.Read();
             }
             else
@@ -484,7 +509,8 @@ public sealed class XmlTemplateReader : IDisposable
                 xmlNode.Namespace,
                 text,
                 effectiveStyle.Of(xmlNode.Name, xmlNode.Namespace, xmlNode.Attributes),
-                ArraySegment<XmlNodeInformation>.Empty);
+                ArraySegment<XmlNodeInformation>.Empty
+            );
         }
         else
         {
@@ -495,7 +521,8 @@ public sealed class XmlTemplateReader : IDisposable
                 xmlNode.Namespace,
                 xmlNode.Text ?? string.Empty,
                 effectiveStyle.Of(xmlNode.Name, xmlNode.Namespace, xmlNode.Attributes),
-                children.AsReadOnly());
+                children.AsReadOnly()
+            );
         }
     }
 
@@ -523,17 +550,17 @@ public sealed class XmlTemplateReader : IDisposable
                 throw new XmlStyleInformationCannotNestException(
                     nodeChild.Line,
                     nodeChild.Column,
-                    $"A style node (L{nodeChild.Line}:C{nodeChild.Column}) cannot have children.");
-            style.Set(
-                nodeChild.Line,
-                nodeChild.Column,
-                nodeChild.Name,
-                nodeChild.Namespace,
-                nodeChild.Attributes);
+                    $"A style node (L{nodeChild.Line}:C{nodeChild.Column}) cannot have children."
+                );
+            style.Set(nodeChild.Line, nodeChild.Column, nodeChild.Name, nodeChild.Namespace, nodeChild.Attributes);
         }
     }
 
-    private void PushStyle() => _styles.Push(new XmlStyleInformation());
-    private void PopStyle() => _styles.Pop();
+    private void PushStyle()
+        => _styles.Push(new XmlStyleInformation());
+
+    private void PopStyle()
+        => _styles.Pop();
+
     private XmlStyleInformation CurrentStyle => _styles.Peek();
 }

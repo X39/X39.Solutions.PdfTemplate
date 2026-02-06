@@ -57,7 +57,7 @@ public class VariableTransformerTests
         data.SetVariable("context-a", "foobar");
         data.SetVariable("context-b", "barfoo");
         var templateReader = new XmlTemplateReader(
-            CultureInfo.InvariantCulture,
+            default, CultureInfo.InvariantCulture,
             data,
             new[] { new VariableTransformer() }
         );
@@ -107,7 +107,7 @@ public class VariableTransformerTests
                          </SingleVariableWorks>
                          """;
         var templateReader = new XmlTemplateReader(
-            CultureInfo.InvariantCulture,
+            default, CultureInfo.InvariantCulture,
             data,
             new[] { new VariableTransformer() }
         );
@@ -151,7 +151,7 @@ public class VariableTransformerTests
         var data = new TemplateData();
         data.SetVariable("context-a", "foobar");
         var templateReader = new XmlTemplateReader(
-            CultureInfo.InvariantCulture,
+            default, CultureInfo.InvariantCulture,
             data,
             new[] { new VariableTransformer() }
         );
