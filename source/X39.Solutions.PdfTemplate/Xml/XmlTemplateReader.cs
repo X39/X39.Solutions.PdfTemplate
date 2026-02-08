@@ -221,7 +221,7 @@ public sealed class XmlTemplateReader : IDisposable
                 }
                 catch
                 {
-                    if (_documentOptions.IgnoreErrors)
+                    if (!_documentOptions.IgnoreErrors)
                         throw;
                 }
 
