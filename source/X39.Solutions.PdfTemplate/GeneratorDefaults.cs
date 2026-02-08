@@ -31,6 +31,11 @@ public static class GeneratorDefaults
         self.AddControl<Controls.TableRowControl>();
         self.AddControl<Controls.BorderControl>();
         self.AddControl<Controls.PageNumberControl>();
+        self.AddControl<Controls.ChartControl>();
+        self.AddControl<Controls.ChartDataControl>();
+        self.AddControl<Controls.LineChart>();
+        self.AddControl<Controls.BarChart>();
+        self.AddControl<Controls.PieChart>();
         return self;
     }
 

@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir:*)",
+      "Bash(dotnet test:*)",
+      "Bash(findstr:*)",
+      "Bash(Select-String -Pattern \"Error|Exception|at X39\" -Context 2,2)",
+      "Bash(dotnet build:*)",
+      "Bash(powershell:*)",
+      "Bash(python3:*)",
+      "Bash(python:*)",
+      "Bash(C:UsersmsiliAppDataLocalMicrosoftWindowsAppspython3.exe -c \"import json; lines = open\\(r''C:\\\\Users\\\\msili\\\\.claude\\\\projects\\\\D--dev-git-X39-Solutions-PdfTemplate\\\\4b971944-9969-4cc7-a5b8-d61a9aef36ba.jsonl'',''r'',encoding=''utf-8''\\).readlines\\(\\); humans=[]; [humans.append\\(json.loads\\(l\\)\\) for l in lines if json.loads\\(l\\).get\\(''type''\\)==''human'']; [print\\(str\\(h.get\\(''message'',{}\\).get\\(''content'',''''\\)\\)[:300]\\) for h in humans[-5:]]\")",
+      "Bash(node -e:*)",
+      "Bash(node:*)"
+    ]
+  }
+}

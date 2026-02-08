@@ -29,6 +29,11 @@ Use [GitHub](https://github.com/X39/X39.Solutions.PdfTemplate) for best reading 
         * [`th`](#th)
         * [`tr`](#tr)
         * [`td`](#td)
+      * [`chart`](#chart)
+        * [`lineChart`](#linechart)
+        * [`barChart`](#barchart)
+        * [`pieChart`](#piechart)
+        * [`data`](#data)
     * [Transformers](#transformers)
       * [Creating your own transformer](#creating-your-own-transformer)
         * [Evaluating user data](#evaluating-user-data)
@@ -582,6 +587,154 @@ It has the following attributes:
 | `Width`      | The width of the cell in either [`Length`](#length) or parts (eg. `1*). | Any [`Length`](#length) or parts (eg. `1*`) | `auto`  |
 
 See [`table`](#table) for usage.
+
+#### `chart`
+
+The `chart` control is a container for chart visualizations.
+It can contain one or more chart types: [`lineChart`](#linechart), [`barChart`](#barchart), or [`pieChart`](#piechart).
+
+It has no attributes.
+
+Usage:
+
+```xml
+<template>
+    <body>
+        <chart>
+            <lineChart height="300px" title="Sales Data">
+                <data x="0" y="100" label="Jan" />
+                <data x="1" y="150" label="Feb" />
+                <data x="2" y="120" label="Mar" />
+            </lineChart>
+        </chart>
+    </body>
+</template>
+```
+
+##### `lineChart`
+
+The `lineChart` control renders a line graph with connected data points.
+
+It has the following attributes:
+
+| Attribute         | Description                                | Values                  | Default         |
+|-------------------|--------------------------------------------|-------------------------|-----------------|
+| `width`           | The width of the chart                     | Any [`Length`](#length) | `100%`          |
+| `height`          | The height of the chart                    | Any [`Length`](#length) | `300px`         |
+| `title`           | The chart title                            | Any string              | empty           |
+| `show-grid`       | Whether to show grid lines                 | `true` or `false`       | `true`          |
+| `grid-color`      | Color of the grid lines                    | Any [`Color`](#color)   | `#CCCCCCFF`     |
+| `axis-color`      | Color of the axes                          | Any [`Color`](#color)   | `#000000FF`     |
+| `show-x-axis`     | Whether to show the X-axis                 | `true` or `false`       | `true`          |
+| `show-y-axis`     | Whether to show the Y-axis                 | `true` or `false`       | `true`          |
+| `x-axis-label`    | Label for the X-axis                       | Any string              | empty           |
+| `y-axis-label`    | Label for the Y-axis                       | Any string              | empty           |
+| `line-thickness`  | Thickness of the line                      | Any [`Length`](#length) | `2px`           |
+| `line-color`      | Color of the line                          | Any [`Color`](#color)   | Default palette |
+| `show-points`     | Whether to show point markers              | `true` or `false`       | `true`          |
+| `point-size`      | Size of point markers                      | Any number              | `4`             |
+
+See [`chart`](#chart) for usage.
+
+##### `barChart`
+
+The `barChart` control renders vertical or horizontal bar charts.
+
+It has the following attributes:
+
+| Attribute     | Description                                      | Values                           | Default         |
+|---------------|--------------------------------------------------|----------------------------------|-----------------|
+| `width`       | The width of the chart                           | Any [`Length`](#length)          | `100%`          |
+| `height`      | The height of the chart                          | Any [`Length`](#length)          | `300px`         |
+| `title`       | The chart title                                  | Any string                       | empty           |
+| `show-grid`   | Whether to show grid lines                       | `true` or `false`                | `true`          |
+| `grid-color`  | Color of the grid lines                          | Any [`Color`](#color)            | `#CCCCCCFF`     |
+| `axis-color`  | Color of the axes                                | Any [`Color`](#color)            | `#000000FF`     |
+| `show-x-axis` | Whether to show the X-axis                       | `true` or `false`                | `true`          |
+| `show-y-axis` | Whether to show the Y-axis                       | `true` or `false`                | `true`          |
+| `x-axis-label`| Label for the X-axis                             | Any string                       | empty           |
+| `y-axis-label`| Label for the Y-axis                             | Any string                       | empty           |
+| `orientation` | Orientation of the bars                          | `Vertical` or `Horizontal`       | `Vertical`      |
+| `bar-width`   | Width of each bar (0 = auto-calculated)          | Any [`Length`](#length)          | `0px`           |
+| `bar-spacing` | Spacing between bars                             | Any [`Length`](#length) (percent)| `10%`           |
+| `bar-color`   | Color of the bars                                | Any [`Color`](#color)            | Default palette |
+
+Usage:
+
+```xml
+<template>
+    <body>
+        <chart>
+            <barChart height="300px" title="Revenue by Quarter">
+                <data x="0" y="50" label="Q1" />
+                <data x="1" y="75" label="Q2" />
+                <data x="2" y="60" label="Q3" />
+                <data x="3" y="90" label="Q4" />
+            </barChart>
+        </chart>
+    </body>
+</template>
+```
+
+##### `pieChart`
+
+The `pieChart` control renders pie charts and donut charts. Only the `y` value is used for pie charts; the `x` value is ignored.
+
+It has the following attributes:
+
+| Attribute          | Description                                      | Values                  | Default         |
+|--------------------|--------------------------------------------------|-------------------------|-----------------|
+| `width`            | The width of the chart                           | Any [`Length`](#length) | `100%`          |
+| `height`           | The height of the chart                          | Any [`Length`](#length) | `300px`         |
+| `title`            | The chart title                                  | Any string              | empty           |
+| `start-angle`      | Starting angle in degrees (0 = top)              | Any number              | `0`             |
+| `inner-radius`     | Inner radius for donut charts (0 = pie)          | Any [`Length`](#length) | `0%`            |
+| `show-percentages` | Whether to show percentage labels                | `true` or `false`       | `true`          |
+| `show-labels`      | Whether to show data point labels                | `true` or `false`       | `true`          |
+
+Usage:
+
+```xml
+<template>
+    <body>
+        <chart>
+            <pieChart height="400px" title="Market Share">
+                <data y="35" label="Product A" />
+                <data y="25" label="Product B" />
+                <data y="20" label="Product C" />
+                <data y="20" label="Product D" />
+            </pieChart>
+        </chart>
+    </body>
+</template>
+```
+
+For a donut chart, set the `inner-radius` attribute:
+
+```xml
+<pieChart height="400px" title="Donut Chart" inner-radius="50%">
+    <data y="40" label="Category 1" />
+    <data y="30" label="Category 2" />
+    <data y="30" label="Category 3" />
+</pieChart>
+```
+
+##### `data`
+
+The `data` control defines a single data point for a chart. It is used within chart controls like [`lineChart`](#linechart), [`barChart`](#barchart), or [`pieChart`](#piechart).
+
+It has the following attributes:
+
+| Attribute  | Description                                          | Values              | Default |
+|------------|------------------------------------------------------|---------------------|---------|
+| `x`        | The X-coordinate value                               | Any number          | `0`     |
+| `y`        | The Y-coordinate value                               | Any number          | `0`     |
+| `x-label`  | Label for the X-axis at this data point              | Any string          | empty   |
+| `y-label`  | Label for the Y-axis at this data point              | Any string          | empty   |
+| `label`    | Label for this specific data point                   | Any string          | empty   |
+| `color`    | Color for this specific data point                   | Any [`Color`](#color)| Default palette |
+
+See [`chart`](#chart) for usage.
 
 ### Transformers
 
