@@ -161,6 +161,24 @@ public class CheckboxControlTests
             (Colors.Magenta, 1F, 15F, 12F, 16F, 13F));
     }
 
+    [Fact]
+    public void ChildAdditionalHeightExpandsCheckboxClip()
+    {
+        var control = CreateCheckbox();
+        control.Clip = true;
+        control.Size = 12F;
+        control.Gap = 3F;
+        control.Add(new AdditionalHeightControl(new Size(20F, 10F), 15F, Colors.Black));
+        var canvas = CreateCanvas();
+
+        control.Measure(Dpi, PageSize, PageSize, PageSize, CultureInfo.InvariantCulture);
+        control.Arrange(Dpi, PageSize, PageSize, PageSize, CultureInfo.InvariantCulture);
+        var additionalSize = control.Render(canvas, Dpi, PageSize, CultureInfo.InvariantCulture);
+
+        Assert.Equal(new Size(0F, 15F), additionalSize);
+        canvas.AssertClip(0, new Rectangle(0F, 0F, 35F, 27F));
+    }
+
     private static CheckboxControl CreateCheckbox()
         => new(new FixedTextService())
         {

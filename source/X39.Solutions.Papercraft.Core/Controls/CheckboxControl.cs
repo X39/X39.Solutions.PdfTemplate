@@ -1,5 +1,6 @@
 using X39.Solutions.Papercraft.Abstraction;
 using X39.Solutions.Papercraft.Attributes;
+using X39.Solutions.Papercraft.Canvas;
 using X39.Solutions.Papercraft.Controls.Base;
 using X39.Solutions.Papercraft.Data;
 using X39.Solutions.Papercraft.Services.TextService;
@@ -97,6 +98,31 @@ public sealed class CheckboxControl : AlignableContentControl
     {
         _arrangedChildSizes.Clear();
         return MeasureOrArrange(dpi, fullPageSize, remainingSize, cultureInfo, arrange: true);
+    }
+
+    /// <inheritdoc />
+    protected override PapercraftSize PreRender(
+        IDeferredCanvas canvas,
+        float dpi,
+        in PapercraftSize parentSize,
+        CultureInfo cultureInfo)
+    {
+        var baseAdditionalSize = base.PreRender(canvas, dpi, parentSize, cultureInfo);
+        if (!Clip || Children.Count is 0 || !string.IsNullOrEmpty(GetLabel()))
+            return baseAdditionalSize;
+
+        var dryRunCanvas = DryRunDeferredCanvas.From(canvas);
+        dryRunCanvas.Translate(ArrangementInner);
+        var contentAdditionalSize = RenderChildren(
+            dryRunCanvas,
+            dpi,
+            parentSize,
+            cultureInfo,
+            GetBoxSize(dpi, parentSize));
+
+        return new PapercraftSize(
+            Math.Max(baseAdditionalSize.Width, contentAdditionalSize.Width),
+            baseAdditionalSize.Height + contentAdditionalSize.Height);
     }
 
     /// <inheritdoc />

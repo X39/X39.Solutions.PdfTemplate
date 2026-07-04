@@ -1,5 +1,6 @@
 using X39.Solutions.Papercraft.Abstraction;
 using X39.Solutions.Papercraft.Attributes;
+using X39.Solutions.Papercraft.Canvas;
 using X39.Solutions.Papercraft.Controls.Base;
 using X39.Solutions.Papercraft.Data;
 using X39.Solutions.Papercraft.Services.TextService;
@@ -77,7 +78,26 @@ public abstract class ListControlBase : AlignableContentControl
     }
 
     /// <inheritdoc />
+    protected override Size PreRender(IDeferredCanvas canvas, float dpi, in Size parentSize, CultureInfo cultureInfo)
+    {
+        var baseAdditionalSize = base.PreRender(canvas, dpi, parentSize, cultureInfo);
+        if (!Clip)
+            return baseAdditionalSize;
+
+        var dryRunCanvas = DryRunDeferredCanvas.From(canvas);
+        dryRunCanvas.Translate(ArrangementInner);
+        var contentAdditionalSize = RenderItems(dryRunCanvas, dpi, parentSize, cultureInfo);
+
+        return new Size(
+            Math.Max(baseAdditionalSize.Width, contentAdditionalSize.Width),
+            baseAdditionalSize.Height + contentAdditionalSize.Height);
+    }
+
+    /// <inheritdoc />
     protected override Size DoRender(IDeferredCanvas canvas, float dpi, in Size parentSize, CultureInfo cultureInfo)
+        => RenderItems(canvas, dpi, parentSize, cultureInfo);
+
+    private Size RenderItems(IDeferredCanvas canvas, float dpi, in Size parentSize, CultureInfo cultureInfo)
     {
         var indentPx = Indent.ToPixels(parentSize.Width, dpi);
         var markerWidthPx = MarkerWidth.ToPixels(parentSize.Width, dpi);

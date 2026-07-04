@@ -1,5 +1,6 @@
 using X39.Solutions.Papercraft.Abstraction;
 using X39.Solutions.Papercraft.Attributes;
+using X39.Solutions.Papercraft.Canvas;
 using X39.Solutions.Papercraft.Controls.Base;
 using X39.Solutions.Papercraft.Data;
 
@@ -83,10 +84,30 @@ public sealed class ColumnsControl : AlignableContentControl
     }
 
     /// <inheritdoc />
+    protected override Size PreRender(IDeferredCanvas canvas, float dpi, in Size parentSize, CultureInfo cultureInfo)
+    {
+        var baseAdditionalSize = base.PreRender(canvas, dpi, parentSize, cultureInfo);
+        if (!Clip)
+            return baseAdditionalSize;
+
+        var dryRunCanvas = DryRunDeferredCanvas.From(canvas);
+        dryRunCanvas.Translate(ArrangementInner);
+        var contentAdditionalSize = RenderArrangedChildren(dryRunCanvas, dpi, cultureInfo);
+
+        return new Size(
+            Math.Max(baseAdditionalSize.Width, contentAdditionalSize.Width),
+            baseAdditionalSize.Height + contentAdditionalSize.Height);
+    }
+
+    /// <inheritdoc />
     protected override Size DoRender(IDeferredCanvas canvas, float dpi, in Size parentSize, CultureInfo cultureInfo)
     {
         RenderRules(canvas, dpi);
+        return RenderArrangedChildren(canvas, dpi, cultureInfo);
+    }
 
+    private Size RenderArrangedChildren(IDeferredCanvas canvas, float dpi, CultureInfo cultureInfo)
+    {
         var additionalWidth = 0F;
         var additionalHeight = 0F;
         foreach (var arrangedChild in _arrangedChildren)

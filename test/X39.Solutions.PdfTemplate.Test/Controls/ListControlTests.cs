@@ -212,6 +212,44 @@ public class ListControlTests
             (Colors.Magenta, 1F, 20F, 25F, 21F, 26F));
     }
 
+    [Fact]
+    public void ListItemChildAdditionalHeightExpandsListItemClip()
+    {
+        var canvas = CreateCanvas();
+        var control = new ListItemControl
+        {
+            Clip = true,
+            HorizontalAlignment = EHorizontalAlignment.Left,
+            VerticalAlignment = EVerticalAlignment.Top,
+        };
+        control.Add(new AdditionalHeightControl(new Size(10F, 10F), 15F, Colors.Black));
+
+        control.Measure(Dpi, PageSize, PageSize, PageSize, CultureInfo.InvariantCulture);
+        control.Arrange(Dpi, PageSize, PageSize, PageSize, CultureInfo.InvariantCulture);
+        var additionalSize = control.Render(canvas, Dpi, PageSize, CultureInfo.InvariantCulture);
+
+        Assert.Equal(new Size(0F, 15F), additionalSize);
+        canvas.AssertClip(0, new Rectangle(0F, 0F, 10F, 25F));
+    }
+
+    [Fact]
+    public void ItemAdditionalHeightExpandsListClip()
+    {
+        var canvas = CreateCanvas();
+        var control = CreateUnorderedList();
+        control.Clip = true;
+        var item = new ListItemControl {Clip = false};
+        item.Add(new AdditionalHeightControl(new Size(10F, 10F), 15F, Colors.Black));
+        control.Add(item);
+
+        control.Measure(Dpi, PageSize, PageSize, PageSize, CultureInfo.InvariantCulture);
+        control.Arrange(Dpi, PageSize, PageSize, PageSize, CultureInfo.InvariantCulture);
+        var additionalSize = control.Render(canvas, Dpi, PageSize, CultureInfo.InvariantCulture);
+
+        Assert.Equal(new Size(0F, 15F), additionalSize);
+        canvas.AssertClip(0, new Rectangle(0F, 0F, 30F, 25F));
+    }
+
     private static UnorderedListControl CreateUnorderedList(float indent = 20F)
         => new(new FixedTextService())
         {

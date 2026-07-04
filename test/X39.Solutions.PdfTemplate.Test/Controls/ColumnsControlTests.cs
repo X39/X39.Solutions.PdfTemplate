@@ -192,6 +192,22 @@ public class ColumnsControlTests
     }
 
     [Fact]
+    public void ChildAdditionalHeightExpandsColumnsClip()
+    {
+        var control = CreateColumns();
+        control.Clip = true;
+        control.Add(new AdditionalHeightControl(new Size(10F, 10F), 15F, Colors.Black));
+        var canvas = CreateCanvas();
+
+        var arranged = Arrange(control, new Size(100F, 100F));
+        var additionalSize = control.Render(canvas, Dpi, PageSize, CultureInfo.InvariantCulture);
+
+        Assert.Equal(new Size(100F, 10F), arranged);
+        Assert.Equal(new Size(0F, 15F), additionalSize);
+        canvas.AssertClip(0, new Rectangle(0F, 0F, 100F, 25F));
+    }
+
+    [Fact]
     public void CanAddAllowsArbitraryChildControls()
     {
         var control = CreateColumns();
@@ -299,6 +315,31 @@ public class ColumnsControlTests
         {
             canvas.DrawLine(color, 1F, 0F, 0F, 1F, 1F);
             return Size.Zero;
+        }
+    }
+
+    private sealed class AdditionalHeightControl(Size size, float additionalHeight, Color color) : IControl
+    {
+        public Size Measure(
+            float dpi,
+            in Size fullPageSize,
+            in Size framedPageSize,
+            in Size remainingSize,
+            CultureInfo cultureInfo)
+            => size;
+
+        public Size Arrange(
+            float dpi,
+            in Size fullPageSize,
+            in Size framedPageSize,
+            in Size remainingSize,
+            CultureInfo cultureInfo)
+            => size;
+
+        public Size Render(IDeferredCanvas canvas, float dpi, in Size parentSize, CultureInfo cultureInfo)
+        {
+            canvas.DrawLine(color, 1F, 0F, 0F, 1F, 1F);
+            return new Size(0F, additionalHeight);
         }
     }
 }

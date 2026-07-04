@@ -253,6 +253,57 @@ public class BorderControlTests
             (Colors.Magenta, 1F, 1F, 31F, 2F, 32F));
     }
 
+    [Fact]
+    public void RenderClipIncludesChildPaginationAdditionalHeight()
+    {
+        var textControl = new TextControl(
+            new FixedTextLayoutService(
+                lineHeight: 15F,
+                baselineOffset: 10F,
+                lineTopOffset: 5F))
+        {
+            Text = "Gesamtbetrag:",
+            HorizontalAlignment = EHorizontalAlignment.Left,
+            VerticalAlignment = EVerticalAlignment.Top,
+        };
+        var cell = new TableCellControl
+        {
+            HorizontalAlignment = EHorizontalAlignment.Left,
+            VerticalAlignment = EVerticalAlignment.Top,
+        };
+        cell.Add(new SpacerControl {Height = 85F});
+        cell.Add(textControl);
+        var row = new TableRowControl
+        {
+            HorizontalAlignment = EHorizontalAlignment.Left,
+            VerticalAlignment = EVerticalAlignment.Top,
+        };
+        row.Add(cell);
+        var table = new TableControl
+        {
+            HorizontalAlignment = EHorizontalAlignment.Left,
+            VerticalAlignment = EVerticalAlignment.Top,
+        };
+        table.Add(row);
+        var control = CreateBorder(
+            thickness: new Thickness(1F),
+            color: Colors.Red,
+            horizontalAlignment: EHorizontalAlignment.Left,
+            verticalAlignment: EVerticalAlignment.Top);
+        control.Add(table);
+        var canvas = CreateCanvas();
+        var textStyle = textControl.GetTextStyle();
+
+        control.Measure(Dpi, PageSize, PageSize, PageSize, CultureInfo.InvariantCulture);
+        control.Arrange(Dpi, PageSize, PageSize, PageSize, CultureInfo.InvariantCulture);
+        var additionalRenderSize = control.Render(canvas, Dpi, PageSize, CultureInfo.InvariantCulture);
+
+        canvas.AssertState();
+        Assert.Equal(new Size(0F, 109F), additionalRenderSize);
+        canvas.AssertClip(0, new Rectangle(0F, 0F, 200F, 211F));
+        canvas.AssertDrawText(textStyle, "Gesamtbetrag:", 1F, 205F);
+    }
+
     private static BorderControl CreateBorder(
         Thickness? thickness = null,
         Color? color = null,

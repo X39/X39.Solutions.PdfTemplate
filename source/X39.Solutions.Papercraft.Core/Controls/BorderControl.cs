@@ -1,5 +1,6 @@
 using X39.Solutions.Papercraft.Abstraction;
 using X39.Solutions.Papercraft.Attributes;
+using X39.Solutions.Papercraft.Canvas;
 using X39.Solutions.Papercraft.Controls.Base;
 using X39.Solutions.Papercraft.Data;
 
@@ -30,6 +31,7 @@ public class BorderControl : AlignableContentControl
     public Color Background { get; set; }
     
     private readonly List<Size> _arrangedSizes = new();
+    private Size _preRenderAdditionalSize;
 
     /// <inheritdoc />
     protected override Size DoMeasure(
@@ -98,58 +100,92 @@ public class BorderControl : AlignableContentControl
     }
 
     /// <inheritdoc />
+    protected override Size PreRender(IDeferredCanvas canvas, float dpi, in Size parentSize, CultureInfo cultureInfo)
+    {
+        var baseAdditionalSize = base.PreRender(canvas, dpi, parentSize, cultureInfo);
+        _preRenderAdditionalSize = Size.Zero;
+        if (!Clip)
+            return baseAdditionalSize;
+
+        var dryRunCanvas = DryRunDeferredCanvas.From(canvas);
+        var thickness = Thickness.ToRectangle(parentSize, dpi);
+        dryRunCanvas.Translate(ArrangementInner);
+        dryRunCanvas.Translate(thickness);
+        var contentAdditionalSize = RenderChildren(
+            dryRunCanvas,
+            dpi,
+            parentSize,
+            cultureInfo);
+        _preRenderAdditionalSize = contentAdditionalSize;
+
+        return new Size(
+            Math.Max(baseAdditionalSize.Width, contentAdditionalSize.Width),
+            baseAdditionalSize.Height + contentAdditionalSize.Height);
+    }
+
+    /// <inheritdoc />
     protected override Size DoRender(IDeferredCanvas canvas, float dpi, in Size parentSize, CultureInfo cultureInfo)
     {
         using var state = canvas.CreateState();
-        var additionalWidth = 0F;
-        var additionalHeight = 0F;
         canvas.Translate(-ArrangementInner);
         canvas.Translate(Arrangement);
         var thickness = Thickness.ToRectangle(parentSize, dpi);
+        var renderedArrangement = Arrangement + _preRenderAdditionalSize;
         if (Background != Colors.Transparent)
-            canvas.DrawRect(Arrangement with {Left = 0, Top = 0}, Background);
+            canvas.DrawRect(renderedArrangement with {Left = 0, Top = 0}, Background);
         if (thickness.Left > 0)
             DrawBorderRectangle(
                 canvas,
                 new Rectangle(
                     0,
                     0,
-                    Math.Min(thickness.Left, Arrangement.Width),
-                    Arrangement.Height));
+                    Math.Min(thickness.Left, renderedArrangement.Width),
+                    renderedArrangement.Height));
         if (thickness.Top > 0)
             DrawBorderRectangle(
                 canvas,
                 new Rectangle(
                     0,
                     0,
-                    Arrangement.Width,
-                    Math.Min(thickness.Top, Arrangement.Height)));
+                    renderedArrangement.Width,
+                    Math.Min(thickness.Top, renderedArrangement.Height)));
         if (thickness.Width > 0)
             DrawBorderRectangle(
                 canvas,
                 new Rectangle(
-                    Math.Max(0, Arrangement.Width - thickness.Width),
+                    Math.Max(0, renderedArrangement.Width - thickness.Width),
                     0,
-                    Math.Min(thickness.Width, Arrangement.Width),
-                    Arrangement.Height));
+                    Math.Min(thickness.Width, renderedArrangement.Width),
+                    renderedArrangement.Height));
         if (thickness.Height > 0)
             DrawBorderRectangle(
                 canvas,
                 new Rectangle(
                     0,
-                    Math.Max(0, Arrangement.Height - thickness.Height),
-                    Arrangement.Width,
-                    Math.Min(thickness.Height, Arrangement.Height)));
+                    Math.Max(0, renderedArrangement.Height - thickness.Height),
+                    renderedArrangement.Width,
+                    Math.Min(thickness.Height, renderedArrangement.Height)));
 
         canvas.Translate(-Arrangement);
         canvas.Translate(ArrangementInner);
         canvas.Translate(thickness);
+        return RenderChildren(canvas, dpi, parentSize, cultureInfo);
+    }
+
+    private Size RenderChildren(
+        IDeferredCanvas canvas,
+        float dpi,
+        in Size parentSize,
+        CultureInfo cultureInfo)
+    {
+        var additionalWidth = 0F;
+        var additionalHeight = 0F;
         foreach (var (child, arrangedSize) in Children.Zip(_arrangedSizes))
         {
             var (width, height) = child.Render(canvas, dpi, parentSize, cultureInfo);
             additionalWidth += width;
             additionalHeight += height;
-            canvas.Translate(0, arrangedSize.Height);
+            canvas.Translate(0, arrangedSize.Height + height);
         }
 
         return new Size(additionalWidth, additionalHeight);
