@@ -33,6 +33,7 @@ public sealed class PdfSharpRenderBackend : IPapercraftRenderBackend
             [RendererFeatures.Color] = RendererSupportLevel.Supported,
             [RendererFeatures.AbsolutePositioning] = RendererSupportLevel.Supported,
             [RendererFeatures.LinkAnnotations] = RendererSupportLevel.Supported,
+            [RendererFeatures.EmbeddedFiles] = RendererSupportLevel.Supported,
         },
         "MIT-licensed PDFsharp backend for PDF output.");
 
@@ -56,6 +57,7 @@ public sealed class PdfSharpRenderBackend : IPapercraftRenderBackend
         var validation = RenderValidationResult.Combine(
             Capabilities.ValidateTarget(target),
             Capabilities.ValidateDocument(document),
+            EmbeddedFileValidation.Validate(document),
             PdfSharpSystemFontResolver.Instance.ValidateDocumentFonts(document));
         return ValueTask.FromResult(validation);
     }
@@ -124,22 +126,23 @@ public sealed class PdfSharpRenderBackend : IPapercraftRenderBackend
         if (document.Pages.Count is 0)
         {
             AddPage(pdfDocument, GetFallbackPageSize(document.DocumentOptions));
-            pdfDocument.Save(outputStream, false);
-            return;
         }
-
-        foreach (var page in document.Pages)
+        else
         {
-            cancellationToken.ThrowIfCancellationRequested();
-            var pdfPage = AddPage(pdfDocument, page.PageSize);
-            using var graphics = XGraphics.FromPdfPage(
-                pdfPage,
-                XGraphicsPdfPageOptions.Replace,
-                XGraphicsUnit.Point,
-                XPageDirection.Downwards);
-            _displayListRenderer.Render(graphics, pdfPage, page.DisplayList);
+            foreach (var page in document.Pages)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                var pdfPage = AddPage(pdfDocument, page.PageSize);
+                using var graphics = XGraphics.FromPdfPage(
+                    pdfPage,
+                    XGraphicsPdfPageOptions.Replace,
+                    XGraphicsUnit.Point,
+                    XPageDirection.Downwards);
+                _displayListRenderer.Render(graphics, pdfPage, page.DisplayList);
+            }
         }
 
+        PdfSharpEmbeddedFileWriter.Write(pdfDocument, document.DocumentOptions.EmbeddedFiles);
         pdfDocument.Save(outputStream, false);
     }
 

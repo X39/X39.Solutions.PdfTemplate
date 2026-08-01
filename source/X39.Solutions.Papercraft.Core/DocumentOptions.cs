@@ -62,7 +62,7 @@ public record struct DocumentOptions()
     /// The product that is converting this document to PDF.
     /// </summary>
     public string Producer { get; set; } = "";
-    
+
     /// <summary>
     /// The margin of the document.
     /// </summary>
@@ -80,4 +80,20 @@ public record struct DocumentOptions()
     /// Depending on the exact position, this may lead to invalid xml, preventing the printing anyways.
     /// </remarks>
     public bool IgnoreErrors { get; set; }
+
+    /// <summary>
+    /// The files attached to the document.
+    /// </summary>
+    /// <remarks>
+    /// Renderers declaring <see cref="RendererFeatures.EmbeddedFiles"/> support write these into their
+    /// output; renderers that cannot carry attachments report a diagnostic instead of dropping them
+    /// silently. Never <see langword="null"/>, including for <see langword="default"/> instances.
+    /// </remarks>
+    public IReadOnlyList<EmbeddedFile> EmbeddedFiles
+    {
+        get => _embeddedFiles ?? Array.Empty<EmbeddedFile>();
+        init => _embeddedFiles = value ?? throw new ArgumentNullException(nameof(value));
+    }
+
+    private readonly IReadOnlyList<EmbeddedFile>? _embeddedFiles;
 }

@@ -53,6 +53,7 @@ public sealed class EscPosRenderBackend : IPapercraftRenderBackend
             [RendererFeatures.Color] = RendererSupportLevel.Degraded,
             [RendererFeatures.AbsolutePositioning] = RendererSupportLevel.Degraded,
             [RendererFeatures.LinkAnnotations] = RendererSupportLevel.Unsupported,
+            [RendererFeatures.EmbeddedFiles] = RendererSupportLevel.Unsupported,
         },
         "First-pass text-oriented ESC/POS command output. Text, basic emphasis, and horizontal rules are emitted directly; no printer transport is performed.");
 
@@ -322,7 +323,7 @@ public sealed class EscPosRenderBackend : IPapercraftRenderBackend
         var width = Math.Abs(command.EndX - command.StartX);
         var columns = page.PageSize.Width <= 0
             ? _options.CharactersPerLine
-            : (int) MathF.Round(width / page.PageSize.Width * _options.CharactersPerLine);
+            : (int)MathF.Round(width / page.PageSize.Width * _options.CharactersPerLine);
         columns = Math.Clamp(columns, 1, _options.CharactersPerLine);
 
         await WriteEncodedTextAsync(outputStream, new string('-', columns), cancellationToken)

@@ -94,6 +94,18 @@ if (!validation.IsSupported)
 Unsupported diagnostics block rendering. Degraded diagnostics are warnings unless
 `PapercraftRenderOptions.TreatDegradedAsUnsupported` is enabled.
 
+## PDF Attachments
+
+The SkiaSharp and PDFsharp backends support `DocumentOptions.EmbeddedFiles` for PDF output. Attachments are
+published through the PDF embedded-file name tree and catalog associated-file array, including MIME type,
+description, relationship, timestamps, size and checksum metadata. PNG, SVG, ESC/POS and lowered XML outputs
+cannot carry attachments and report an unsupported-feature diagnostic instead of silently omitting them.
+
+SkiaSharp does not expose an attachment API, so attached PDFs are finalized in a seekable in-memory buffer before
+being copied to the caller's stream. This temporarily retains the generated PDF in memory. SkiaSharp's PDF/A mode
+targets PDF/A-2b and is disabled for attached documents; attachment output carries associated-file structures but
+does not claim PDF/A-3 conformance. PDFsharp output likewise makes no PDF/A-3 conformance claim.
+
 ## Lowered XML Diagnostics
 
 Use lowered XML output when you need to inspect the template after data binding, function evaluation, transformer

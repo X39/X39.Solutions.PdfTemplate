@@ -86,6 +86,11 @@ public static class RendererFeatures
     public const string LinkAnnotations = "pdf.link-annotations";
 
     /// <summary>
+    /// Embedded file (document attachment) support.
+    /// </summary>
+    public const string EmbeddedFiles = "pdf.embedded-files";
+
+    /// <summary>
     /// Gets the feature name for a render output kind.
     /// </summary>
     /// <param name="outputKind">The render output kind.</param>
@@ -93,12 +98,12 @@ public static class RendererFeatures
     public static string ForOutputKind(RendererOutputKind outputKind)
         => outputKind switch
         {
-            RendererOutputKind.Pdf             => PdfOutput,
-            RendererOutputKind.RasterImage     => RasterImageOutput,
-            RendererOutputKind.VectorImage     => VectorImageOutput,
+            RendererOutputKind.Pdf => PdfOutput,
+            RendererOutputKind.RasterImage => RasterImageOutput,
+            RendererOutputKind.VectorImage => VectorImageOutput,
             RendererOutputKind.PrinterCommands => PrinterCommandOutput,
-            RendererOutputKind.Custom          => CustomOutput,
-            RendererOutputKind.LoweredXml      => LoweredXmlOutput,
-            _                                  => CustomOutput,
+            RendererOutputKind.Custom => CustomOutput,
+            RendererOutputKind.LoweredXml => LoweredXmlOutput,
+            _ => CustomOutput,
         };
 }

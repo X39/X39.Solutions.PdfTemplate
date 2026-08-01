@@ -69,8 +69,9 @@ internal sealed class PapercraftRenderPipeline
                         renderOptions.DocumentOptions,
                         cancellationToken)
                     .ConfigureAwait(false);
-                PapercraftActivity.SetValidation(activity, RenderValidationResult.Supported);
-                return RenderValidationResult.Supported;
+                var loweredXmlValidation = ValidateLoweredXmlEmbeddedFiles(renderOptions.DocumentOptions);
+                PapercraftActivity.SetValidation(activity, loweredXmlValidation);
+                return loweredXmlValidation;
             }
 
             var backend = SelectBackend(target, renderOptions);
@@ -115,6 +116,9 @@ internal sealed class PapercraftRenderPipeline
             var renderOptions = options ?? PapercraftRenderOptions.Default;
             if (IsLoweredXmlTarget(output.Target))
             {
+                var validation = ValidateLoweredXmlEmbeddedFiles(renderOptions.DocumentOptions);
+                RenderDiagnosticScope.Report(validation.Diagnostics);
+                validation.ThrowIfUnsupported();
                 var lowered = await _generator.ReadLoweredXmlAsync(
                         reader,
                         cultureInfo,
@@ -378,6 +382,23 @@ internal sealed class PapercraftRenderPipeline
     private static bool IsLoweredXmlTarget(RenderTarget target)
         => target.OutputKind is RendererOutputKind.LoweredXml
            || string.Equals(target.MediaType, PapercraftMediaTypes.ApplicationPapercraftLoweredXml, StringComparison.OrdinalIgnoreCase);
+
+    private static RenderValidationResult ValidateLoweredXmlEmbeddedFiles(DocumentOptions options)
+    {
+        if (options.EmbeddedFiles.Count is 0)
+            return RenderValidationResult.Supported;
+
+        return new RenderValidationResult(
+            new[]
+            {
+                new RenderDiagnostic(
+                    RenderDiagnosticCodes.UnsupportedFeature,
+                    RendererSupportLevel.Unsupported,
+                    RendererFeatures.EmbeddedFiles,
+                    "Lowered XML output cannot carry embedded files.",
+                    "Render the prepared document to PDF to preserve document attachments."),
+            });
+    }
 
     private static RenderValidationResult CombineWithScopedDiagnostics(RenderValidationResult validation)
     {

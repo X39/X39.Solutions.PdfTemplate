@@ -19,8 +19,11 @@ public sealed class PapercraftDocument
         ArgumentNullException.ThrowIfNull(cultureInfo);
         Pages = pages;
         CultureInfo = cultureInfo;
-        DocumentOptions = documentOptions;
-        FeatureUses = AnalyzeFeatureUses(pages);
+        DocumentOptions = documentOptions with
+        {
+            EmbeddedFiles = documentOptions.EmbeddedFiles.ToArray(),
+        };
+        FeatureUses = AnalyzeFeatureUses(pages, DocumentOptions);
     }
 
     /// <summary>
@@ -43,7 +46,9 @@ public sealed class PapercraftDocument
     /// </summary>
     public IReadOnlyList<RenderFeatureUse> FeatureUses { get; }
 
-    private static IReadOnlyList<RenderFeatureUse> AnalyzeFeatureUses(IReadOnlyList<PapercraftPage> pages)
+    private static IReadOnlyList<RenderFeatureUse> AnalyzeFeatureUses(
+        IReadOnlyList<PapercraftPage> pages,
+        DocumentOptions documentOptions)
     {
         var features = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         foreach (var page in pages)
@@ -56,6 +61,9 @@ public sealed class PapercraftDocument
 
         if (pages.Count > 1)
             features.Add(RendererFeatures.Multipage);
+
+        if (documentOptions.EmbeddedFiles.Count is not 0)
+            features.Add(RendererFeatures.EmbeddedFiles);
 
         return features
             .OrderBy((q) => q, StringComparer.OrdinalIgnoreCase)

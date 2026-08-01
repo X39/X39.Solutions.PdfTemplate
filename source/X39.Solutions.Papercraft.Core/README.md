@@ -15,6 +15,7 @@ Use this package when you need Papercraft contracts without taking a dependency 
 | Application service and contracts | `Papercraft`, `PapercraftSession`, `PapercraftRenderResult`, `IPapercraftRenderBackend`, `RenderTarget`, `RenderOutput` |
 | Lowered XML diagnostics | `RenderTarget.LoweredXml`, `PapercraftMediaTypes.ApplicationPapercraftLoweredXml` |
 | Capability validation | `RendererCapabilities`, `RenderValidationResult`, `RenderDiagnostic` |
+| PDF attachment contracts | `DocumentOptions.EmbeddedFiles`, `EmbeddedFile`, `EmbeddedFileRelationship` |
 | Activity tracing | `PapercraftInstrumentation.ActivitySource` |
 | Built-in controls | Text, paragraph, border, image, line, table, lists, charts, page numbers, columns, blocks and related layout controls |
 | Template language | `for`, `forEach`, `if`, `switch`, `alternate`, `var` and variable expansion transformers |
@@ -83,6 +84,9 @@ public sealed class MyRenderer : IPapercraftRenderBackend
 
 `TextService` is the backend-specific text measurement and text display-list service used while
 generating documents for this renderer.
+Embedded-file support is opt-in: an attachment feature absent from `RendererCapabilities.FeatureSupport` is
+treated as unsupported, ensuring attachments are never silently discarded. Renderers that support PDF attachments
+must explicitly declare `RendererFeatures.EmbeddedFiles` and validate attachment metadata before writing output.
 
 Register the backend in the application service collection:
 

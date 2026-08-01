@@ -34,6 +34,7 @@ public sealed class SvgRenderBackend : IPapercraftRenderBackend
             [RendererFeatures.Color] = RendererSupportLevel.Supported,
             [RendererFeatures.AbsolutePositioning] = RendererSupportLevel.Supported,
             [RendererFeatures.LinkAnnotations] = RendererSupportLevel.Supported,
+            [RendererFeatures.EmbeddedFiles] = RendererSupportLevel.Unsupported,
         },
         "Dependency-free SVG vector image output. Multi-page documents are emitted as vertically stacked page groups.");
 

@@ -14,8 +14,9 @@ Most application code can reference [`X39.Solutions.Papercraft`](../X39.Solution
 | Backend implementation | `PdfSharpRenderBackend` |
 | Display-list renderer | `PdfSharpDisplayListRenderer` |
 | Supported media types | `application/pdf` |
+| PDF attachments | Embedded-file name tree and associated-file structures |
 
-The backend declares support for PDF output, multipage documents, text drawing, images, rectangular clipping, transparency, fonts, color, absolute positioning and link annotations.
+The backend declares support for PDF output, multipage documents, text drawing, images, rectangular clipping, transparency, fonts, color, absolute positioning, link annotations and document attachments.
 
 ## Register The Renderer
 
@@ -33,6 +34,8 @@ After registration, resolve `Papercraft` from the service provider, create a `Pa
 ## Output Notes
 
 This backend produces PDF only and does not support raster output.
+Attachments include names, original bytes, MIME types, descriptions, associated-file relationships, timestamps,
+sizes and MD5 checksums. The output does not claim PDF/A-3 conformance.
 PDFsharp font settings are global; applications with strict font requirements should configure PDFsharp font resolution before rendering.
 The package includes a lightweight text measurement service for template generation; exact wrapping and metrics can differ from the SkiaSharp backend.
 

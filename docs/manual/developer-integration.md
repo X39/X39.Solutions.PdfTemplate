@@ -151,6 +151,15 @@ await session.RenderAsync(
             Margin = new Thickness(new Length(1, ELengthUnit.Centimeters)),
             Producer = "Invoice service",
             Context = new PrintRequestContext(invoice.Id),
+            EmbeddedFiles =
+            [
+                EmbeddedFile.FromText("invoice-data.json", invoiceJson, mediaType: "application/json") with
+                {
+                    Description = "Machine-readable invoice data",
+                    Relationship = EmbeddedFileRelationship.Data,
+                    Modified = DateTimeOffset.UtcNow,
+                },
+            ],
         },
     });
 ```
@@ -163,10 +172,16 @@ Useful options include:
 | `DocumentOptions.DotsPerInch`, `DocumentOptions.DotsPerCentimeter` and `DocumentOptions.DotsPerMillimeter` | Change render density. |
 | `DocumentOptions.Margin` | Reserve document margin before header, body and footer layout. |
 | `DocumentOptions.Producer` and `DocumentOptions.Modified` | Set PDF metadata. |
+| `DocumentOptions.EmbeddedFiles` | Attach eagerly captured files to PDF output. Non-PDF targets report an unsupported-feature diagnostic. |
 | `DocumentOptions.Context` | Pass request-specific information to context-aware extension points. |
 | `DocumentOptions.IgnoreErrors` | Instruct the generator to ignore errors where possible. Use carefully, because XML can still become invalid. |
 | `BackendId` | Select a registered render backend by renderer id. |
 | `TreatDegradedAsUnsupported` | Treat degraded validation diagnostics as render-blocking diagnostics. |
+
+Embedded-file names must be unique ignoring case and must be plain file names rather than paths. Media types,
+descriptions and associated-file relationships are validated before PDF rendering. The PDF backends write the
+attachment name tree, associated-file entries, timestamps, content size and checksum. A prepared
+`PapercraftDocument` snapshots its attachment collection and can be rendered repeatedly.
 
 ## Validate Before Rendering
 

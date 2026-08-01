@@ -177,11 +177,18 @@ public sealed class RendererCapabilities
         var diagnostics = new List<RenderDiagnostic>();
         foreach (var featureUse in featureUses)
         {
-            if (!FeatureSupport.TryGetValue(featureUse.Feature, out var supportLevel)
-                || supportLevel is RendererSupportLevel.Supported)
+            if (!FeatureSupport.TryGetValue(featureUse.Feature, out var supportLevel))
             {
-                continue;
+                // Attachments must be opted into explicitly: silently omitting them would lose document content.
+                // Preserve the established validation behavior for other undeclared features.
+                if (!string.Equals(featureUse.Feature, RendererFeatures.EmbeddedFiles, StringComparison.Ordinal))
+                    continue;
+
+                supportLevel = RendererSupportLevel.Unsupported;
             }
+
+            if (supportLevel is RendererSupportLevel.Supported)
+                continue;
 
             var code = supportLevel is RendererSupportLevel.Unsupported
                 ? RenderDiagnosticCodes.UnsupportedFeature

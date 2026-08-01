@@ -34,4 +34,9 @@ public static class RenderDiagnosticCodes
     /// The selected renderer substituted a requested font face or style.
     /// </summary>
     public const string FontFaceSubstitution = "PAPERCRAFT006";
+
+    /// <summary>
+    /// An embedded file requested by the document cannot be written as specified.
+    /// </summary>
+    public const string InvalidEmbeddedFile = "PAPERCRAFT007";
 }

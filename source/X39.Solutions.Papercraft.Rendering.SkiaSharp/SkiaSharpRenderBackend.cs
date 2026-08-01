@@ -29,6 +29,7 @@ public sealed class SkiaSharpRenderBackend : IPapercraftRenderBackend
             [RendererFeatures.Color] = RendererSupportLevel.Supported,
             [RendererFeatures.AbsolutePositioning] = RendererSupportLevel.Supported,
             [RendererFeatures.LinkAnnotations] = RendererSupportLevel.Supported,
+            [RendererFeatures.EmbeddedFiles] = RendererSupportLevel.Supported,
         },
         "Default Papercraft backend. Supports PDF, single-page PNG stream output and page-by-page PNG raster output through SkiaSharp.");
 
@@ -68,6 +69,27 @@ public sealed class SkiaSharpRenderBackend : IPapercraftRenderBackend
         {
             cancellationToken.ThrowIfCancellationRequested();
             var validation = Capabilities.ValidateTarget(target);
+            if (target.OutputKind is RendererOutputKind.Pdf)
+            {
+                validation = RenderValidationResult.Combine(
+                    validation,
+                    EmbeddedFileValidation.Validate(document));
+            }
+            else if (document.DocumentOptions.EmbeddedFiles.Count is not 0)
+            {
+                validation = RenderValidationResult.Combine(
+                    validation,
+                    new RenderValidationResult(
+                        new[]
+                        {
+                            new RenderDiagnostic(
+                                RenderDiagnosticCodes.UnsupportedFeature,
+                                RendererSupportLevel.Unsupported,
+                                RendererFeatures.EmbeddedFiles,
+                                $"Renderer '{Capabilities.DisplayName}' cannot carry embedded files in '{target.OutputKind}' output.",
+                                "Use PDF output to preserve document attachments."),
+                        }));
+            }
             if (target.OutputKind is RendererOutputKind.RasterImage
                 && document.FeatureUses.Any((q) => q.Feature == RendererFeatures.LinkAnnotations))
             {
@@ -164,9 +186,9 @@ public sealed class SkiaSharpRenderBackend : IPapercraftRenderBackend
                 using var pageActivity = PapercraftActivity.Start(SkiaSharpActivityNames.RenderRasterPage);
                 pageActivity?.SetTag(PapercraftActivity.PageIndexTag, page.PageIndex);
                 pageActivity?.SetTag(PapercraftActivity.PageNumberTag, page.PageNumber);
-                    try
-                    {
-                        cancellationToken.ThrowIfCancellationRequested();
+                try
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
                     using var bitmap = RenderPageToBitmap(page, document.DocumentOptions, imageDecodeCache);
                     var pageInfo = new RasterPageInfo(
                         page.PageIndex,
@@ -224,42 +246,61 @@ public sealed class SkiaSharpRenderBackend : IPapercraftRenderBackend
         PapercraftActivity.SetDocument(activity, document);
         try
         {
-            var options = document.DocumentOptions;
-            using var skDocument = SKDocument.CreatePdf(
-                outputStream,
-                new SKDocumentPdfMetadata
-                {
-                    RasterDpi = options.DotsPerInch,
-                    Producer = options.Producer,
-                    Modified = options.Modified,
-                    PdfA = true,
-                });
-
-            if (document.Pages.Count is 0)
+            if (document.DocumentOptions.EmbeddedFiles.Count is 0)
             {
-                var size = GetFallbackPageSize(options);
-                skDocument.BeginPage(size.Width, size.Height).Dispose();
-                skDocument.EndPage();
-                skDocument.Close();
+                RenderPdfDocument(document, outputStream, cancellationToken, pdfA: true);
                 return;
             }
 
-            using var imageDecodeCache = new SkiaImageDecodeCache();
-            foreach (var page in document.Pages)
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-                using var canvas = skDocument.BeginPage(page.PageSize.Width, page.PageSize.Height);
-                _displayListRenderer.Render(canvas, page.DisplayList, imageDecodeCache);
-                skDocument.EndPage();
-            }
-
-            skDocument.Close();
+            using var buffer = new MemoryStream();
+            RenderPdfDocument(document, buffer, cancellationToken, pdfA: false);
+            SkiaPdfEmbeddedFileAppender.Append(buffer, document.DocumentOptions.EmbeddedFiles);
+            buffer.Position = 0;
+            buffer.CopyTo(outputStream);
         }
         catch (Exception ex)
         {
             PapercraftActivity.SetError(activity, ex);
             throw;
         }
+    }
+
+    private void RenderPdfDocument(
+        PapercraftDocument document,
+        Stream outputStream,
+        CancellationToken cancellationToken,
+        bool pdfA)
+    {
+        var options = document.DocumentOptions;
+        using var skDocument = SKDocument.CreatePdf(
+            outputStream,
+            new SKDocumentPdfMetadata
+            {
+                RasterDpi = options.DotsPerInch,
+                Producer = options.Producer,
+                Modified = options.Modified,
+                PdfA = pdfA,
+            });
+
+        if (document.Pages.Count is 0)
+        {
+            var size = GetFallbackPageSize(options);
+            skDocument.BeginPage(size.Width, size.Height).Dispose();
+            skDocument.EndPage();
+            skDocument.Close();
+            return;
+        }
+
+        using var imageDecodeCache = new SkiaImageDecodeCache();
+        foreach (var page in document.Pages)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            using var canvas = skDocument.BeginPage(page.PageSize.Width, page.PageSize.Height);
+            _displayListRenderer.Render(canvas, page.DisplayList, imageDecodeCache);
+            skDocument.EndPage();
+        }
+
+        skDocument.Close();
     }
 
     private void RenderPng(
