@@ -159,6 +159,52 @@ public sealed class PapercraftAdditionalBackendTests
     }
 
     [Fact]
+    public void PdfSharpDisplayListRendererOmitsTextFullyOutsideClip()
+    {
+        using var pdfDocument = new PdfDocument();
+        pdfDocument.Options.NoCompression = true;
+        var page = pdfDocument.AddPage();
+        page.Width = XUnit.FromPoint(100);
+        page.Height = XUnit.FromPoint(100);
+        var displayList = new DisplayList();
+        displayList.Add(new PushStateCommand());
+        displayList.Add(new ClipCommand(new DisplayRectangle(0F, 0F, 100F, 20F)));
+        displayList.Add(CreateDrawTextCommand("Partially visible text", 5F, 25F));
+        displayList.Add(new TranslateCommand(new DisplayPoint(0F, 60F)));
+        displayList.Add(CreateDrawTextCommand("Clipped text", 5F, 15F));
+        displayList.Add(new PopStateCommand());
+        displayList.Add(CreateDrawTextCommand("Visible text", 5F, 15F));
+
+        using (var graphics = XGraphics.FromPdfPage(
+                   page,
+                   XGraphicsPdfPageOptions.Replace,
+                   XGraphicsUnit.Point,
+                   XPageDirection.Downwards))
+        {
+            new PdfSharpDisplayListRenderer().Render(graphics, page, displayList);
+        }
+
+        var content = GetPdfContent(page);
+
+        Assert.DoesNotContain("(Clipped text) Tj", content, StringComparison.Ordinal);
+        Assert.Contains("(Partially visible text) Tj", content, StringComparison.Ordinal);
+        Assert.Contains("(Visible text) Tj", content, StringComparison.Ordinal);
+    }
+
+    private static DrawTextCommand CreateDrawTextCommand(string text, float x, float y)
+        => new(
+            new DisplayTextStyle
+            {
+                Foreground = DisplayColor.Black,
+                FontFamily = DisplayFont.Default,
+                FontSize = 10F,
+            },
+            72.272F,
+            text,
+            x,
+            y);
+
+    [Fact]
     public async Task PdfSharpRendererGeneratesXmlTemplateWithText()
     {
         var services = new ServiceCollection();

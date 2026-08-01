@@ -13,7 +13,7 @@ internal sealed class PdfSharpDisplayListRenderer
         ArgumentNullException.ThrowIfNull(page);
         ArgumentNullException.ThrowIfNull(displayList);
 
-        var state = new RenderState(page.Height.Point);
+        var state = new RenderState(page.Width.Point, page.Height.Point);
         foreach (var command in displayList.Commands)
         {
             RenderCommand(graphics, page, command, state);
@@ -43,7 +43,9 @@ internal sealed class PdfSharpDisplayListRenderer
                 state.Translate(translate.Offset.X, translate.Offset.Y);
                 break;
             case ClipCommand clip:
-                graphics.IntersectClip(ToXRect(TransformRectangle(clip.Rectangle, state)));
+                var clipRectangle = TransformRectangle(clip.Rectangle, state);
+                graphics.IntersectClip(ToXRect(clipRectangle));
+                state.IntersectClip(clipRectangle);
                 break;
             case DrawLineCommand line:
                 DrawLine(graphics, line, state);
@@ -101,6 +103,9 @@ internal sealed class PdfSharpDisplayListRenderer
         var brush = new XSolidBrush(ToXColor(text.TextStyle.Foreground));
         var x = text.X + state.TranslateX;
         var y = text.Y + state.TranslateY;
+        if (!IntersectsClip(graphics, font, text, x, y, state.ClipRectangle))
+            return;
+
         if (NeedsTextTransform(text.TextStyle))
         {
             var graphicsState = graphics.Save();
@@ -123,6 +128,63 @@ internal sealed class PdfSharpDisplayListRenderer
         }
 
         graphics.DrawString(text.Text, font, brush, x, y);
+    }
+
+    private static bool IntersectsClip(
+        XGraphics graphics,
+        XFont font,
+        DrawTextCommand text,
+        double x,
+        double y,
+        DisplayRectangle clipRectangle)
+    {
+        var width = graphics.MeasureString(text.Text, font).Width;
+        if (clipRectangle.Width <= 0F || clipRectangle.Height <= 0F)
+            return false;
+
+        var height = font.GetHeight();
+        var scale = text.TextStyle.Scale;
+        var rotation = text.TextStyle.Rotation * Math.PI / 180D;
+        var cosine = Math.Cos(rotation);
+        var sine = Math.Sin(rotation);
+        Span<XPoint> corners = stackalloc XPoint[]
+        {
+            TransformTextPoint(0D, -height, scale, cosine, sine, x, y),
+            TransformTextPoint(width, -height, scale, cosine, sine, x, y),
+            TransformTextPoint(width, height, scale, cosine, sine, x, y),
+            TransformTextPoint(0D, height, scale, cosine, sine, x, y),
+        };
+        var left = corners[0].X;
+        var top = corners[0].Y;
+        var right = left;
+        var bottom = top;
+        foreach (var corner in corners[1..])
+        {
+            left = Math.Min(left, corner.X);
+            top = Math.Min(top, corner.Y);
+            right = Math.Max(right, corner.X);
+            bottom = Math.Max(bottom, corner.Y);
+        }
+
+        return left < clipRectangle.Right
+               && right > clipRectangle.Left
+               && top < clipRectangle.Bottom
+               && bottom > clipRectangle.Top;
+    }
+
+    private static XPoint TransformTextPoint(
+        double localX,
+        double localY,
+        double scale,
+        double cosine,
+        double sine,
+        double originX,
+        double originY)
+    {
+        localX *= scale;
+        return new XPoint(
+            originX + localX * cosine - localY * sine,
+            originY + localX * sine + localY * cosine);
     }
 
     private static void DrawImage(
@@ -195,11 +257,12 @@ internal sealed class PdfSharpDisplayListRenderer
 
     private sealed class RenderState
     {
-        private readonly Stack<(double TranslateX, double TranslateY)> _stack = new();
+        private readonly Stack<(double TranslateX, double TranslateY, DisplayRectangle ClipRectangle)> _stack = new();
 
-        public RenderState(double pageHeight)
+        public RenderState(double pageWidth, double pageHeight)
         {
             PageHeight = pageHeight;
+            ClipRectangle = new DisplayRectangle(0F, 0F, (float) pageWidth, (float) pageHeight);
         }
 
         public double PageHeight { get; }
@@ -208,22 +271,38 @@ internal sealed class PdfSharpDisplayListRenderer
 
         public double TranslateY { get; private set; }
 
+        public DisplayRectangle ClipRectangle { get; private set; }
+
         public bool CanPop => _stack.Count > 0;
 
         public void Push()
-            => _stack.Push((TranslateX, TranslateY));
+            => _stack.Push((TranslateX, TranslateY, ClipRectangle));
 
         public void Pop()
         {
             var restored = _stack.Pop();
             TranslateX = restored.TranslateX;
             TranslateY = restored.TranslateY;
+            ClipRectangle = restored.ClipRectangle;
         }
 
         public void Translate(double x, double y)
         {
             TranslateX += x;
             TranslateY += y;
+        }
+
+        public void IntersectClip(DisplayRectangle rectangle)
+        {
+            var left = Math.Max(ClipRectangle.Left, rectangle.Left);
+            var top = Math.Max(ClipRectangle.Top, rectangle.Top);
+            var right = Math.Min(ClipRectangle.Right, rectangle.Right);
+            var bottom = Math.Min(ClipRectangle.Bottom, rectangle.Bottom);
+            ClipRectangle = new DisplayRectangle(
+                left,
+                top,
+                Math.Max(0F, right - left),
+                Math.Max(0F, bottom - top));
         }
     }
 }
