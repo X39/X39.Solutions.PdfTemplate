@@ -6,6 +6,11 @@ namespace X39.Solutions.Papercraft;
 public static class PapercraftMediaTypes
 {
     /// <summary>
+    /// Arbitrary binary content.
+    /// </summary>
+    public const string ApplicationOctetStream = "application/octet-stream";
+
+    /// <summary>
     /// PDF document output.
     /// </summary>
     public const string ApplicationPdf = "application/pdf";
@@ -14,6 +19,11 @@ public static class PapercraftMediaTypes
     /// PNG raster image output.
     /// </summary>
     public const string ImagePng = "image/png";
+
+    /// <summary>
+    /// Plain text content.
+    /// </summary>
+    public const string TextPlain = "text/plain";
 
     /// <summary>
     /// Lowered Papercraft XML output.
