@@ -1,5 +1,4 @@
 using System.Globalization;
-using System.Text;
 using System.Xml;
 using Microsoft.Extensions.DependencyInjection;
 using X39.Solutions.Papercraft;
@@ -39,46 +38,46 @@ public abstract class DocumentationSampleBase : SampleBase
         {
             DocumentOptions = WithDocumentationPreviewDensity(documentOptions ?? CompactDocumentOptions),
         };
-        var document = await GenerateDocumentationDocumentAsync(
+        await RenderSkiaSharpPngAsync(
+                outputDirectory,
+                sampleName,
                 xml,
                 renderOptions,
                 configureGenerator,
                 configureServices,
                 cancellationToken)
             .ConfigureAwait(false);
-
-        await RenderSkiaSharpPngAsync(
-                outputDirectory,
-                sampleName,
-                document,
-                renderOptions,
-                cancellationToken)
-            .ConfigureAwait(false);
         await RenderArtifactAsync(
                 outputDirectory,
                 $"{sampleName}-skiasharp.pdf",
-                document,
+                xml,
                 PapercraftMediaTypes.ApplicationPdf,
                 (services) => services.AddPapercraftSkiaSharpRenderer(),
                 renderOptions,
+                configureGenerator,
+                configureServices,
                 cancellationToken)
             .ConfigureAwait(false);
         await RenderArtifactAsync(
                 outputDirectory,
                 $"{sampleName}.svg",
-                document,
+                xml,
                 SvgRenderBackend.MediaType,
                 (services) => services.AddPapercraftSvgRenderer(),
                 renderOptions,
+                configureGenerator,
+                configureServices,
                 cancellationToken)
             .ConfigureAwait(false);
         await RenderArtifactAsync(
                 outputDirectory,
                 $"{sampleName}-pdfsharp.pdf",
-                document,
+                xml,
                 PapercraftMediaTypes.ApplicationPdf,
                 (services) => services.AddPapercraftPdfSharpRenderer(),
                 renderOptions,
+                configureGenerator,
+                configureServices,
                 cancellationToken)
             .ConfigureAwait(false);
 
@@ -108,31 +107,6 @@ public abstract class DocumentationSampleBase : SampleBase
 
     private static DocumentOptions WithDocumentationPreviewDensity(DocumentOptions documentOptions)
         => documentOptions with { DotsPerInch = DocumentationPreviewDotsPerInch };
-
-    private static async Task<PapercraftDocument> GenerateDocumentationDocumentAsync(
-        string xml,
-        PapercraftRenderOptions renderOptions,
-        Action<Generator>? configureGenerator,
-        Action<PdfTemplateServiceBuilder>? configureServices,
-        CancellationToken cancellationToken)
-    {
-        await using var serviceProvider = CreateGenerationServiceProvider(configureServices);
-        var papercraftGenerator = serviceProvider.GetRequiredService<PapercraftGenerator>();
-        var renderer = new PapercraftRenderer(
-            papercraftGenerator,
-            serviceProvider.GetServices<IPapercraftRenderBackend>());
-        await using var generator = new Generator(renderer);
-        configureGenerator?.Invoke(generator);
-
-        await using var xmlStream = new MemoryStream(Encoding.UTF8.GetBytes(xml));
-        using var xmlReader = XmlReader.Create(xmlStream);
-        return await papercraftGenerator.GenerateAsync(
-                xmlReader,
-                CultureInfo.InvariantCulture,
-                renderOptions.DocumentOptions,
-                cancellationToken)
-            .ConfigureAwait(false);
-    }
 
     private static string GetRepositoryRoot()
     {
@@ -165,17 +139,24 @@ public abstract class DocumentationSampleBase : SampleBase
     private static async Task RenderSkiaSharpPngAsync(
         string outputDirectory,
         string sampleName,
-        PapercraftDocument document,
+        string xml,
         PapercraftRenderOptions renderOptions,
+        Action<Generator>? configureGenerator,
+        Action<PdfTemplateServiceBuilder>? configureServices,
         CancellationToken cancellationToken)
     {
         await using var serviceProvider = CreateRendererServiceProvider(
-            (services) => services.AddPapercraftSkiaSharpRenderer());
+            (services) => services.AddPapercraftSkiaSharpRenderer(),
+            configureServices);
         var renderer = serviceProvider.GetRequiredService<PapercraftRenderer>();
+        await using var generator = new Generator(renderer);
+        configureGenerator?.Invoke(generator);
         var renderedPages = 0;
+        using var textReader = new StringReader(xml);
+        using var xmlReader = XmlReader.Create(textReader);
 
         await renderer.RenderRasterPagesAsync(
-                document,
+                xmlReader,
                 new RasterPageRenderOutput(
                     PapercraftMediaTypes.ImagePng,
                     (page, _) =>
@@ -191,6 +172,7 @@ public abstract class DocumentationSampleBase : SampleBase
                         renderedPages++;
                         return ValueTask.FromResult<Stream>(stream);
                     }),
+                CultureInfo.InvariantCulture,
                 renderOptions,
                 cancellationToken)
             .ConfigureAwait(false);
@@ -201,14 +183,20 @@ public abstract class DocumentationSampleBase : SampleBase
     private static async Task RenderArtifactAsync(
         string outputDirectory,
         string fileName,
-        PapercraftDocument document,
+        string xml,
         string mediaType,
         Action<IServiceCollection> registerRenderer,
         PapercraftRenderOptions renderOptions,
+        Action<Generator>? configureGenerator,
+        Action<PdfTemplateServiceBuilder>? configureServices,
         CancellationToken cancellationToken)
     {
-        await using var serviceProvider = CreateRendererServiceProvider(registerRenderer);
+        await using var serviceProvider = CreateRendererServiceProvider(registerRenderer, configureServices);
         var renderer = serviceProvider.GetRequiredService<PapercraftRenderer>();
+        await using var generator = new Generator(renderer);
+        configureGenerator?.Invoke(generator);
+        using var textReader = new StringReader(xml);
+        using var xmlReader = XmlReader.Create(textReader);
 
         await using var outputStream = new FileStream(
             Path.Combine(outputDirectory, fileName),
@@ -216,33 +204,25 @@ public abstract class DocumentationSampleBase : SampleBase
             FileAccess.Write,
             FileShare.Read);
         await renderer.RenderAsync(
-                document,
+                xmlReader,
                 new RenderOutput(mediaType, outputStream),
+                CultureInfo.InvariantCulture,
                 renderOptions,
                 cancellationToken)
             .ConfigureAwait(false);
     }
 
-    private static ServiceProvider CreateGenerationServiceProvider(
+    private static ServiceProvider CreateRendererServiceProvider(
+        Action<IServiceCollection> registerRenderer,
         Action<PdfTemplateServiceBuilder>? configureServices)
     {
         var services = new ServiceCollection();
-        services.AddPapercraftSkiaSharpRenderer();
-
+        registerRenderer(services);
         var builder = new PdfTemplateServiceBuilder(services);
         if (configureServices is null)
             builder.AddControl<MockControl>();
         else
             configureServices(builder);
-
-        return services.BuildServiceProvider();
-    }
-
-    private static ServiceProvider CreateRendererServiceProvider(
-        Action<IServiceCollection> registerRenderer)
-    {
-        var services = new ServiceCollection();
-        registerRenderer(services);
         return services.BuildServiceProvider();
     }
 
