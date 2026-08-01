@@ -6,6 +6,7 @@ using System.Xml.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using PdfSharp.Drawing;
 using PdfSharp.Pdf;
+using PdfSharp.Pdf.IO;
 using X39.Solutions.Papercraft;
 using X39.Solutions.Papercraft.Data;
 using X39.Solutions.Papercraft.Display;
@@ -234,10 +235,7 @@ public sealed class PapercraftAdditionalBackendTests
     [Fact]
     public async Task PdfSharpRendererKeepsCalibriRegularAndBoldFacesDistinct()
     {
-        var fontsDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "Fonts");
-        if (!OperatingSystem.IsWindows()
-            || !File.Exists(Path.Combine(fontsDirectory, "calibri.ttf"))
-            || !File.Exists(Path.Combine(fontsDirectory, "calibrib.ttf")))
+        if (!HasCalibriRegularAndBold())
         {
             return;
         }
@@ -274,6 +272,92 @@ public sealed class PapercraftAdditionalBackendTests
             calibriFonts,
             (q) => q.Contains("Calibri", StringComparison.OrdinalIgnoreCase)
                    && !q.Contains("Bold", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public async Task PdfSharpRendererUsesPdfSharpMetricsForRightAlignedHeaderText()
+    {
+        if (!HasCalibriRegularAndBold())
+            return;
+
+        const float dpi = 600F;
+        const string title = "Ausgangslieferrechnung";
+        var services = new ServiceCollection();
+        services.AddPapercraft();
+        services.AddPapercraftPdfSharpRenderer();
+        await using var provider = services.BuildServiceProvider();
+        var renderer = provider.GetRequiredService<PapercraftRenderer>();
+        await using var stream = new MemoryStream();
+        using var reader = XmlReader.Create(new StringReader(CreateRightAlignedHeaderTemplate(title)));
+
+        await renderer.RenderAsync(
+            reader,
+            new RenderOutput(PapercraftMediaTypes.ApplicationPdf, stream),
+            CultureInfo.InvariantCulture,
+            new PapercraftRenderOptions
+            {
+                BackendId = PdfSharpRenderBackend.RendererId,
+                DocumentOptions = new DocumentOptions
+                {
+                    DotsPerInch = dpi,
+                    PageWidthInMillimeters = 210F,
+                    PageHeightInMillimeters = 297F,
+                },
+            });
+
+        var content = GetFirstPagePdfContent(stream.ToArray());
+        var clip = FindClipBeforeText(content, title);
+        var expectedWidth = MeasurePdfSharpWidth(
+            title,
+            new TextStyle
+            {
+                FontSize = 12F,
+                FontFamily = new Font("Calibri") { Weight = FontWeights.Bold },
+            },
+            dpi);
+
+        Assert.True(
+            clip.Width >= expectedWidth - 0.5F,
+            $"The generated clip width {clip.Width.ToString(CultureInfo.InvariantCulture)} is narrower than the PDFsharp text width {expectedWidth.ToString(CultureInfo.InvariantCulture)}.");
+    }
+
+    [Fact]
+    public async Task PdfSharpLegacyRendererDoesNotUseSkiaMetricsForNarrowRightAlignedCell()
+    {
+        if (!HasCalibriRegularAndBold())
+            return;
+
+        const string title = "Ausgangslieferrechnung";
+        var services = new ServiceCollection();
+        services.AddPapercraft();
+        services.AddPapercraftPdfSharpRenderer();
+        await using var provider = services.BuildServiceProvider();
+        var renderer = new PapercraftRenderer(
+            provider.GetRequiredService<PapercraftGenerator>(),
+            provider.GetServices<IPapercraftRenderBackend>());
+        await using var stream = new MemoryStream();
+        using var reader = XmlReader.Create(new StringReader(CreateNarrowRightAlignedCellTemplate(title)));
+
+        await renderer.GeneratePdfAsync(
+            stream,
+            reader,
+            CultureInfo.InvariantCulture,
+            new PapercraftRenderOptions
+            {
+                BackendId = PdfSharpRenderBackend.RendererId,
+                DocumentOptions = new DocumentOptions
+                {
+                    DotsPerInch = 600F,
+                    PageWidthInMillimeters = 210F,
+                    PageHeightInMillimeters = 297F,
+                    Margin = new Thickness(98, 78, 78, 78),
+                },
+            });
+
+        var content = GetFirstPagePdfContent(stream.ToArray());
+
+        Assert.DoesNotContain($"({title}) Tj", content, StringComparison.Ordinal);
+        Assert.Contains("(Ausgang", content, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -416,6 +500,95 @@ public sealed class PapercraftAdditionalBackendTests
         return Encoding.ASCII.GetString(bytes);
     }
 
+    private static string GetFirstPagePdfContent(byte[] pdfBytes)
+    {
+        using var stream = new MemoryStream(pdfBytes);
+        using var document = PdfReader.Open(stream, PdfDocumentOpenMode.Modify);
+        return GetPdfContent(document.Pages[0]);
+    }
+
+    private static DisplayRectangle FindClipBeforeText(string content, string text)
+    {
+        var textIndex = content.IndexOf($"({text}) Tj", StringComparison.Ordinal);
+        Assert.True(textIndex >= 0, $"The generated PDF content did not contain '{text}'.");
+
+        var precedingContent = content[..textIndex];
+        var clips = MatchPathClips(precedingContent)
+            .Concat(MatchRectangleClips(precedingContent))
+            .OrderBy((q) => q.Index)
+            .ToArray();
+        Assert.NotEmpty(clips);
+        return clips[^1].Rectangle;
+    }
+
+    private static IEnumerable<(int Index, DisplayRectangle Rectangle)> MatchPathClips(string content)
+    {
+        const string number = @"-?\d+(?:\.\d+)?";
+        var pattern =
+            $@"(?<x1>{number})\s+(?<y1>{number})\s+m\s+" +
+            $@"(?<x2>{number})\s+(?<y2>{number})\s+l\s+" +
+            $@"(?<x3>{number})\s+(?<y3>{number})\s+l\s+" +
+            $@"(?<x4>{number})\s+(?<y4>{number})\s+l\s+h\s+W\* n";
+        foreach (Match match in Regex.Matches(content, pattern))
+        {
+            var xs = new[]
+            {
+                ParseFloat(match.Groups["x1"].Value),
+                ParseFloat(match.Groups["x2"].Value),
+                ParseFloat(match.Groups["x3"].Value),
+                ParseFloat(match.Groups["x4"].Value),
+            };
+            var ys = new[]
+            {
+                ParseFloat(match.Groups["y1"].Value),
+                ParseFloat(match.Groups["y2"].Value),
+                ParseFloat(match.Groups["y3"].Value),
+                ParseFloat(match.Groups["y4"].Value),
+            };
+            yield return (
+                match.Index,
+                new DisplayRectangle(
+                    xs.Min(),
+                    ys.Min(),
+                    xs.Max() - xs.Min(),
+                    ys.Max() - ys.Min()));
+        }
+    }
+
+    private static IEnumerable<(int Index, DisplayRectangle Rectangle)> MatchRectangleClips(string content)
+    {
+        const string number = @"-?\d+(?:\.\d+)?";
+        var pattern = $@"(?<x>{number})\s+(?<y>{number})\s+(?<width>{number})\s+(?<height>{number})\s+re\s+W\* n";
+        foreach (Match match in Regex.Matches(content, pattern))
+        {
+            yield return (
+                match.Index,
+                new DisplayRectangle(
+                    ParseFloat(match.Groups["x"].Value),
+                    ParseFloat(match.Groups["y"].Value),
+                    ParseFloat(match.Groups["width"].Value),
+                    ParseFloat(match.Groups["height"].Value)));
+        }
+    }
+
+    private static float MeasurePdfSharpWidth(string text, TextStyle textStyle, float dpi)
+    {
+        using var graphics = PdfSharpFontHelper.CreateMeasureContext();
+        var font = PdfSharpFontHelper.CreateFont(textStyle, dpi);
+        return (float)graphics.MeasureString(text, font).Width;
+    }
+
+    private static float ParseFloat(string value)
+        => float.Parse(value, CultureInfo.InvariantCulture);
+
+    private static bool HasCalibriRegularAndBold()
+    {
+        var fontsDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "Fonts");
+        return OperatingSystem.IsWindows()
+               && File.Exists(Path.Combine(fontsDirectory, "calibri.ttf"))
+               && File.Exists(Path.Combine(fontsDirectory, "calibrib.ttf"));
+    }
+
     private static IReadOnlyCollection<string> ExtractBaseFontNames(byte[] pdfBytes)
     {
         var pdfText = Encoding.Latin1.GetString(pdfBytes);
@@ -459,6 +632,44 @@ public sealed class PapercraftAdditionalBackendTests
                </body>
            </template>
            """;
+
+    private static string CreateRightAlignedHeaderTemplate(string title)
+        => $$"""
+             <?xml version="1.0" encoding="utf-8"?>
+             <template xmlns="X39.Solutions.PdfTemplate.Controls">
+                 <header>
+                     <text fontFamily="Calibri" fontSize="12" weight="bold" horizontalAlignment="right">{{title}}</text>
+                 </header>
+                 <body>
+                     <text>Body</text>
+                 </body>
+             </template>
+             """;
+
+    private static string CreateNarrowRightAlignedCellTemplate(string title)
+        => $$"""
+             <?xml version="1.0" encoding="utf-8"?>
+             <template xmlns="X39.Solutions.PdfTemplate.Controls">
+                 <template.style>
+                     <text fontFamily="Calibri" fontSize="9"/>
+                 </template.style>
+                 <areas>
+                     <area left="125mm" top="32mm" width="70mm" height="50mm">
+                         <table>
+                             <tr>
+                                 <td width="1*"/>
+                                 <td width="1*">
+                                     <text fontSize="12" weight="bold" foreground="#00695C" horizontalAlignment="right">{{title}}</text>
+                                 </td>
+                             </tr>
+                         </table>
+                     </area>
+                 </areas>
+                 <body>
+                     <text>Body</text>
+                 </body>
+             </template>
+             """;
 
     private static string CreateMissingFontTemplate()
         => """

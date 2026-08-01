@@ -580,6 +580,41 @@ public sealed class PapercraftTests
     }
 
     [Fact]
+    public async Task LegacyRenderAsyncUsesSelectedRendererTextService()
+    {
+        var registeredTextService = new RecordingTextService("registered", throwOnUse: true);
+        var skippedTextService = new RecordingTextService("skipped", throwOnUse: true);
+        var selectedTextService = new RecordingTextService("selected");
+        var skipped = new RecordingRenderer("skipped", textService: skippedTextService);
+        var selected = new RecordingRenderer("selected", textService: selectedTextService);
+        var services = new ServiceCollection();
+        services.AddPapercraftCore();
+        services.AddSingleton<ITextService>(registeredTextService);
+        services.AddSingleton<IPapercraftRenderBackend>(skipped);
+        services.AddSingleton<IPapercraftRenderBackend>(selected);
+        await using var serviceProvider = services.BuildServiceProvider();
+        var renderer = new PapercraftRenderer(
+            serviceProvider.GetRequiredService<PapercraftGenerator>(),
+            serviceProvider.GetServices<IPapercraftRenderBackend>());
+        using var reader = CreateReader("<text>Hello selected legacy backend</text>");
+        using var output = new MemoryStream();
+
+        await renderer.RenderAsync(
+            reader,
+            new RenderOutput(PapercraftMediaTypes.ApplicationPdf, output),
+            CultureInfo.InvariantCulture,
+            new PapercraftRenderOptions { BackendId = "selected" });
+
+        Assert.Equal(0, registeredTextService.MeasureCount);
+        Assert.Equal(0, registeredTextService.DrawCount);
+        Assert.Equal(0, skippedTextService.MeasureCount);
+        Assert.Equal(0, skippedTextService.DrawCount);
+        Assert.True(selectedTextService.MeasureCount > 0);
+        Assert.True(selectedTextService.DrawCount > 0);
+        Assert.Equal(1, selected.RenderCount);
+    }
+
+    [Fact]
     public async Task RenderRasterPagesAsyncSelectsRasterRendererAndWritesPage()
     {
         var first = new RecordingRenderer("pdf", throwOnValidate: true);

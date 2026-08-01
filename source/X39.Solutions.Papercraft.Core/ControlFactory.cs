@@ -1,5 +1,6 @@
 using X39.Solutions.Papercraft.Abstraction;
 using X39.Solutions.Papercraft.Services;
+using X39.Solutions.Papercraft.Services.TextService;
 
 namespace X39.Solutions.Papercraft;
 
@@ -51,5 +52,38 @@ public sealed class ControlFactory : IControlFactory
             parameterDictionary,
             content,
             cultureInfo);
+    }
+
+    internal ControlFactory WithTextService(ITextService textService)
+    {
+        ArgumentNullException.ThrowIfNull(textService);
+        return new ControlFactory(
+            new TextServiceOverrideProvider(_serviceProvider, textService),
+            _controlActivationCache,
+            _controlRegistry);
+    }
+
+    private sealed class TextServiceOverrideProvider : IServiceProvider
+    {
+        private readonly IServiceProvider _serviceProvider;
+        private readonly ITextService _textService;
+
+        public TextServiceOverrideProvider(IServiceProvider serviceProvider, ITextService textService)
+        {
+            ArgumentNullException.ThrowIfNull(serviceProvider);
+            ArgumentNullException.ThrowIfNull(textService);
+            _serviceProvider = serviceProvider;
+            _textService = textService;
+        }
+
+        public object? GetService(Type serviceType)
+        {
+            ArgumentNullException.ThrowIfNull(serviceType);
+            if (serviceType == typeof(ITextService))
+                return _textService;
+            if (serviceType == typeof(IServiceProvider))
+                return this;
+            return _serviceProvider.GetService(serviceType);
+        }
     }
 }

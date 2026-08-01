@@ -339,7 +339,8 @@ internal sealed class PapercraftRenderPipeline
         IPapercraftRenderBackend backend,
         CancellationToken cancellationToken)
     {
-        var controlFactory = _createControlFactory?.Invoke(backend);
+        var controlFactory = _createControlFactory?.Invoke(backend)
+                             ?? _generator.CreateTextServiceScopedControlFactory(backend.TextService);
         return controlFactory is null
             ? await _generator.GenerateAsync(reader, cultureInfo, documentOptions, cancellationToken)
                 .ConfigureAwait(false)

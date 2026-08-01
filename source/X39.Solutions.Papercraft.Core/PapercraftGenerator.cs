@@ -4,6 +4,7 @@ using X39.Solutions.Papercraft.Abstraction;
 using X39.Solutions.Papercraft.Canvas;
 using X39.Solutions.Papercraft.Data;
 using X39.Solutions.Papercraft.Functions;
+using X39.Solutions.Papercraft.Services.TextService;
 using X39.Solutions.Papercraft.Xml;
 
 namespace X39.Solutions.Papercraft;
@@ -122,6 +123,14 @@ public sealed class PapercraftGenerator : IDisposable, IAsyncDisposable
             PapercraftActivity.SetError(activity, ex);
             throw;
         }
+    }
+
+    internal IControlFactory? CreateTextServiceScopedControlFactory(ITextService textService)
+    {
+        ArgumentNullException.ThrowIfNull(textService);
+        return _controlFactory is ControlFactory controlFactory
+            ? controlFactory.WithTextService(textService)
+            : null;
     }
 
     /// <summary>
