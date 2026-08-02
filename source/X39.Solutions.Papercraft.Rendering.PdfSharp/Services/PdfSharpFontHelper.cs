@@ -38,9 +38,6 @@ internal static class PdfSharpFontHelper
         return Math.Max(1D, normalized);
     }
 
-    public static double GetLineHeight(TextStyle textStyle, float dpi)
-        => GetFontSize(textStyle.FontSize, dpi) * Math.Max(0.1F, textStyle.LineHeight);
-
     public static double GetHorizontalScale(float scale)
         => Math.Abs(scale);
 

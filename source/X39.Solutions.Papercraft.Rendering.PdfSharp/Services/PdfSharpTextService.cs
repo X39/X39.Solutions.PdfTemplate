@@ -14,7 +14,7 @@ internal sealed class PdfSharpTextService : ITextLayoutService
             ? Size.Zero
             : new Size(
                 layout.Max((q) => q.Width),
-                layout.Count * (float) PdfSharpFontHelper.GetLineHeight(textStyle, dpi));
+                layout[^1].Top + layout[^1].Height);
     }
 
     public void Draw(IDrawableCanvas canvas, TextStyle textStyle, float dpi, ReadOnlySpan<char> text, float maxWidth)
@@ -30,19 +30,22 @@ internal sealed class PdfSharpTextService : ITextLayoutService
     {
         using var graphics = PdfSharpFontHelper.CreateMeasureContext();
         var font = PdfSharpFontHelper.CreateFont(textStyle, dpi);
-        var fontSize = (float) PdfSharpFontHelper.GetFontSize(textStyle.FontSize, dpi);
-        var lineHeight = (float) PdfSharpFontHelper.GetLineHeight(textStyle, dpi);
+        var fontHeight = (float) font.GetHeight();
+        var baselineOffset = font.CellSpace > 0
+            ? fontHeight * font.CellAscent / font.CellSpace
+            : (float) PdfSharpFontHelper.GetFontSize(textStyle.FontSize, dpi);
+        var lineAdvance = fontHeight * Math.Max(0.1F, textStyle.LineHeight);
         var lines = LayoutLines(graphics, font, textStyle, text, maxWidth);
         var result = new TextLineLayout[lines.Count];
         for (var i = 0; i < lines.Count; i++)
         {
-            var baselineY = fontSize + i * lineHeight;
+            var lineTop = i * lineAdvance;
             result[i] = new TextLineLayout(
                 lines[i],
                 0F,
-                baselineY,
-                i * lineHeight,
-                lineHeight,
+                lineTop + baselineOffset,
+                lineTop,
+                fontHeight,
                 MeasureLine(graphics, font, textStyle, lines[i]));
         }
 

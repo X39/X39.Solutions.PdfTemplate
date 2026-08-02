@@ -59,6 +59,41 @@ public sealed class PdfSharpTextServiceTests
     }
 
     [Fact]
+    public void MeasureUsesFullPdfSharpFontHeightIncludingDescent()
+    {
+        var textService = new PdfSharpTextService();
+        var textStyle = CreateTextStyleWithTestFont();
+        var font = PdfSharpFontHelper.CreateFont(textStyle, Dpi);
+        var expectedHeight = (float) font.GetHeight();
+
+        var measured = textService.Measure(textStyle, Dpi, "glyph".AsSpan(), float.MaxValue);
+        var layout = Assert.Single(textService.Layout(textStyle, Dpi, "glyph".AsSpan(), float.MaxValue));
+
+        Assert.Equal(expectedHeight, measured.Height, 3);
+        Assert.Equal(expectedHeight, layout.Height, 3);
+        Assert.Equal(0F, layout.Top);
+        Assert.True(layout.BaselineY < layout.Height);
+        Assert.True(layout.BaselineY > 0F);
+    }
+
+    [Fact]
+    public void MeasureAppliesLineHeightToBaselineAdvanceWithoutClippingLastLine()
+    {
+        var textService = new PdfSharpTextService();
+        var textStyle = CreateTextStyleWithTestFont() with { LineHeight = 0.5F };
+        var font = PdfSharpFontHelper.CreateFont(textStyle, Dpi);
+        var fontHeight = (float) font.GetHeight();
+
+        var measured = textService.Measure(textStyle, Dpi, "first\nsecond".AsSpan(), float.MaxValue);
+        var layout = textService.Layout(textStyle, Dpi, "first\nsecond".AsSpan(), float.MaxValue);
+
+        Assert.Equal(2, layout.Count);
+        Assert.Equal(fontHeight * 1.5F, measured.Height, 3);
+        Assert.Equal(fontHeight * 0.5F, layout[1].Top, 3);
+        Assert.Equal(fontHeight, layout[1].Height, 3);
+    }
+
+    [Fact]
     public void LayoutAtHighDpiWrapsByMeasuredWidthInsteadOfCharacterCount()
     {
         var textService = new PdfSharpTextService();
