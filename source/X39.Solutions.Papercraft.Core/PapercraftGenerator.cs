@@ -308,7 +308,7 @@ public sealed class PapercraftGenerator : IDisposable, IAsyncDisposable
             cultureInfo);
         }
 
-        var bodyCanvas = CreateLayerCanvas(layout.OriginalPageSize, layout.PageSize);
+        var bodyCanvas = CreateLayerCanvas(layout.OriginalPageSize, layout.BodyPageSize);
         var desiredBodyHeight = layout.BodySizes.Sum((q) => q.Height);
         using (StartLayerActivity("body"))
         {

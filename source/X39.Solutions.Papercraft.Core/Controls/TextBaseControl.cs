@@ -234,7 +234,7 @@ public abstract class TextBaseControl : AlignableControl
 
         var additionalHeight = CalculatePaginationAdditionalHeight(
             canvas.Translation.Y + ArrangementInner.Top,
-            parentSize.Height,
+            GetPaginationPageHeight(canvas, parentSize),
             layout);
         return new Size(
             baseAdditionalSize.Width,
@@ -244,8 +244,11 @@ public abstract class TextBaseControl : AlignableControl
     /// <inheritdoc />
     protected override Size DoRender(IDeferredCanvas canvas, float dpi, in Size parentSize, CultureInfo cultureInfo)
     {
-        return RenderText(canvas, dpi, GetText().Trim(), parentSize.Height);
+        return RenderText(canvas, dpi, GetText().Trim(), GetPaginationPageHeight(canvas, parentSize));
     }
+
+    private static float GetPaginationPageHeight(IDeferredCanvas canvas, in Size parentSize)
+        => canvas.PageSize.Height > 0F ? canvas.PageSize.Height : parentSize.Height;
 
     /// <summary>
     /// Renders the specified text on a drawable canvas with the specified text style settings.

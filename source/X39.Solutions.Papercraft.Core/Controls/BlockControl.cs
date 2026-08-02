@@ -69,16 +69,17 @@ public sealed class BlockControl : AlignableContentControl
     protected override Size PreRender(IDeferredCanvas canvas, float dpi, in Size parentSize, CultureInfo cultureInfo)
     {
         var baseAdditionalSize = base.PreRender(canvas, dpi, parentSize, cultureInfo);
+        var pageHeight = canvas.PageSize.Height > 0F ? canvas.PageSize.Height : parentSize.Height;
         _preRenderAdditionalHeight = CalculatePageBreakAdditionalHeight(
             canvas,
-            parentSize.Height,
+            pageHeight,
             PageBreakBefore);
         if (_preRenderAdditionalHeight > 0F)
             canvas.Translate(0F, _preRenderAdditionalHeight);
 
         var keepTogetherAdditionalHeight = CalculateKeepTogetherAdditionalHeight(
             canvas,
-            parentSize.Height,
+            pageHeight,
             ArrangementOuter.Height);
         if (keepTogetherAdditionalHeight > 0F)
         {
@@ -152,6 +153,7 @@ public sealed class BlockControl : AlignableContentControl
         CultureInfo cultureInfo,
         bool renderBackground)
     {
+        var pageHeight = canvas.PageSize.Height > 0F ? canvas.PageSize.Height : parentSize.Height;
         if (renderBackground)
             RenderBackground(canvas);
 
@@ -167,7 +169,7 @@ public sealed class BlockControl : AlignableContentControl
 
         var pageBreakAfterAdditionalHeight = CalculatePageBreakAdditionalHeight(
             canvas,
-            parentSize.Height,
+            pageHeight,
             PageBreakAfter);
         if (pageBreakAfterAdditionalHeight > 0F)
         {

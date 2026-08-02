@@ -289,7 +289,7 @@ public sealed class TableControl : AlignableContentControl
         var additionalHeight = 0F;
         var headers          = Children.OfType<TableHeaderControl>().ToArray();
         var rows             = Children.OfType<TableRowControl>().ToArray();
-        var pageHeight       = FramedSize.Height > 0F ? FramedSize.Height : parentSize.Height;
+        var pageHeight       = canvas.PageSize.Height > 0F ? canvas.PageSize.Height : parentSize.Height;
 
         if (ShouldMoveInitialHeadersWithFirstRow(
                 canvas,

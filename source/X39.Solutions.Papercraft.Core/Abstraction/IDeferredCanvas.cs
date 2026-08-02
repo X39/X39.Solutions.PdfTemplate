@@ -16,10 +16,11 @@ public interface IDeferredCanvas : IDrawableCanvas
     Size ActualPageSize { get; }
 
     /// <summary>
-    /// The size of the page, including all margins.
+    /// The pageable size of the current canvas layer after margins and reserved regions are applied.
     /// </summary>
     /// <remarks>
-    /// For foreground and background layer, this is the same as <see cref="ActualPageSize"/>.
+    /// Controls use its height as the pagination boundary. For foreground and background layers,
+    /// this is the same as <see cref="ActualPageSize"/>.
     /// </remarks>
     Size PageSize { get; }
 

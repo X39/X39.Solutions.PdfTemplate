@@ -34,14 +34,15 @@ public sealed class PageBreakControl : AlignableControl
     /// <inheritdoc />
     protected override Size DoRender(IDeferredCanvas canvas, float dpi, in Size parentSize, CultureInfo cultureInfo)
     {
-        if (parentSize.Height <= 0)
+        var pageHeight = canvas.PageSize.Height > 0F ? canvas.PageSize.Height : parentSize.Height;
+        if (pageHeight <= 0)
             return Size.Zero;
 
-        var usedHeight = canvas.GetUsedPageHeight(parentSize.Height);
+        var usedHeight = canvas.GetUsedPageHeight(pageHeight);
         if (usedHeight <= PageBoundaryTolerance)
             return Size.Zero;
 
-        var remainingPageHeight = canvas.GetRemainingPageHeight(parentSize.Height);
+        var remainingPageHeight = canvas.GetRemainingPageHeight(pageHeight);
         return remainingPageHeight <= PageBoundaryTolerance
             ? Size.Zero
             : new Size(0F, remainingPageHeight);

@@ -79,6 +79,34 @@ public class TextControlTests : IDisposable
     }
 
     [Fact]
+    public void RenderUsesCanvasPageHeightInsteadOfContainerHeightForPagination()
+    {
+        var pageBounds = new Size(100, 100);
+        var containerBounds = new Size(100, 40);
+        var canvas = new DeferredCanvasMock{ActualPageSize = pageBounds, PageSize = pageBounds};
+        var control = new TextControl(
+            new FixedTextLayoutService(
+                lineHeight: 15F,
+                baselineOffset: 10F))
+        {
+            Text = "footer line",
+            HorizontalAlignment = EHorizontalAlignment.Left,
+            VerticalAlignment = EVerticalAlignment.Top,
+        };
+        var textStyle = control.GetTextStyle();
+        canvas.Translate(new Point(0F, 30F));
+
+        control.Measure(90, pageBounds, containerBounds, containerBounds, CultureInfo.InvariantCulture);
+        control.Arrange(90, pageBounds, containerBounds, containerBounds, CultureInfo.InvariantCulture);
+        var additionalSize = control.Render(canvas, 90, containerBounds, CultureInfo.InvariantCulture);
+
+        Assert.Equal(Size.Zero, additionalSize);
+        canvas.AssertState();
+        canvas.AssertClip(new Rectangle(0F, 30F, 10F, 15F));
+        canvas.AssertDrawText(textStyle, "footer line", 0F, 40F);
+    }
+
+    [Fact]
     public void RenderReusesArrangedLayoutForDeferredText()
     {
         var pageBounds = new Size(100, 100);
